@@ -1942,22 +1942,6 @@ function initFormValidation() {
             validateField(this);
         });
     });
-    
-    // Form submission
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        let isValid = true;
-        inputs.forEach(input => {
-            if (!validateField(input)) {
-                isValid = false;
-            }
-        });
-        
-        if (isValid) {
-            submitForm(this);
-        }
-    });
 }
 
 // Validate individual field
@@ -1991,57 +1975,6 @@ function validateField(field) {
     return true;
 }
 
-// Enhanced form submission with animation
-function submitForm(form) {
-    const submitBtn = document.getElementById('submitBtn');
-    const btnText = document.getElementById('btnText');
-    const btnLoader = document.getElementById('btnLoader');
-    const formMessage = document.getElementById('formMessage');
-    
-    // Show loading state
-    submitBtn.disabled = true;
-    btnText.classList.add('hidden');
-    btnLoader.classList.remove('hidden');
-    
-    // Add loading animation to button
-    submitBtn.classList.add('animate-pulse');
-    
-    // Simulate form submission (replace with actual submission logic)
-    setTimeout(() => {
-        // Hide loading state
-        submitBtn.disabled = false;
-        btnText.classList.remove('hidden');
-        btnLoader.classList.add('hidden');
-        submitBtn.classList.remove('animate-pulse');
-        
-        // Show success message
-        formMessage.innerHTML = `
-            <div class="p-4 bg-green-500/20 border border-green-500/30 rounded-lg backdrop-blur-sm">
-                <div class="flex items-center space-x-2 text-green-300">
-                    <svg class="w-5 h-5 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    <span>Message sent successfully! ✨</span>
-                </div>
-            </div>
-        `;
-        formMessage.classList.remove('hidden');
-        
-        // Clear form
-        form.reset();
-        
-        // Remove validation classes
-        document.querySelectorAll('.floating-input-group').forEach(group => {
-            group.classList.remove('field-valid', 'field-invalid');
-        });
-        
-        // Hide success message after 5 seconds
-        setTimeout(() => {
-            formMessage.classList.add('hidden');
-        }, 5000);
-        
-    }, 2000); // Simulate 2 second processing time
-}
 
 // Social link hover effects
 function initSocialLinkEffects() {

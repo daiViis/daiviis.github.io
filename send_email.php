@@ -48,8 +48,8 @@ try {
     $headers .= "Reply-To: " . $email . "\r\n";
     $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
     
-    // Try to send email
-    $success = @mail($to, $subject, $email_body, $headers);
+    // Try to send email (removed @ to see actual errors)
+    $success = mail($to, $subject, $email_body, $headers);
     
     if ($success) {
         echo json_encode([
@@ -61,7 +61,16 @@ try {
         if (!function_exists('mail')) {
             throw new Exception('Mail function not available on this server');
         }
-        throw new Exception('Failed to send email');
+        
+        // Get last error for better debugging
+        $last_error = error_get_last();
+        $error_message = 'Failed to send email';
+        
+        if ($last_error && strpos($last_error['message'], 'mail') !== false) {
+            $error_message .= ': ' . $last_error['message'];
+        }
+        
+        throw new Exception($error_message);
     }
     
 } catch (Exception $e) {
