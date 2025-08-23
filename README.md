@@ -10,7 +10,7 @@ This is a single-page portfolio website built with vanilla web technologies. The
 
 - **Responsive Design**: Optimized for desktop, tablet, and mobile devices
 - **Animated Background**: Dynamic code typing animation in the background
-- **Interactive Skills Display**: Neural network visualization for technical skills
+- **Interactive Skills Display**: Filterable skills arsenal with network visualization
 - **Contact Form System**: Multi-tier fallback email system
 - **Modern UI Elements**: Glassmorphism effects and smooth animations
 - **Performance Optimized**: Efficient rendering and minimal resource usage
@@ -21,16 +21,21 @@ The website consists of a single HTML page (`index.html`) with the following sec
 
 1. **Header Section**: Navigation menu and main title
 2. **Hero Section**: Introduction with animated background
-3. **Skills Section**: Interactive neural network visualization
+3. **Skills Section**: Interactive skills network with filterable arsenal display
 4. **Contact Section**: Multi-fallback contact form
 5. **Footer Section**: Additional links and information
+
+### Additional Pages
+
+- **Privacy Policy** (`privacy-policy.html`): Data handling and privacy information
+- **Terms of Service** (`terms-of-service.html`): Terms and conditions for website usage
 
 ## Contact Form Implementation
 
 The contact form implements a three-tier fallback system:
 
-1. **Primary**: PHP email handler (`send_email.php`) for web servers with PHP support
-2. **Secondary**: Netlify Forms integration for static hosting platforms
+1. **Primary**: EmailJS serverless email service for reliable delivery
+2. **Secondary**: PHP email handler (`send_email.php`) for web servers with PHP support
 3. **Fallback**: Mailto link that opens the user's default email client
 
 ## Development Setup
@@ -78,7 +83,7 @@ For platforms without PHP support:
 
 - **Netlify**: Drag-and-drop deployment with automatic form handling
 - **Vercel**: GitHub integration with automatic deployments
-- **GitHub Pages**: Repository-based hosting for static content
+- **GitHub Pages**: Repository-based hosting for static content (uses master branch)
 
 ## File Structure
 
@@ -86,11 +91,13 @@ For platforms without PHP support:
 david-cit/
 ├── index.html          # Main website page
 ├── script.js          # JavaScript functionality and animations
-├── send_email.php     # PHP email processing script
+├── send_email.php     # PHP email processing script (fallback)
 ├── server.py          # Local development server
 ├── test_email.php     # Email testing utility
+├── privacy-policy.html # Privacy policy page
+├── terms-of-service.html # Terms of service page
 ├── CLAUDE.md          # Development notes
-├── EMAILJS_SETUP.md   # Email service configuration
+├── EMAILJS_SETUP.md   # EmailJS service configuration
 └── README.md          # Project documentation
 ```
 
@@ -99,13 +106,13 @@ david-cit/
 - **Frontend**: Vanilla HTML5, CSS3, and JavaScript (ES6+)
 - **Styling Framework**: Tailwind CSS via CDN
 - **Animation System**: CSS keyframes with JavaScript timing control
-- **Email Processing**: PHP mail() function with fallback options
+- **Email Processing**: EmailJS serverless service with PHP mail() fallback
 - **Browser Support**: Modern browsers with ES6+ support
 - **Performance**: Optimized canvas rendering and GPU-accelerated effects
 
 ## Performance Considerations
 
-- The neural network visualization uses pre-calculated paths for optimal performance
+- The skills network visualization uses optimized rendering for smooth interactions
 - Blur effects are GPU-accelerated where browser support allows
 - Tailwind CSS is loaded via CDN for development; consider compiling for production
 - Form submissions include proper loading states and error handling
@@ -118,4 +125,4 @@ For questions about this project or collaboration opportunities:
 
 ---
 
-*Last updated: December 2024*
+*Last updated: August 2025*
