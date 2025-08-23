@@ -400,7 +400,10 @@ function applyDistanceBlur() {
 // Apply distance blur when page loads
 document.addEventListener('DOMContentLoaded', applyDistanceBlur);
 
-// PHP Contact Form Handler - Pure PHP, no external services!
+// EmailJS Contact Form Handler - Serverless email functionality
+// Initialize EmailJS
+emailjs.init("ZugXXK1wLfdxOGV0b");
+
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('contactForm');
     const submitBtn = document.getElementById('submitBtn');
@@ -420,38 +423,39 @@ document.addEventListener('DOMContentLoaded', function() {
         // Get form data
         const formData = new FormData(form);
         
-        // Send email via PHP
-        fetch('send_email.php', {
-            method: 'POST',
-            body: formData
+        // Prepare EmailJS template parameters
+        const templateParams = {
+            from_name: formData.get('name'),
+            from_email: formData.get('email'),
+            message: formData.get('message')
+        };
+        
+        // Send email via EmailJS
+        emailjs.send('service_2uq6kt8', 'template_fryqiz8', templateParams)
+        .then(function(response) {
+            // Success message
+            formMessage.innerHTML = '<p class="text-green-400">✨ Message sent successfully! I\'ll get back to you soon.</p>';
+            formMessage.classList.remove('hidden');
+            
+            // Reset form
+            form.reset();
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Success message
-                formMessage.innerHTML = '<p class="text-green-400">✨ Message sent successfully! I\'ll get back to you soon.</p>';
-                formMessage.classList.remove('hidden');
-                
-                // Reset form
-                form.reset();
-            } else {
-                throw new Error(data.message || 'Failed to send message');
-            }
-        })
-        .catch(error => {
+        .catch(function(error) {
             console.log('Error:', error);
             
             // Error message
             let errorMsg = 'Failed to send message. ';
-            if (error.message.includes('Mail function not available')) {
-                errorMsg += 'Server mail not configured. ';
+            if (error.status === 400) {
+                errorMsg += 'Invalid email configuration. ';
+            } else if (error.status === 403) {
+                errorMsg += 'Service not authorized. ';
             }
             errorMsg += 'Please contact me directly at david.cit1999@gmail.com';
             
             formMessage.innerHTML = '<p class="text-red-400">❌ ' + errorMsg + '</p>';
             formMessage.classList.remove('hidden');
         })
-        .finally(() => {
+        .finally(function() {
             // Reset button state
             btnText.classList.remove('hidden');
             btnLoader.classList.add('hidden');
