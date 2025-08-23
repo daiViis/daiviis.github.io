@@ -400,11 +400,8 @@ function applyDistanceBlur() {
 // Apply distance blur when page loads
 document.addEventListener('DOMContentLoaded', applyDistanceBlur);
 
-// EmailJS Configuration - Works everywhere without server setup!
+// PHP Contact Form Handler - Pure PHP, no external services!
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize EmailJS - Replace with your public key
-    emailjs.init("iKMl8gJRkNm3LUuJg"); // This is a demo key, you'll get your own
-    
     const form = document.getElementById('contactForm');
     const submitBtn = document.getElementById('submitBtn');
     const btnText = document.getElementById('btnText');
@@ -421,44 +418,45 @@ document.addEventListener('DOMContentLoaded', function() {
         formMessage.classList.add('hidden');
         
         // Get form data
-        const templateParams = {
-            from_name: form.name.value,
-            from_email: form.email.value,
-            message: form.message.value,
-            to_email: 'david.cit1999@gmail.com'
-        };
+        const formData = new FormData(form);
         
-        // Send email via EmailJS
-        emailjs.send('service_gmail', 'template_contact', templateParams)
-            .then(function(response) {
-                console.log('SUCCESS!', response.status, response.text);
-                
+        // Send email via PHP
+        fetch('send_email.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
                 // Success message
                 formMessage.innerHTML = '<p class="text-green-400">✨ Message sent successfully! I\'ll get back to you soon.</p>';
                 formMessage.classList.remove('hidden');
                 
                 // Reset form
                 form.reset();
-                
-            }, function(error) {
-                console.log('FAILED...', error);
-                
-                // Error message with detailed info
-                let errorMsg = 'Failed to send message. ';
-                if (error.text && error.text.includes('Invalid')) {
-                    errorMsg += 'Service not configured properly. ';
-                }
-                errorMsg += 'Please contact me directly at david.cit1999@gmail.com';
-                
-                formMessage.innerHTML = '<p class="text-red-400">❌ ' + errorMsg + '</p>';
-                formMessage.classList.remove('hidden');
-            })
-            .finally(function() {
-                // Reset button state
-                btnText.classList.remove('hidden');
-                btnLoader.classList.add('hidden');
-                submitBtn.disabled = false;
-            });
+            } else {
+                throw new Error(data.message || 'Failed to send message');
+            }
+        })
+        .catch(error => {
+            console.log('Error:', error);
+            
+            // Error message
+            let errorMsg = 'Failed to send message. ';
+            if (error.message.includes('Mail function not available')) {
+                errorMsg += 'Server mail not configured. ';
+            }
+            errorMsg += 'Please contact me directly at david.cit1999@gmail.com';
+            
+            formMessage.innerHTML = '<p class="text-red-400">❌ ' + errorMsg + '</p>';
+            formMessage.classList.remove('hidden');
+        })
+        .finally(() => {
+            // Reset button state
+            btnText.classList.remove('hidden');
+            btnLoader.classList.add('hidden');
+            submitBtn.disabled = false;
+        });
     });
 });
 
@@ -596,39 +594,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeSkillsAnimations();
 });
 
-// Form submission handling
-const contactForm = document.querySelector('form');
-if (contactForm) {
-    contactForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        // Get form data
-        const formData = new FormData(contactForm);
-        const data = Object.fromEntries(formData);
-        
-        // Simple validation
-        if (!data.name || !data.email || !data.message) {
-            alert('Please fill in all fields!');
-            return;
-        }
-        
-        // Simulate form submission
-        const submitButton = contactForm.querySelector('button[type="submit"]');
-        const originalText = submitButton.textContent;
-        
-        submitButton.textContent = 'Sending Magic...';
-        submitButton.disabled = true;
-        
-        setTimeout(() => {
-            submitButton.textContent = 'Magic Sent! ✨';
-            setTimeout(() => {
-                submitButton.textContent = originalText;
-                submitButton.disabled = false;
-                contactForm.reset();
-            }, 2000);
-        }, 1500);
-    });
-}
 
 
 // Add scroll animations
@@ -1724,40 +1689,11 @@ document.addEventListener('DOMContentLoaded', () => {
         new HeroParticleSystem(heroCanvas);
     }
     
-    // Add scroll indicator
-    addScrollIndicator();
     
     // Initialize entrance animations
     initEntranceAnimations();
 });
 
-// Scroll Indicator
-function addScrollIndicator() {
-    const scrollIndicator = document.createElement('div');
-    scrollIndicator.className = 'fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 animate-bounce';
-    scrollIndicator.innerHTML = `
-        <div class="flex flex-col items-center text-white/60 hover:text-white/80 transition-colors duration-300 cursor-pointer">
-            <span class="text-sm font-light mb-2 tracking-wider">SCROLL</span>
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-            </svg>
-        </div>
-    `;
-    
-    // Add click handler to scroll to about section
-    scrollIndicator.addEventListener('click', () => {
-        document.getElementById('about').scrollIntoView({ behavior: 'smooth' });
-    });
-    
-    // Hide on scroll
-    window.addEventListener('scroll', () => {
-        const scrolled = window.pageYOffset > window.innerHeight * 0.2;
-        scrollIndicator.style.opacity = scrolled ? '0' : '1';
-        scrollIndicator.style.pointerEvents = scrolled ? 'none' : 'auto';
-    });
-    
-    document.body.appendChild(scrollIndicator);
-}
 
 // Enhanced Entrance Animations
 function initEntranceAnimations() {

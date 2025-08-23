@@ -6,7 +6,6 @@
     <title>David - Digital Magic Creator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     
     <!-- Google Fonts for Enhanced Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -375,7 +374,7 @@
     </a>
 
     <!-- Enhanced Glassmorphism Navigation with Progress Bar -->
-    <nav class="fixed top-0 left-0 w-full z-50 transition-all duration-500 nav-enhanced" id="mainNav" role="navigation" aria-label="Main navigation">
+    <nav class="fixed top-0 left-0 w-full z-[9999] transition-all duration-500 nav-enhanced" id="mainNav" role="navigation" aria-label="Main navigation">
         <!-- Scroll Progress Bar -->
         <div class="absolute top-0 left-0 h-1 bg-gradient-to-r from-accent-blue via-purple-500 to-pink-500 transition-all duration-300 ease-out" id="progressBar" style="width: 0%;"></div>
         
@@ -385,7 +384,7 @@
                 <div class="flex justify-between items-center">
                     <!-- Brand Logo (shows on scroll) -->
                     <div class="text-white font-bold text-xl opacity-0 transition-all duration-500 transform -translate-x-4" id="navBrand">
-                        <span class="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">David</span>
+                        <span class="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">Creating digital magic</span>
                     </div>
                     
                     <!-- Desktop Navigation -->
@@ -430,7 +429,7 @@
         </div>
         
         <!-- Mobile Menu Drawer -->
-        <div class="fixed top-0 right-0 h-full w-80 bg-black/95 backdrop-blur-xl border-l border-white/20 transform translate-x-full transition-all duration-500 ease-out md:hidden z-50" id="mobileMenu">
+        <div class="fixed top-0 right-0 h-full w-80 bg-black/95 backdrop-blur-xl border-l border-white/20 transform translate-x-full transition-all duration-500 ease-out md:hidden z-[9999]" id="mobileMenu">
             <div class="flex flex-col p-8 mt-20 space-y-6">
                 <a href="#hero" class="text-white hover:text-blue-400 transition-all duration-300 font-medium text-xl py-4 border-b border-white/10 mobile-nav-link hover:translate-x-2" data-section="hero">
                     <span class="flex items-center">
@@ -1349,14 +1348,6 @@
                             <span class="px-2 py-1 bg-cyan-500/20 text-cyan-300 text-xs rounded border border-cyan-500/30">Tailwind</span>
                         </div>
                     </div>
-                    
-                    <!-- Back to Top -->
-                    <button id="backToTop" class="group flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 rounded-lg text-blue-300 hover:from-blue-500/30 hover:to-purple-500/30 transition-all duration-300 hover:scale-105">
-                        <span class="text-sm">Back to Top</span>
-                        <svg class="w-4 h-4 transition-transform duration-300 group-hover:-translate-y-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
-                        </svg>
-                    </button>
                 </div>
             </div>
         </div>
