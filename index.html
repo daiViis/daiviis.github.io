@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>David - Digital Magic Creator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
+    <!-- Google Fonts for Enhanced Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                        'heading': ['Space Grotesk', 'system-ui', 'sans-serif'],
+                        'body': ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'Monaco', 'Consolas', 'monospace']
+                    },
+                    fontSize: {
+                        'xs': ['0.75rem', { lineHeight: '1.5' }],
+                        'sm': ['0.875rem', { lineHeight: '1.6' }],
+                        'base': ['1rem', { lineHeight: '1.7' }],
+                        'lg': ['1.125rem', { lineHeight: '1.7' }],
+                        'xl': ['1.25rem', { lineHeight: '1.7' }],
+                        '2xl': ['1.5rem', { lineHeight: '1.6' }],
+                        '3xl': ['1.875rem', { lineHeight: '1.5' }],
+                        '4xl': ['2.25rem', { lineHeight: '1.4' }],
+                        '5xl': ['3rem', { lineHeight: '1.3' }],
+                        '6xl': ['3.75rem', { lineHeight: '1.2' }],
+                        '7xl': ['4.5rem', { lineHeight: '1.1' }],
+                        '8xl': ['6rem', { lineHeight: '1' }],
+                        '9xl': ['8rem', { lineHeight: '1' }]
+                    },
+                    colors: {
+                        'accent-blue': '#3b82f6',
+                        'accent-gray': '#6b7280',
+                        'accent-light': '#9ca3af',
+                        'dark-bg': '#0a0a0a',
+                        'dark-card': '#1a1a1a',
+                        'dark-border': '#374151'
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                        'typing': 'typing 3.5s steps(40, end)',
+                        'blink': 'blink .75s step-end infinite',
+                        'move': 'move 20s ease-in-out infinite',
+                        'move-reverse': 'move-reverse 25s ease-in-out infinite',
+                        'pulse-slow': 'pulse-slow 8s ease-in-out infinite',
+                        'scroll-right': 'scroll-right 20s linear infinite',
+                        'scroll-left': 'scroll-left 20s linear infinite',
+                        'grid-flow': 'gridFlow 20s linear infinite',
+                        'particle-float': 'particleFloat 8s ease-in-out infinite',
+                        'neural-pulse': 'neuralPulse 2s ease-in-out infinite',
+                        'gradient-shift': 'gradientShift 4s linear infinite',
+                        'shake': 'shake 0.5s ease-in-out',
+                        'fade-in-up': 'fadeInUp 0.6s ease-out',
+                        'slide-in-left': 'slideInLeft 0.6s ease-out',
+                        'slide-in-right': 'slideInRight 0.6s ease-out',
+                        'expand-width': 'expandWidth 1s ease-out',
+                        'glow-pulse': 'glowPulse 2s ease-in-out infinite',
+                        'float-slow': 'floatSlow 8s ease-in-out infinite',
+                        'gradient-flow': 'gradientFlow 12s linear infinite',
+                        'smooth-gradient': 'smoothGradient 8s ease-in-out infinite'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-20px)' }
+                        },
+                        glow: {
+                            '0%': { boxShadow: '0 0 5px currentColor' },
+                            '100%': { boxShadow: '0 0 20px currentColor, 0 0 30px currentColor' }
+                        },
+                        typing: {
+                            '0%': { width: '0' },
+                            '100%': { width: '100%' }
+                        },
+                        blink: {
+                            '0%, 50%': { borderColor: 'transparent' },
+                            '51%, 100%': { borderColor: 'currentColor' }
+                        },
+                        move: {
+                            '0%': { transform: 'translateX(-100px) translateY(-50px) scale(1)' },
+                            '25%': { transform: 'translateX(200px) translateY(100px) scale(1.2)' },
+                            '50%': { transform: 'translateX(-50px) translateY(-100px) scale(0.8)' },
+                            '75%': { transform: 'translateX(150px) translateY(50px) scale(1.1)' },
+                            '100%': { transform: 'translateX(-100px) translateY(-50px) scale(1)' }
+                        },
+                        'move-reverse': {
+                            '0%': { transform: 'translateX(100px) translateY(50px) scale(1.1)' },
+                            '25%': { transform: 'translateX(-150px) translateY(-100px) scale(0.9)' },
+                            '50%': { transform: 'translateX(75px) translateY(125px) scale(1.3)' },
+                            '75%': { transform: 'translateX(-200px) translateY(-25px) scale(0.7)' },
+                            '100%': { transform: 'translateX(100px) translateY(50px) scale(1.1)' }
+                        },
+                        'pulse-slow': {
+                            '0%, 100%': { opacity: '0.3', transform: 'scale(1)' },
+                            '50%': { opacity: '0.6', transform: 'scale(1.2)' }
+                        },
+                        'scroll-right': {
+                            '0%': { transform: 'translateX(-100%)' },
+                            '100%': { transform: 'translateX(100%)' }
+                        },
+                        'scroll-left': {
+                            '0%': { transform: 'translateX(100%)' },
+                            '100%': { transform: 'translateX(-100%)' }
+                        },
+                        'gridFlow': {
+                            '0%': { backgroundPosition: '0px 0px, 0px 0px, 0px 0px, 0px 0px' },
+                            '100%': { backgroundPosition: '100px 100px, 100px 100px, 20px 20px, 20px 20px' }
+                        },
+                        'particleFloat': {
+                            '0%, 100%': { transform: 'translateY(0px) translateX(0px) scale(1)', opacity: '0.3' },
+                            '33%': { transform: 'translateY(-20px) translateX(10px) scale(1.1)', opacity: '0.6' },
+                            '66%': { transform: 'translateY(10px) translateX(-15px) scale(0.9)', opacity: '0.4' }
+                        },
+                        'neuralPulse': {
+                            '0%, 100%': { opacity: '0.2' },
+                            '50%': { opacity: '0.8' }
+                        },
+                        'gradientShift': {
+                            '0%': { backgroundPosition: '0% 50%' },
+                            '25%': { backgroundPosition: '50% 50%' },
+                            '50%': { backgroundPosition: '100% 50%' },
+                            '75%': { backgroundPosition: '150% 50%' },
+                            '100%': { backgroundPosition: '200% 50%' }
+                        },
+                        'gradientFlow': {
+                            '0%': { backgroundPosition: '0% 0%' },
+                            '25%': { backgroundPosition: '100% 0%' },
+                            '50%': { backgroundPosition: '100% 100%' },
+                            '75%': { backgroundPosition: '0% 100%' },
+                            '100%': { backgroundPosition: '0% 0%' }
+                        },
+                        'smoothGradient': {
+                            '0%': { backgroundPosition: '0% 50%' },
+                            '33%': { backgroundPosition: '100% 50%' },
+                            '66%': { backgroundPosition: '50% 100%' },
+                            '100%': { backgroundPosition: '0% 50%' }
+                        },
+                        'shake': {
+                            '0%, 100%': { transform: 'translateX(0)' },
+                            '10%, 30%, 50%, 70%, 90%': { transform: 'translateX(-2px)' },
+                            '20%, 40%, 60%, 80%': { transform: 'translateX(2px)' }
+                        },
+                        'fadeInUp': {
+                            '0%': { opacity: '0', transform: 'translateY(30px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        'slideInLeft': {
+                            '0%': { opacity: '0', transform: 'translateX(-30px)' },
+                            '100%': { opacity: '1', transform: 'translateX(0)' }
+                        },
+                        'slideInRight': {
+                            '0%': { opacity: '0', transform: 'translateX(30px)' },
+                            '100%': { opacity: '1', transform: 'translateX(0)' }
+                        },
+                        'expandWidth': {
+                            '0%': { width: '0%' },
+                            '100%': { width: '60%' }
+                        },
+                        'glowPulse': {
+                            '0%, 100%': { opacity: '0.3', transform: 'scale(1)', filter: 'blur(10px)' },
+                            '50%': { opacity: '0.8', transform: 'scale(1.1)', filter: 'blur(5px)' }
+                        },
+                        'floatSlow': {
+                            '0%, 100%': { transform: 'translateY(0px) translateX(0px)' },
+                            '25%': { transform: 'translateY(-15px) translateX(10px)' },
+                            '50%': { transform: 'translateY(0px) translateX(20px)' },
+                            '75%': { transform: 'translateY(15px) translateX(10px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Enhanced Visual Polish CSS -->
+    <style>
+        /* Enhanced glassmorphism effects */
+        .glass-morphism {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+        }
+        
+        /* Enhanced text selection */
+        ::selection {
+            background: rgba(59, 130, 246, 0.3);
+            color: white;
+        }
+        
+        ::-moz-selection {
+            background: rgba(59, 130, 246, 0.3);
+            color: white;
+        }
+        
+        /* Smooth transitions for all interactive elements */
+        * {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Enhanced button hover states */
+        button, .btn {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::before, .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.6s;
+        }
+        
+        button:hover::before, .btn:hover::before {
+            left: 100%;
+        }
+        
+        /* Enhanced form field states */
+        .floating-input-group.field-valid .floating-input {
+            border-color: #10b981;
+            box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.1);
+        }
+        
+        .floating-input-group.field-invalid .floating-input {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.1);
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        /* Magnetic cursor effect for interactive elements */
+        @media (hover: hover) {
+            .magnetic {
+                cursor: none;
+            }
+            
+            .magnetic::after {
+                content: '';
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 20px;
+                height: 20px;
+                background: rgba(59, 130, 246, 0.8);
+                border-radius: 50%;
+                pointer-events: none;
+                z-index: 9999;
+                mix-blend-mode: difference;
+                transition: transform 0.1s ease;
+            }
+        }
+        
+        /* Enhanced loading states */
+        @keyframes shimmer {
+            0% { background-position: -200px 0; }
+            100% { background-position: calc(200px + 100%) 0; }
+        }
+        
+        .shimmer {
+            background: linear-gradient(90deg, #f0f0f0 0%, #e0e0e0 20%, #f0f0f0 40%, #f0f0f0 100%);
+            background-size: 200px 100%;
+            animation: shimmer 1.5s linear infinite;
+        }
+        
+        /* Improved accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+        
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            .glass-morphism {
+                background: rgba(0, 0, 0, 0.9);
+                border: 2px solid white;
+            }
+        }
+        
+        /* Print styles */
+        @media print {
+            .no-print, nav, footer, button {
+                display: none !important;
+            }
+            
+            * {
+                background: white !important;
+                color: black !important;
+                text-shadow: none !important;
+                box-shadow: none !important;
+            }
+        }
+        
+        /* Enhanced Typography System */
+        body {
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Space Grotesk', system-ui, sans-serif;
+            font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+        
+        .font-mono, code, pre {
+            font-family: 'JetBrains Mono', Monaco, Consolas, monospace;
+            font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1, 'zero' 1;
+        }
+        
+        /* Fluid Typography */
+        .text-fluid-sm { font-size: clamp(0.875rem, 2vw, 1rem); }
+        .text-fluid-base { font-size: clamp(1rem, 2.5vw, 1.125rem); }
+        .text-fluid-lg { font-size: clamp(1.125rem, 3vw, 1.25rem); }
+        .text-fluid-xl { font-size: clamp(1.25rem, 3.5vw, 1.5rem); }
+        .text-fluid-2xl { font-size: clamp(1.5rem, 4vw, 2rem); }
+        .text-fluid-3xl { font-size: clamp(2rem, 5vw, 2.5rem); }
+        .text-fluid-4xl { font-size: clamp(2.5rem, 6vw, 3.5rem); }
+        .text-fluid-5xl { font-size: clamp(3rem, 7vw, 4.5rem); }
+        
+        /* Enhanced text contrast and readability */
+        .text-balance {
+            text-wrap: balance;
+        }
+        
+        .text-pretty {
+            text-wrap: pretty;
+        }
+    </style>
+</head>
+<body class="bg-dark-bg text-white overflow-x-hidden font-body">
+
+    <!-- Skip Navigation Link for Accessibility -->
+    <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:rounded-lg focus:shadow-lg transition-all duration-300">
+        Skip to main content
+    </a>
+
+    <!-- Enhanced Glassmorphism Navigation with Progress Bar -->
+    <nav class="fixed top-0 left-0 w-full z-50 transition-all duration-500 nav-enhanced" id="mainNav" role="navigation" aria-label="Main navigation">
+        <!-- Scroll Progress Bar -->
+        <div class="absolute top-0 left-0 h-1 bg-gradient-to-r from-accent-blue via-purple-500 to-pink-500 transition-all duration-300 ease-out" id="progressBar" style="width: 0%;"></div>
+        
+        <!-- Enhanced Glassmorphism Background -->
+        <div class="bg-black/40 backdrop-blur-xl border-b border-white/10 shadow-2xl">
+            <div class="max-w-6xl mx-auto px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <!-- Brand Logo (shows on scroll) -->
+                    <div class="text-white font-bold text-xl opacity-0 transition-all duration-500 transform -translate-x-4" id="navBrand">
+                        <span class="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">David</span>
+                    </div>
+                    
+                    <!-- Desktop Navigation -->
+                    <div class="hidden md:flex relative">
+                        <div class="flex space-x-8 bg-white/5 backdrop-blur-sm rounded-full px-8 py-3 border border-white/10 nav-container">
+                            <!-- Active indicator background -->
+                            <div class="absolute top-3 left-0 h-10 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full transition-all duration-500 ease-out nav-active-bg" style="width: 0; left: 0;"></div>
+                            
+                            <a href="#hero" class="group relative py-2 px-4 nav-link active" data-section="hero">
+                                <span class="text-white font-medium tracking-wider transition-all duration-300 group-hover:text-blue-400 relative z-10">THE MAGIC</span>
+                                <div class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 group-hover:w-full"></div>
+                            </a>
+
+                            <a href="#about" class="group relative py-2 px-4 nav-link" data-section="about">
+                                <span class="text-white font-medium tracking-wider transition-all duration-300 group-hover:text-blue-400 relative z-10">ABOUT</span>
+                                <div class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 group-hover:w-full"></div>
+                            </a>
+
+                            <a href="#skills" class="group relative py-2 px-4 nav-link" data-section="skills">
+                                <span class="text-white font-medium tracking-wider transition-all duration-300 group-hover:text-blue-400 relative z-10">ARSENAL</span>
+                                <div class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 group-hover:w-full"></div>
+                            </a>
+
+                            <a href="#contact" class="group relative py-2 px-4 nav-link" data-section="contact">
+                                <span class="text-white font-medium tracking-wider transition-all duration-300 group-hover:text-blue-400 relative z-10">CONTACT</span>
+                                <div class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 group-hover:w-full"></div>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Mobile Menu Button -->
+                    <button class="md:hidden bg-white/10 backdrop-blur-sm rounded-full p-3 border border-white/20 text-white hover:text-blue-400 transition-all duration-300 hover:scale-110" id="mobileMenuBtn">
+                        <svg class="w-6 h-6 transition-transform duration-300" id="menuIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                        <svg class="w-6 h-6 transition-transform duration-300 hidden" id="closeIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu Drawer -->
+        <div class="fixed top-0 right-0 h-full w-80 bg-black/95 backdrop-blur-xl border-l border-white/20 transform translate-x-full transition-all duration-500 ease-out md:hidden z-50" id="mobileMenu">
+            <div class="flex flex-col p-8 mt-20 space-y-6">
+                <a href="#hero" class="text-white hover:text-blue-400 transition-all duration-300 font-medium text-xl py-4 border-b border-white/10 mobile-nav-link hover:translate-x-2" data-section="hero">
+                    <span class="flex items-center">
+                        <span class="w-2 h-2 bg-blue-500 rounded-full mr-4 opacity-0 transition-opacity duration-300"></span>
+                        THE MAGIC
+                    </span>
+                </a>
+                <a href="#about" class="text-white hover:text-blue-400 transition-all duration-300 font-medium text-xl py-4 border-b border-white/10 mobile-nav-link hover:translate-x-2" data-section="about">
+                    <span class="flex items-center">
+                        <span class="w-2 h-2 bg-blue-500 rounded-full mr-4 opacity-0 transition-opacity duration-300"></span>
+                        ABOUT
+                    </span>
+                </a>
+                <a href="#skills" class="text-white hover:text-blue-400 transition-all duration-300 font-medium text-xl py-4 border-b border-white/10 mobile-nav-link hover:translate-x-2" data-section="skills">
+                    <span class="flex items-center">
+                        <span class="w-2 h-2 bg-blue-500 rounded-full mr-4 opacity-0 transition-opacity duration-300"></span>
+                        ARSENAL
+                    </span>
+                </a>
+                <a href="#contact" class="text-white hover:text-blue-400 transition-all duration-300 font-medium text-xl py-4 border-b border-white/10 mobile-nav-link hover:translate-x-2" data-section="contact">
+                    <span class="flex items-center">
+                        <span class="w-2 h-2 bg-blue-500 rounded-full mr-4 opacity-0 transition-opacity duration-300"></span>
+                        CONTACT
+                    </span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu Overlay -->
+        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-300 md:hidden z-40" id="mobileMenuOverlay"></div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main id="main" role="main">
+        <!-- Hero Section -->
+        <section id="hero" class="min-h-screen flex items-center justify-center relative overflow-hidden" role="banner" aria-label="Welcome section" style="background: linear-gradient(-45deg, #0a0a0a, #1a1529, #2d1b69, #1e1b4b, #312e81, #1a1529, #0a0a0a); background-size: 400% 400%; animation: gradientFlow 15s ease-in-out infinite;">
+
+        <!-- Animated Gradient Mesh Background -->
+        <div class="absolute inset-0 overflow-hidden">
+            <!-- Primary Gradient Orbs -->
+            <div class="absolute top-20 left-20 w-96 h-96 rounded-full blur-3xl animate-float-slow opacity-60" style="background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, rgba(59, 130, 246, 0.1) 50%, transparent 100%); animation-delay: 0s;"></div>
+            <div class="absolute bottom-32 right-20 w-80 h-80 rounded-full blur-3xl animate-float-slow opacity-70" style="background: radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, rgba(139, 92, 246, 0.15) 50%, transparent 100%); animation-delay: 3s;"></div>
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full blur-3xl animate-float-slow opacity-50" style="background: radial-gradient(circle, rgba(6, 182, 212, 0.25) 0%, rgba(6, 182, 212, 0.1) 50%, transparent 100%); animation-delay: 6s;"></div>
+            <div class="absolute top-10 right-1/3 w-64 h-64 rounded-full blur-3xl animate-float-slow opacity-55" style="background: radial-gradient(circle, rgba(236, 72, 153, 0.3) 0%, rgba(236, 72, 153, 0.1) 50%, transparent 100%); animation-delay: 2s;"></div>
+            
+            <!-- Animated Noise Texture -->
+            <div class="absolute inset-0 opacity-30" style="background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.1) 1px, transparent 0); background-size: 20px 20px; animation: move 20s linear infinite;"></div>
+        </div>
+
+        <!-- Interactive Particle Field -->
+        <canvas id="heroParticles" class="absolute inset-0 pointer-events-none" width="1920" height="1080"></canvas>
+
+        <!-- Modern Glass Code Cards -->
+        <div class="absolute inset-0 overflow-hidden opacity-80">
+            <!-- Glass Code Card 1 -->
+            <div class="absolute glass-morphism rounded-lg p-4 max-w-xs animate-float" style="top: 12%; left: 8%; animation-delay: 0s;">
+                <div id="codeLine1" class="text-green-400 font-mono text-sm"></div>
+            </div>
+            
+            <!-- Glass Code Card 2 -->
+            <div class="absolute glass-morphism rounded-lg p-4 max-w-xs animate-float" style="top: 20%; right: 10%; animation-delay: 2s;">
+                <div id="codeLine2" class="text-blue-300 font-mono text-sm"></div>
+            </div>
+            
+            <!-- Glass Code Card 3 -->
+            <div class="absolute glass-morphism rounded-lg p-4 max-w-xs animate-float" style="top: 65%; left: 12%; animation-delay: 4s;">
+                <div id="codeLine3" class="text-purple-300 font-mono text-sm"></div>
+            </div>
+            
+            <!-- Glass Code Card 4 -->
+            <div class="absolute glass-morphism rounded-lg p-4 max-w-xs animate-float" style="top: 72%; right: 8%; animation-delay: 1s;">
+                <div id="codeLine4" class="text-cyan-400 font-mono text-sm"></div>
+            </div>
+
+            <!-- Modern Floating Symbols -->
+            <div class="absolute text-4xl lg:text-5xl animate-float opacity-60" style="top: 25%; right: 5%; color: #3b82f6; animation-delay: 0s; filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5));">
+                ⚡
+            </div>
+            <div class="absolute text-3xl lg:text-4xl animate-float opacity-50" style="top: 45%; left: 5%; color: #8b5cf6; animation-delay: 3s; filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.5));">
+                ✨
+            </div>
+            <div class="absolute text-5xl lg:text-6xl animate-float opacity-40" style="top: 15%; left: 50%; color: #06b6d4; animation-delay: 1.5s; filter: drop-shadow(0 0 15px rgba(6, 182, 212, 0.4));">
+                🚀
+            </div>
+        </div>
+
+        <!-- Hero Content -->
+        <div class="relative z-[200] text-center max-w-5xl mx-auto px-6">
+            <!-- Enhanced Typography with Split Text Animation -->
+            <div class="mb-8">
+                <h1 class="text-4xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-bold leading-tight font-heading">
+                    <!-- First Line with Split Animation -->
+                    <div class="block mb-4 overflow-hidden">
+                        <span class="block text-white animate-fade-in-up opacity-0" style="animation-delay: 0.2s; animation-fill-mode: forwards; text-shadow: 0 0 40px rgba(255, 255, 255, 0.1);">
+                            I Turn Ideas Into
+                        </span>
+                    </div>
+                    
+                    <!-- Dramatic "Digital Magic" with Enhanced Effects -->
+                    <div class="block relative z-[100]" style="padding: 20px 0;">
+                        <span class="block bg-gradient-to-r from-blue-400 via-purple-500 via-cyan-400 via-pink-400 to-blue-400 bg-clip-text text-transparent animate-fade-in-up opacity-0 relative z-[999]" 
+                              style="animation-delay: 0.6s; animation-fill-mode: forwards; background-size: 400% 400%; animation: fadeInUp 0.8s ease-out 0.6s forwards, smoothGradient 10s ease-in-out infinite; filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.3)); position: relative; line-height: 1.1; padding: 10px 0;">
+                            Digital Magic
+                        </span>
+                        <!-- Animated Underline -->
+                        <div class="absolute left-1/2 transform -translate-x-1/2 w-0 h-1 opacity-0 z-[998]" 
+                             style="bottom: 15px; background: linear-gradient(90deg, rgba(59, 130, 246, 0.8) 0%, rgba(139, 92, 246, 0.8) 33%, rgba(6, 182, 212, 0.8) 66%, rgba(236, 72, 153, 0.8) 100%); background-size: 300% 100%; animation: fadeInUp 0.6s ease-out 1.2s forwards, expandWidth 1s ease-out 1.2s forwards, smoothGradient 8s ease-in-out infinite;"></div>
+                    </div>
+                </h1>
+            </div>
+            
+            <!-- Enhanced Tagline -->
+            <div class="mb-12 overflow-hidden">
+                <p class="text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-300 font-light animate-fade-in-up opacity-0 relative" 
+                   style="animation-delay: 1s; animation-fill-mode: forwards; text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);">
+                    <span class="bg-gradient-to-r from-gray-300 via-white via-blue-200 to-gray-300 bg-clip-text text-transparent" style="background-size: 300% 100%; animation: smoothGradient 12s ease-in-out infinite;">
+                        Where Code Meets Creativity
+                    </span>
+                    <!-- Subtle Glow Effect -->
+                    <span class="absolute inset-0 bg-gradient-to-r from-transparent via-blue-400/10 to-transparent blur-xl animate-glow-pulse"></span>
+                </p>
+            </div>
+            
+            <!-- Modern CTA Buttons with Gradient Borders -->
+            <div class="flex flex-col sm:flex-row gap-6 justify-center animate-fade-in-up opacity-0" style="animation-delay: 1.4s; animation-fill-mode: forwards;">
+                <!-- Primary CTA with Animated Border -->
+                <div class="relative group">
+                    <div class="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 blur-sm" style="background: linear-gradient(45deg, rgba(59, 130, 246, 0.6) 0%, rgba(139, 92, 246, 0.6) 25%, rgba(6, 182, 212, 0.6) 50%, rgba(236, 72, 153, 0.6) 75%, rgba(59, 130, 246, 0.6) 100%); background-size: 300% 300%; animation: smoothGradient 8s ease-in-out infinite;"></div>
+                    <a href="#about" class="relative px-10 py-5 rounded-full text-white font-bold hover:scale-105 transition-all duration-300 inline-flex items-center justify-center group overflow-hidden" style="background: linear-gradient(45deg, rgba(59, 130, 246, 0.9) 0%, rgba(139, 92, 246, 0.9) 33%, rgba(6, 182, 212, 0.9) 66%, rgba(59, 130, 246, 0.9) 100%); background-size: 300% 300%; animation: smoothGradient 12s ease-in-out infinite;">
+                        <span class="relative z-10 flex items-center gap-3">
+                            See The Magic
+                            <svg class="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                            </svg>
+                        </span>
+                        <!-- Button Shine Effect -->
+                        <div class="absolute inset-0 -left-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:left-full transition-all duration-700 skew-x-12"></div>
+                    </a>
+                </div>
+                
+                <!-- Secondary CTA with Glass Morphism -->
+                <div class="relative group">
+                    <a href="#contact" class="relative px-10 py-5 glass-morphism rounded-full text-white font-bold hover:scale-105 transition-all duration-300 inline-flex items-center justify-center group overflow-hidden" style="border: 1px solid rgba(255, 255, 255, 0.2); transition: border-color 0.3s ease;">
+                        <span class="relative z-10 flex items-center gap-3">
+                            Let's Create
+                            <svg class="w-5 h-5 transform group-hover:rotate-45 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                        </span>
+                        <!-- Hover Glow Effect -->
+                        <div class="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" style="background: linear-gradient(45deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 50%, rgba(6, 182, 212, 0.1) 100%); background-size: 200% 200%; animation: smoothGradient 10s ease-in-out infinite;"></div>
+                        <!-- Animated Border -->
+                        <div class="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="background: linear-gradient(45deg, rgba(255, 255, 255, 0.3) 0%, rgba(59, 130, 246, 0.3) 50%, rgba(255, 255, 255, 0.3) 100%); background-size: 200% 200%; animation: smoothGradient 6s ease-in-out infinite; mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); mask-composite: xor; -webkit-mask-composite: xor; padding: 1px;"></div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+        <!-- Enhanced About Section with Dark Glassmorphism -->
+        <section id="about" class="py-20 px-6 relative overflow-hidden" style="background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);" role="region" aria-label="Services and portfolio">
+            <!-- Animated Background Elements -->
+            <div class="absolute inset-0 opacity-20" aria-hidden="true">
+            <div class="absolute top-10 left-10 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl animate-pulse-slow"></div>
+            <div class="absolute bottom-10 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse-slow" style="animation-delay: 2s;"></div>
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-500/5 rounded-full blur-3xl animate-pulse-slow" style="animation-delay: 4s;"></div>
+        </div>
+        
+        <!-- Floating Particles -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none" id="aboutParticles">
+            <!-- Particles will be generated by JavaScript -->
+        </div>
+        
+        <div class="max-w-6xl mx-auto relative z-10">
+            <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-8 text-white text-center">
+                <span class="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                    About me
+                </span>
+            </h2>
+            
+            <!-- Personal Introduction -->
+            <div class="max-w-4xl mx-auto mb-16 text-center">
+                <p class="text-gray-300 text-lg leading-relaxed mb-8">
+                    I'm David, a software engineer with a lifelong passion for all things tech. What started as a hobby at 15 has evolved into a career dedicated to creating impactful digital solutions. My toolkit is diverse: I'm fluent in <span class="text-blue-400 font-medium">Python</span>, <span class="text-purple-400 font-medium">C#</span>, <span class="text-orange-400 font-medium">Java</span>, and <span class="text-indigo-400 font-medium">PHP</span>, and I build stunning user interfaces with <span class="text-red-400 font-medium">HTML5</span> and <span class="text-blue-500 font-medium">CSS3</span>. I also specialize in creating powerful and responsive single-page applications using <span class="text-cyan-400 font-medium">React</span> and ensuring type safety with <span class="text-blue-600 font-medium">TypeScript</span>. I'm currently exploring new frontiers by integrating <span class="text-green-400 font-medium">LLMs</span> into my projects, creating smarter and more innovative user experiences. I also specialize in <span class="text-blue-300 font-medium">WordPress</span> development, leveraging tools like <span class="text-pink-400 font-medium">Elementor</span> and <span class="text-purple-300 font-medium">Bootstrap</span> to create dynamic and responsive websites.
+                </p>
+                <p class="text-2xl font-bold text-white">
+                    <span class="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                        Let's build something great together.
+                    </span>
+                </p>
+            </div>
+            
+            <!-- Enhanced Dual Service Showcase -->
+            <div class="grid md:grid-cols-2 gap-8 lg:gap-12 items-stretch">
+                
+                <!-- Website Development Card -->
+                <div class="group relative perspective-card" data-card="websites">
+                    <!-- Animated Gradient Border -->
+                    <div class="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-gradient-shift"></div>
+                    
+                    <!-- Glass Card -->
+                    <div class="relative bg-black/40 backdrop-blur-xl rounded-2xl p-8 border border-white/10 shadow-2xl transition-all duration-500 group-hover:scale-105 group-hover:shadow-blue-500/20 hover:border-blue-400/50 m-0.5 h-full flex flex-col">
+                        <!-- Glow Effect -->
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        
+                        <div class="relative z-10 flex flex-col h-full">
+                            <div class="text-center mb-6">
+                                <!-- Enhanced Icon with Glow -->
+                                <div class="relative inline-flex items-center justify-center w-20 h-20 mb-6">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full opacity-20 group-hover:opacity-40 transition-opacity duration-300 blur-sm"></div>
+                                    <div class="relative flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full border border-blue-400/30 group-hover:border-blue-400/60 transition-all duration-300">
+                                        <svg class="w-8 h-8 text-blue-400 group-hover:text-blue-300 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <h3 class="text-2xl font-bold text-white mb-3 group-hover:text-blue-300 transition-colors duration-300">Stunning Websites</h3>
+                            </div>
+                            
+                            <p class="text-gray-300 leading-relaxed mb-6 group-hover:text-gray-200 transition-colors duration-300">
+                                Visually captivating sites with smooth animations and perfect responsiveness. I craft digital experiences that make your brand unforgettable.
+                            </p>
+                            
+                            <!-- Enhanced Features -->
+                            <div class="space-y-4 mb-6">
+                                <div class="flex items-center text-sm text-gray-300 group-hover:text-gray-200 transition-colors duration-300">
+                                    <div class="w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full mr-3 group-hover:shadow-md group-hover:shadow-blue-400/50"></div>
+                                    Modern UI/UX Design
+                                </div>
+                                <div class="flex items-center text-sm text-gray-300 group-hover:text-gray-200 transition-colors duration-300">
+                                    <div class="w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full mr-3 group-hover:shadow-md group-hover:shadow-blue-400/50"></div>
+                                    Interactive Animations
+                                </div>
+                                <div class="flex items-center text-sm text-gray-300 group-hover:text-gray-200 transition-colors duration-300">
+                                    <div class="w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full mr-3 group-hover:shadow-md group-hover:shadow-blue-400/50"></div>
+                                    Mobile-First Responsive
+                                </div>
+                            </div>
+                            
+                            <!-- Tech Stack Tags -->
+                            <div class="flex flex-wrap gap-2 mb-6">
+                                <span class="px-3 py-1 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-full text-sm font-medium hover:bg-blue-500/30 hover:border-blue-400/50 transition-all duration-300">HTML5</span>
+                                <span class="px-3 py-1 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-full text-sm font-medium hover:bg-blue-500/30 hover:border-blue-400/50 transition-all duration-300">CSS3</span>
+                                <span class="px-3 py-1 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-full text-sm font-medium hover:bg-blue-500/30 hover:border-blue-400/50 transition-all duration-300">JavaScript</span>
+                                <span class="px-3 py-1 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-full text-sm font-medium hover:bg-blue-500/30 hover:border-blue-400/50 transition-all duration-300">Tailwind</span>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Full-Stack Applications Card -->
+                <div class="group relative perspective-card" data-card="fullstack">
+                    <!-- Animated Gradient Border -->
+                    <div class="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-gradient-shift" style="animation-delay: 1s;"></div>
+                    
+                    <!-- Glass Card -->
+                    <div class="relative bg-black/40 backdrop-blur-xl rounded-2xl p-8 border border-white/10 shadow-2xl transition-all duration-500 group-hover:scale-105 group-hover:shadow-purple-500/20 hover:border-purple-400/50 m-0.5 h-full flex flex-col">
+                        <!-- Glow Effect -->
+                        <div class="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-pink-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        
+                        <div class="relative z-10 flex flex-col h-full">
+                            <div class="text-center mb-6">
+                                <!-- Enhanced Icon with Glow -->
+                                <div class="relative inline-flex items-center justify-center w-20 h-20 mb-6">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full opacity-20 group-hover:opacity-40 transition-opacity duration-300 blur-sm"></div>
+                                    <div class="relative flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full border border-purple-400/30 group-hover:border-purple-400/60 transition-all duration-300">
+                                        <svg class="w-8 h-8 text-purple-400 group-hover:text-purple-300 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <h3 class="text-2xl font-bold text-white mb-3 group-hover:text-purple-300 transition-colors duration-300">Full-Stack Apps</h3>
+                            </div>
+                            
+                            <p class="text-gray-300 leading-relaxed mb-6 group-hover:text-gray-200 transition-colors duration-300">
+                                Complex web applications with robust backends, databases, and APIs. Scalable solutions that grow with your business needs.
+                            </p>
+                            
+                            <!-- Enhanced Features -->
+                            <div class="space-y-4 mb-6">
+                                <div class="flex items-center text-sm text-gray-300 group-hover:text-gray-200 transition-colors duration-300">
+                                    <div class="w-2 h-2 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full mr-3 group-hover:shadow-md group-hover:shadow-purple-400/50"></div>
+                                    Database Architecture
+                                </div>
+                                <div class="flex items-center text-sm text-gray-300 group-hover:text-gray-200 transition-colors duration-300">
+                                    <div class="w-2 h-2 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full mr-3 group-hover:shadow-md group-hover:shadow-purple-400/50"></div>
+                                    API Development
+                                </div>
+                                <div class="flex items-center text-sm text-gray-300 group-hover:text-gray-200 transition-colors duration-300">
+                                    <div class="w-2 h-2 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full mr-3 group-hover:shadow-md group-hover:shadow-purple-400/50"></div>
+                                    User Authentication
+                                </div>
+                            </div>
+                            
+                            <!-- Tech Stack Tags -->
+                            <div class="flex flex-wrap gap-2 mb-6">
+                                <span class="px-3 py-1 bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-full text-sm font-medium hover:bg-purple-500/30 hover:border-purple-400/50 transition-all duration-300">React</span>
+                                <span class="px-3 py-1 bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-full text-sm font-medium hover:bg-purple-500/30 hover:border-purple-400/50 transition-all duration-300">Node.js</span>
+                                <span class="px-3 py-1 bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-full text-sm font-medium hover:bg-purple-500/30 hover:border-purple-400/50 transition-all duration-300">TypeScript</span>
+                                <span class="px-3 py-1 bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-full text-sm font-medium hover:bg-purple-500/30 hover:border-purple-400/50 transition-all duration-300">Database</span>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+        <!-- Modern Skills Arsenal Section -->
+        <section id="skills" class="py-20 px-6 relative overflow-hidden bg-gray-900" role="region" aria-label="Technical skills and expertise">
+            <!-- Aurora Background -->
+            <div class="absolute inset-0 opacity-30">
+                <div class="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-full blur-3xl animate-pulse-slow"></div>
+                <div class="absolute bottom-0 right-1/4 w-80 h-80 bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-full blur-3xl animate-pulse-slow" style="animation-delay: 3s;"></div>
+                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-full blur-3xl animate-pulse-slow" style="animation-delay: 6s;"></div>
+            </div>
+            
+            <div class="max-w-7xl mx-auto relative z-10">
+                <!-- Enhanced Header -->
+                <div class="text-center mb-20">
+                    <h2 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
+                        <span class="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                            My Digital Arsenal
+                        </span>
+                    </h2>
+                    <p class="text-gray-400 text-lg max-w-2xl mx-auto mb-8">
+                        A curated collection of technologies I wield to craft digital experiences
+                    </p>
+                    
+                    <!-- Interactive Skills Network Canvas -->
+                    <div id="skillsNetwork" class="absolute inset-0 pointer-events-none z-0"></div>
+                    
+                    <!-- Filter Buttons with Accessibility -->
+                    <div class="flex flex-wrap justify-center gap-3 mb-8" role="tablist" aria-label="Skill categories filter">
+                        <button data-filter="all" class="skill-filter active px-6 py-2 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-300 border border-blue-500/30 hover:from-blue-500/30 hover:to-purple-500/30 transition-all duration-300 backdrop-blur-sm" role="tab" aria-selected="true" aria-controls="skills-grid" aria-describedby="filter-desc">
+                            All Skills
+                        </button>
+                        <button data-filter="core" class="skill-filter px-6 py-2 rounded-full bg-white/5 text-gray-300 border border-white/10 hover:bg-gradient-to-r hover:from-orange-500/20 hover:to-red-500/20 hover:text-orange-300 hover:border-orange-500/30 transition-all duration-300 backdrop-blur-sm" role="tab" aria-selected="false" aria-controls="skills-grid">
+                            Core Web
+                        </button>
+                        <button data-filter="frameworks" class="skill-filter px-6 py-2 rounded-full bg-white/5 text-gray-300 border border-white/10 hover:bg-gradient-to-r hover:from-cyan-500/20 hover:to-blue-500/20 hover:text-cyan-300 hover:border-cyan-500/30 transition-all duration-300 backdrop-blur-sm" role="tab" aria-selected="false" aria-controls="skills-grid">
+                            Frameworks
+                        </button>
+                        <button data-filter="backend" class="skill-filter px-6 py-2 rounded-full bg-white/5 text-gray-300 border border-white/10 hover:bg-gradient-to-r hover:from-green-500/20 hover:to-emerald-500/20 hover:text-green-300 hover:border-green-500/30 transition-all duration-300 backdrop-blur-sm" role="tab" aria-selected="false" aria-controls="skills-grid">
+                            Backend
+                        </button>
+                        <button data-filter="tools" class="skill-filter px-6 py-2 rounded-full bg-white/5 text-gray-300 border border-white/10 hover:bg-gradient-to-r hover:from-purple-500/20 hover:to-pink-500/20 hover:text-purple-300 hover:border-purple-500/30 transition-all duration-300 backdrop-blur-sm" role="tab" aria-selected="false" aria-controls="skills-grid">
+                            Tools
+                        </button>
+                    </div>
+                    <div id="filter-desc" class="sr-only">Use these buttons to filter skills by category. Selected category will show relevant skill cards.</div>
+                </div>
+
+                <!-- Modern Bento Grid Layout -->
+                <div id="skills-grid" class="skills-grid grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6 auto-rows-fr" role="tabpanel" aria-live="polite">
+                    
+                    <!-- Core Technologies - Enhanced Hero Card -->
+                    <div class="skill-card core col-span-1 md:col-span-2 lg:col-span-2 xl:col-span-3 row-span-2 group relative overflow-hidden rounded-2xl">
+                        <!-- Enhanced Glassmorphism Background -->
+                        <div class="absolute inset-0 bg-gradient-to-br from-orange-900/15 via-red-900/10 to-amber-900/15 backdrop-blur-xl border-2 border-orange-400/30 rounded-2xl"></div>
+                        
+                        <!-- Enhanced Glow Effect -->
+                        <div class="absolute inset-0 bg-gradient-to-br from-orange-500/15 to-red-500/15 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                        
+                        <!-- Subtle Grid Pattern -->
+                        <div class="absolute inset-0 opacity-5" style="background-image: repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.03) 40px, rgba(255,255,255,0.03) 41px), repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.03) 40px, rgba(255,255,255,0.03) 41px);"></div>
+                        
+                        <!-- Content -->
+                        <div class="relative z-10 p-8 h-full flex flex-col">
+                            <div class="flex items-center mb-8">
+                                <div class="relative mr-6">
+                                    <!-- Outer Glow -->
+                                    <div class="absolute inset-0 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl blur-lg opacity-40 group-hover:opacity-60 transition-opacity duration-300"></div>
+                                    <!-- Main Icon -->
+                                    <div class="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500/25 to-red-500/25 border-2 border-orange-400/40 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                        <svg class="w-8 h-8 text-orange-300" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2Z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="flex-grow">
+                                    <h3 class="text-3xl font-bold text-white mb-2 group-hover:text-orange-200 transition-colors duration-300">Core Technologies</h3>
+                                    <p class="text-orange-300 text-lg">Foundation of the Modern Web</p>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-6 flex-grow">
+                                <!-- HTML5 -->
+                                <div class="skill-item" data-skill="html">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 rounded-full bg-gradient-to-r from-orange-500 to-red-500 mr-3 shadow-lg shadow-orange-500/30"></div>
+                                        <span class="text-white font-semibold text-lg">HTML5</span>
+                                    </div>
+                                    <p class="text-orange-300/80 text-sm mt-1 ml-7">Semantic markup & modern standards</p>
+                                </div>
+                                
+                                <!-- CSS3 -->
+                                <div class="skill-item" data-skill="css">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 mr-3 shadow-lg shadow-blue-500/30"></div>
+                                        <span class="text-white font-semibold text-lg">CSS3</span>
+                                    </div>
+                                    <p class="text-blue-300/80 text-sm mt-1 ml-7">Advanced animations & layouts</p>
+                                </div>
+                                
+                                <!-- JavaScript -->
+                                <div class="skill-item" data-skill="js">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 mr-3 shadow-lg shadow-yellow-500/30"></div>
+                                        <span class="text-white font-semibold text-lg">JavaScript</span>
+                                    </div>
+                                    <p class="text-yellow-300/80 text-sm mt-1 ml-7">ES6+ & asynchronous programming</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-8 flex items-center text-sm text-orange-300/80">
+                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2L3.09 8.26L3 20.74L12 16L21 20.74L20.91 8.26L12 2Z"/>
+                                </svg>
+                                Core web development expertise
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- React - Enhanced Featured Framework -->
+                    <div class="skill-card frameworks col-span-1 md:col-span-1 lg:col-span-1 xl:col-span-2 row-span-1 group relative overflow-hidden rounded-2xl">
+                        <!-- Enhanced Background -->
+                        <div class="absolute inset-0 bg-gradient-to-br from-cyan-900/20 via-blue-900/15 to-sky-900/20 backdrop-blur-xl border-2 border-cyan-400/30 rounded-2xl"></div>
+                        
+                        
+                        <div class="relative z-10 p-6 h-full flex flex-col justify-between">
+                            <div>
+                                <div class="relative mb-4 w-12 h-12">
+                                    <!-- Icon Glow -->
+                                    <div class="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl blur-md opacity-40 group-hover:opacity-60 transition-opacity duration-300"></div>
+                                    <!-- Main Icon -->
+                                    <div class="relative w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/25 to-blue-500/25 border-2 border-cyan-400/40 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                        <svg class="w-6 h-6 text-cyan-300" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12,10.11C13.03,10.11 13.87,10.95 13.87,12C13.87,13 13.03,13.85 12,13.85C10.97,13.85 10.13,13 10.13,12C10.13,10.95 10.97,10.11 12,10.11M7.37,20C8,20.38 9.38,19.8 10.97,18.30C10.45,17.71 9.94,17.07 9.46,16.4C8.64,16.32 7.83,16.2 7.06,16.04C6.55,18.18 6.74,19.65 7.37,20M8.08,14.26L7.79,13.75C7.68,14.04 7.57,14.33 7.5,14.61C7.77,14.67 8.07,14.72 8.38,14.77C8.28,14.6 8.18,14.43 8.08,14.26M14.62,13.5L15.43,12L14.62,10.5C14.32,9.97 14,9.5 13.71,9.06C13.17,9.04 12.6,9.03 12,9.03C11.4,9.03 10.83,9.04 10.29,9.06C10,9.5 9.68,9.97 9.38,10.5L8.57,12L9.38,13.5C9.68,14.03 10,14.5 10.29,14.94C10.83,14.96 11.4,14.97 12,14.97C12.6,14.97 13.17,14.96 13.71,14.94C14,14.5 14.32,14.03 14.62,13.5M12,6.78C11.81,7 11.61,7.23 11.41,7.5C11.61,7.5 11.8,7.5 12,7.5C12.2,7.5 12.39,7.5 12.59,7.5C12.39,7.23 12.19,7 12,6.78M12,17.22C12.19,17 12.39,16.77 12.59,16.5C12.39,16.5 12.2,16.5 12,16.5C11.8,16.5 11.61,16.5 11.41,16.5C11.61,16.77 11.81,17 12,17.22M16.62,4C16,3.62 14.62,4.2 13.03,5.7C13.55,6.29 14.06,6.93 14.54,7.6C15.36,7.68 16.17,7.8 16.94,7.96C17.45,5.82 17.26,4.35 16.62,4M15.92,9.74L16.21,10.25C16.32,9.96 16.43,9.67 16.5,9.39C16.23,9.33 15.93,9.28 15.62,9.23C15.72,9.4 15.82,9.57 15.92,9.74M17.37,2.69C18.84,3.53 19,5.74 18.38,8.32C20.92,9.07 22.75,10.31 22.75,12C22.75,13.69 20.92,14.93 18.38,15.68C19,18.26 18.84,20.47 17.37,21.31C15.93,22.14 13.71,21.13 12,19.64C10.29,21.13 8.07,22.14 6.63,21.31C5.16,20.47 5,18.26 5.62,15.68C3.08,14.93 1.25,13.69 1.25,12C1.25,10.31 3.08,9.07 5.62,8.32C5,5.74 5.16,3.53 6.63,2.69C8.07,1.86 10.29,2.87 12,4.36C13.71,2.87 15.93,1.86 17.37,2.69Z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <h3 class="text-2xl font-bold text-white mb-2 group-hover:text-cyan-200 transition-colors duration-300">React</h3>
+                                <p class="text-cyan-300 text-base mb-4">Component-Based UI</p>
+                                
+                                <!-- Features List -->
+                                <div class="space-y-1 mb-4">
+                                    <div class="flex items-center text-xs text-cyan-200/80">
+                                        <div class="w-1.5 h-1.5 bg-cyan-400 rounded-full mr-2"></div>
+                                        Hooks & Context API
+                                    </div>
+                                    <div class="flex items-center text-xs text-cyan-200/80">
+                                        <div class="w-1.5 h-1.5 bg-blue-400 rounded-full mr-2"></div>
+                                        State Management
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+
+                    <!-- TypeScript -->
+                    <div class="skill-card frameworks col-span-1 group relative overflow-hidden rounded-2xl">
+                        <div class="absolute inset-0 bg-gradient-to-br from-blue-900/15 via-blue-800/10 to-indigo-900/15 backdrop-blur-xl border-2 border-blue-400/30 rounded-2xl"></div>
+                        <div class="absolute inset-0 bg-gradient-to-br from-blue-600/15 to-blue-700/15 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                        
+                        <div class="relative z-10 p-6 h-full flex flex-col justify-center items-center text-center">
+                            <div class="relative mb-4">
+                                <!-- Icon Glow -->
+                                <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl blur-md opacity-40 group-hover:opacity-60 transition-opacity duration-300"></div>
+                                <!-- Main Icon -->
+                                <div class="relative w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600/25 to-blue-700/25 border-2 border-blue-500/40 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                    <span class="text-blue-300 font-bold text-xl">TS</span>
+                                </div>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-blue-200 transition-colors duration-300">TypeScript</h3>
+                            <p class="text-blue-300 text-base mb-4">Static Type Checking</p>
+                            
+                            <!-- Clean decorative elements -->
+                            <div class="flex space-x-2">
+                                <div class="w-2 h-2 bg-blue-400/60 rounded-full animate-pulse"></div>
+                                <div class="w-2 h-2 bg-blue-500/60 rounded-full animate-pulse" style="animation-delay: 0.5s;"></div>
+                                <div class="w-2 h-2 bg-blue-600/60 rounded-full animate-pulse" style="animation-delay: 1s;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Node.js -->
+                    <div class="skill-card backend col-span-1 md:col-span-1 lg:col-span-2 xl:col-span-1 group relative overflow-hidden rounded-2xl">
+                        <div class="absolute inset-0 bg-gradient-to-br from-green-900/15 via-emerald-900/10 to-teal-900/15 backdrop-blur-xl border-2 border-green-400/30 rounded-2xl"></div>
+                        <div class="absolute inset-0 bg-gradient-to-br from-green-600/15 to-emerald-600/15 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                        
+                        <div class="relative z-10 p-6 h-full flex flex-col justify-center items-center text-center">
+                            <div class="relative mb-4">
+                                <!-- Icon Glow -->
+                                <div class="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl blur-md opacity-40 group-hover:opacity-60 transition-opacity duration-300"></div>
+                                <!-- Main Icon -->
+                                <div class="relative w-12 h-12 rounded-xl bg-gradient-to-br from-green-600/25 to-emerald-600/25 border-2 border-green-500/40 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                    <svg class="w-6 h-6 text-green-300" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12,1.85C11.73,1.85 11.45,1.92 11.22,2.05L3.78,6.35C3.31,6.63 3,7.15 3,7.71V16.29C3,16.85 3.31,17.37 3.78,17.65L5.73,18.77C6.68,19.23 7,19.24 7.44,19.24C8.84,19.24 9.65,18.39 9.65,16.91V8.44C9.65,8.32 9.55,8.22 9.43,8.22H8.5C8.37,8.22 8.27,8.32 8.27,8.44V16.91C8.27,17.57 7.59,18.22 6.5,17.67L4.45,16.5C4.38,16.46 4.34,16.37 4.34,16.29V7.71C4.34,7.62 4.38,7.54 4.45,7.5L11.89,3.21C11.95,3.17 12.05,3.17 12.11,3.21L19.55,7.5C19.62,7.54 19.66,7.62 19.66,7.71V16.29C19.66,16.37 19.62,16.46 19.55,16.5L12.11,20.79C12.05,20.83 11.95,20.83 11.89,20.79L10,19.65C9.92,19.61 9.84,19.61 9.79,19.65C9.26,19.94 9.16,20 8.67,20.15C8.55,20.19 8.36,20.26 8.74,20.47L11.22,21.94C11.45,22.08 11.73,22.15 12,22.15C12.27,22.15 12.55,22.08 12.78,21.94L20.22,17.65C20.69,17.37 21,16.85 21,16.29V7.71C21,7.15 20.69,6.63 20.22,6.35L12.78,2.05C12.55,1.92 12.27,1.85 12,1.85Z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-green-200 transition-colors duration-300">Node.js</h3>
+                            <p class="text-green-300 text-base mb-4">JavaScript Runtime</p>
+                            
+                            <!-- Clean server icons -->
+                            <div class="flex items-center space-x-3">
+                                <div class="w-1.5 h-4 bg-green-400/60 rounded-sm animate-pulse"></div>
+                                <div class="w-1.5 h-6 bg-green-500/60 rounded-sm animate-pulse" style="animation-delay: 0.3s;"></div>
+                                <div class="w-1.5 h-3 bg-green-600/60 rounded-sm animate-pulse" style="animation-delay: 0.6s;"></div>
+                                <div class="w-1.5 h-5 bg-emerald-500/60 rounded-sm animate-pulse" style="animation-delay: 0.9s;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tailwind CSS -->
+                    <div class="skill-card frameworks col-span-1 group relative overflow-hidden rounded-2xl">
+                        <div class="absolute inset-0 bg-gradient-to-br from-teal-900/15 via-cyan-900/10 to-sky-900/15 backdrop-blur-xl border-2 border-teal-400/30 rounded-2xl"></div>
+                        <div class="absolute inset-0 bg-gradient-to-br from-teal-500/15 to-cyan-500/15 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                        
+                        <div class="relative z-10 p-6 h-full flex flex-col justify-center items-center text-center">
+                            <div class="relative mb-4">
+                                <!-- Icon Glow -->
+                                <div class="absolute inset-0 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-xl blur-md opacity-40 group-hover:opacity-60 transition-opacity duration-300"></div>
+                                <!-- Main Icon -->
+                                <div class="relative w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500/25 to-cyan-500/25 border-2 border-teal-400/40 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                    <span class="text-teal-300 font-bold text-xl">TW</span>
+                                </div>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-teal-200 transition-colors duration-300">Tailwind CSS</h3>
+                            <p class="text-teal-300 text-base mb-4">Utility-First Framework</p>
+                            
+                            <!-- Wind effect animation -->
+                            <div class="flex space-x-1">
+                                <div class="w-4 h-0.5 bg-gradient-to-r from-teal-400 to-transparent rounded-full animate-pulse"></div>
+                                <div class="w-3 h-0.5 bg-gradient-to-r from-cyan-400 to-transparent rounded-full animate-pulse" style="animation-delay: 0.2s;"></div>
+                                <div class="w-5 h-0.5 bg-gradient-to-r from-sky-400 to-transparent rounded-full animate-pulse" style="animation-delay: 0.4s;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Git -->
+                    <div class="skill-card tools col-span-1 group relative overflow-hidden rounded-2xl">
+                        <div class="absolute inset-0 bg-gradient-to-br from-red-900/15 via-orange-900/10 to-amber-900/15 backdrop-blur-xl border-2 border-red-400/30 rounded-2xl"></div>
+                        <div class="absolute inset-0 bg-gradient-to-br from-red-500/15 to-orange-500/15 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                        
+                        <div class="relative z-10 p-6 h-full flex flex-col justify-center items-center text-center">
+                            <div class="relative mb-4">
+                                <!-- Icon Glow -->
+                                <div class="absolute inset-0 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl blur-md opacity-40 group-hover:opacity-60 transition-opacity duration-300"></div>
+                                <!-- Main Icon -->
+                                <div class="relative w-12 h-12 rounded-xl bg-gradient-to-br from-red-500/25 to-orange-500/25 border-2 border-red-400/40 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                    <svg class="w-6 h-6 text-red-300" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M21.62,11.108L12.892,2.38C12.504,1.992 11.992,1.774 11.455,1.774S10.406,1.992 10.018,2.38L8.128,4.27L10.644,6.786C11.092,6.624 11.592,6.712 11.958,7.078C12.326,7.446 12.414,7.95 12.248,8.398L14.538,10.688C14.986,10.522 15.49,10.61 15.858,10.978C16.482,11.602 16.482,12.618 15.858,13.242C15.234,13.866 14.218,13.866 13.594,13.242C13.194,12.842 13.126,12.21 13.39,11.746L11.252,9.608V14.876C11.378,14.938 11.494,15.022 11.594,15.122C12.218,15.746 12.218,16.762 11.594,17.386C10.97,18.01 9.954,18.01 9.33,17.386C8.706,16.762 8.706,15.746 9.33,15.122C9.458,14.994 9.606,14.894 9.766,14.82V9.484C9.606,9.41 9.458,9.31 9.33,9.182C8.926,8.778 8.862,8.14 9.128,7.672L6.644,5.188L1.774,10.058C1.386,10.446 1.168,10.958 1.168,11.495S1.386,12.544 1.774,12.932L10.502,21.66C10.89,22.048 11.402,22.266 11.939,22.266S12.988,22.048 13.376,21.66L21.62,13.416C22.008,13.028 22.226,12.516 22.226,11.979S22.008,11.496 21.62,11.108"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-red-200 transition-colors duration-300">Git</h3>
+                            <p class="text-red-300 text-base mb-4">Version Control System</p>
+                            
+                            <!-- Branch visualization -->
+                            <div class="flex items-center justify-center space-x-2">
+                                <div class="w-2 h-2 bg-red-400/60 rounded-full"></div>
+                                <div class="w-6 h-0.5 bg-gradient-to-r from-red-400/60 to-orange-400/60 rounded-full"></div>
+                                <div class="w-2 h-2 bg-orange-400/60 rounded-full animate-pulse"></div>
+                                <div class="w-6 h-0.5 bg-gradient-to-r from-orange-400/60 to-red-400/60 rounded-full"></div>
+                                <div class="w-2 h-2 bg-red-400/60 rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI/LLM - Full Width Featured Card -->
+                    <div class="skill-card tools col-span-1 md:col-span-3 lg:col-span-4 xl:col-span-6 row-span-1 group relative overflow-hidden rounded-2xl">
+                        <!-- Enhanced Background with Animated Gradient -->
+                        <div class="absolute inset-0 bg-gradient-to-r from-purple-900/20 via-violet-800/20 to-fuchsia-900/20 backdrop-blur-xl border border-purple-400/30 rounded-2xl"></div>
+                        <div class="absolute inset-0 bg-gradient-to-br from-purple-500/15 to-pink-500/15 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                        
+                        <!-- Animated Particles Background -->
+                        <div class="absolute inset-0 overflow-hidden rounded-2xl">
+                            <div class="absolute top-4 left-4 w-2 h-2 bg-purple-400/40 rounded-full animate-pulse"></div>
+                            <div class="absolute top-8 right-8 w-1.5 h-1.5 bg-pink-400/40 rounded-full animate-pulse" style="animation-delay: 1s;"></div>
+                            <div class="absolute bottom-6 left-8 w-1 h-1 bg-violet-400/40 rounded-full animate-pulse" style="animation-delay: 2s;"></div>
+                            <div class="absolute bottom-4 right-4 w-2.5 h-2.5 bg-fuchsia-400/30 rounded-full animate-pulse" style="animation-delay: 0.5s;"></div>
+                        </div>
+                        
+                        <div class="relative z-10 p-8 h-full flex items-center justify-between">
+                            <!-- Left Section - Icon and Info -->
+                            <div class="flex items-center space-x-6">
+                                <div class="relative">
+                                    <!-- Glow Effect -->
+                                    <div class="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+                                    <!-- Main Icon -->
+                                    <div class="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/30 to-pink-500/30 border-2 border-purple-400/40 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                        <svg class="w-8 h-8 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex-grow">
+                                    <h3 class="text-2xl md:text-3xl font-bold text-white mb-2 group-hover:text-purple-200 transition-colors duration-300">
+                                        AI & Large Language Models
+                                    </h3>
+                                    <p class="text-purple-300 text-base md:text-lg mb-3">Integration, Automation & Intelligent Solutions</p>
+                                    
+                                    <!-- Feature Tags -->
+                                    <div class="flex flex-wrap gap-2 mb-4">
+                                        <span class="px-3 py-1 bg-purple-500/20 text-purple-200 border border-purple-500/30 rounded-full text-sm font-medium">
+                                            Claude API
+                                        </span>
+                                        <span class="px-3 py-1 bg-violet-500/20 text-violet-200 border border-violet-500/30 rounded-full text-sm font-medium">
+                                            OpenAI GPT
+                                        </span>
+                                        <span class="px-3 py-1 bg-fuchsia-500/20 text-fuchsia-200 border border-fuchsia-500/30 rounded-full text-sm font-medium">
+                                            Prompt Engineering
+                                        </span>
+                                        <span class="px-3 py-1 bg-pink-500/20 text-pink-200 border border-pink-500/30 rounded-full text-sm font-medium">
+                                            RAG Systems
+                                        </span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <!-- Right Section - Clean Icon Display -->
+                            <div class="text-right ml-8 flex items-center justify-center">
+                                <!-- Large Decorative Icon -->
+                                <div class="relative">
+                                    <!-- Enhanced Glow -->
+                                    <div class="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl blur-2xl opacity-40 group-hover:opacity-60 transition-opacity duration-500"></div>
+                                    <!-- Main Decorative Element -->
+                                    <div class="relative w-24 h-24 rounded-3xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-2 border-purple-400/30 flex items-center justify-center group-hover:scale-110 transition-all duration-500">
+                                        <!-- Inner glow -->
+                                        <div class="absolute inset-2 rounded-2xl bg-gradient-to-br from-purple-400/10 to-pink-400/10"></div>
+                                        <!-- AI Symbol -->
+                                        <div class="relative flex items-center justify-center">
+                                            <svg class="w-12 h-12 text-purple-300 group-hover:text-purple-200 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Enhanced Contact Section with Glassmorphism -->
+        <section id="contact" class="py-20 px-6 relative overflow-hidden" style="background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);" role="region" aria-label="Contact information and form">
+            <!-- Animated Background Elements -->
+            <div class="absolute inset-0 opacity-10" aria-hidden="true">
+            <div class="absolute top-20 right-20 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse-slow"></div>
+            <div class="absolute bottom-20 left-20 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse-slow" style="animation-delay: 3s;"></div>
+            <div class="absolute top-1/3 left-1/3 w-72 h-72 bg-pink-500/10 rounded-full blur-3xl animate-pulse-slow" style="animation-delay: 6s;"></div>
+        </div>
+        
+        <!-- Floating Orbs -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none" id="contactOrbs">
+            <!-- Orbs will be generated by JavaScript -->
+        </div>
+        
+        <div class="max-w-4xl mx-auto text-center relative z-10">
+            <!-- Enhanced Heading -->
+            <div class="mb-16">
+                <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-white">
+                    <span class="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                        Ready to Create Something Epic?
+                    </span>
+                </h2>
+                <p class="text-sm sm:text-base md:text-lg lg:text-xl text-gray-300 mb-8 leading-relaxed max-w-3xl mx-auto">
+                    Got a wild idea? Let's make it reality.
+                </p>
+                
+                <!-- Status Indicator -->
+                <div class="inline-flex items-center space-x-2 px-4 py-2 bg-green-500/20 border border-green-500/30 rounded-full backdrop-blur-sm">
+                    <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <span class="text-green-300 text-sm font-medium">Currently accepting new projects</span>
+                </div>
+            </div>
+
+            <div class="max-w-lg mx-auto">
+                <!-- Glass Morphism Form Container -->
+                <div class="bg-black/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-2xl hover:shadow-blue-500/20 transition-all duration-500 contact-form-container">
+                    <!-- Animated Gradient Border -->
+                    <div class="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-3xl opacity-0 hover:opacity-20 transition-opacity duration-500 animate-gradient-shift pointer-events-none"></div>
+                    
+                    <form id="contactForm" class="space-y-6 relative z-10" role="form" aria-label="Contact form">
+                        <!-- Enhanced Name Input with Floating Label -->
+                        <div class="floating-input-group">
+                            <input type="text" name="name" id="name" required class="floating-input peer w-full px-4 py-4 bg-transparent border border-gray-600 rounded-xl focus:border-blue-400 focus:outline-none text-white transition-all duration-300 hover:border-gray-500" aria-describedby="name-hint" autocomplete="name">
+                            <label for="name" class="floating-label absolute left-4 top-4 text-gray-400 transition-all duration-300 pointer-events-none peer-focus:-top-2 peer-focus:left-3 peer-focus:text-xs peer-focus:text-blue-400 peer-focus:bg-black/80 peer-focus:px-2 peer-focus:rounded peer-valid:-top-2 peer-valid:left-3 peer-valid:text-xs peer-valid:text-blue-400 peer-valid:bg-black/80 peer-valid:px-2 peer-valid:rounded">
+                                Your Name ✨
+                            </label>
+                            <div class="input-glow absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300 pointer-events-none"></div>
+                            <div id="name-hint" class="sr-only">Enter your full name</div>
+                        </div>
+
+                        <!-- Enhanced Email Input with Floating Label -->
+                        <div class="floating-input-group relative">
+                            <input type="email" name="email" id="email" required class="floating-input peer w-full px-4 py-4 bg-transparent border border-gray-600 rounded-xl focus:border-purple-400 focus:outline-none text-white transition-all duration-300 hover:border-gray-500" aria-describedby="email-hint" autocomplete="email">
+                            <label for="email" class="floating-label absolute left-4 top-4 text-gray-400 transition-all duration-300 pointer-events-none peer-focus:-top-2 peer-focus:left-3 peer-focus:text-xs peer-focus:text-purple-400 peer-focus:bg-black/80 peer-focus:px-2 peer-focus:rounded peer-valid:-top-2 peer-valid:left-3 peer-valid:text-xs peer-valid:text-purple-400 peer-valid:bg-black/80 peer-valid:px-2 peer-valid:rounded">
+                                Your Email 📧
+                            </label>
+                            <div class="input-glow absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300 pointer-events-none"></div>
+                            <div id="email-hint" class="sr-only">Enter your email address</div>
+                        </div>
+
+                        <!-- Enhanced Message Textarea with Floating Label -->
+                        <div class="floating-input-group relative">
+                            <textarea name="message" id="message" rows="4" required class="floating-input peer w-full px-4 py-4 bg-transparent border border-gray-600 rounded-xl focus:border-pink-400 focus:outline-none text-white resize-none transition-all duration-300 hover:border-gray-500" aria-describedby="message-hint"></textarea>
+                            <label for="message" class="floating-label absolute left-4 top-4 text-gray-400 transition-all duration-300 pointer-events-none peer-focus:-top-2 peer-focus:left-3 peer-focus:text-xs peer-focus:text-pink-400 peer-focus:bg-black/80 peer-focus:px-2 peer-focus:rounded peer-valid:-top-2 peer-valid:left-3 peer-valid:text-xs peer-valid:text-pink-400 peer-valid:bg-black/80 peer-valid:px-2 peer-valid:rounded">
+                                Your Wild Idea 🚀
+                            </label>
+                            <div class="input-glow absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300 pointer-events-none"></div>
+                            <div id="message-hint" class="sr-only">Describe your project idea</div>
+                        </div>
+
+                        <!-- Enhanced Submit Button -->
+                        <button type="submit" id="submitBtn" class="group relative w-full py-4 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-xl text-white font-bold overflow-hidden transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/50">
+                            <!-- Button Background Animation -->
+                            <div class="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            
+                            <!-- Button Content -->
+                            <span id="btnText" class="relative z-10 flex items-center justify-center space-x-2">
+                                <span>Make It Happen</span>
+                                <svg class="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                                </svg>
+                            </span>
+                            
+                            <span id="btnLoader" class="hidden relative z-10 flex items-center justify-center space-x-2">
+                                <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span>Sending Magic...</span>
+                            </span>
+                        </button>
+                    </form>
+                    
+                    <!-- Form Message -->
+                    <div id="formMessage" class="mt-6 text-center hidden transition-all duration-300"></div>
+                    
+                    <!-- Response Time Info -->
+                    <div class="mt-6 text-center">
+                        <p class="text-xs text-gray-400 flex items-center justify-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span>I typically respond within 24 hours</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </section>
+    </main>
+
+    <!-- Enhanced Footer -->
+    <footer class="relative py-16 px-6 overflow-hidden" style="background: linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #1a1a2e 100%);">
+        <!-- Animated Background -->
+        <div class="absolute inset-0 opacity-5">
+            <div class="absolute top-0 left-0 w-full h-full"
+                 style="background: radial-gradient(circle at 20% 50%, #3b82f6 0%, transparent 50%), 
+                        radial-gradient(circle at 80% 80%, #8b5cf6 0%, transparent 50%),
+                        radial-gradient(circle at 40% 20%, #ec4899 0%, transparent 50%);">
+            </div>
+        </div>
+        
+        <div class="max-w-7xl mx-auto relative z-10">
+            <!-- Main Footer Content -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+                
+                <!-- Brand Column -->
+                <div class="lg:col-span-2 space-y-6">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-4">
+                            <span class="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                                David Cit
+                            </span>
+                        </h3>
+                        <p class="text-gray-400 text-lg leading-relaxed">
+                            Creating digital magic, one pixel at a time. Transforming ideas into stunning web experiences that captivate and inspire.
+                        </p>
+                    </div>
+                    
+                </div>
+                
+                <!-- Quick Links -->
+                <div class="space-y-4">
+                    <h4 class="text-white font-semibold text-lg mb-6 flex items-center">
+                        <div class="w-2 h-2 bg-blue-400 rounded-full mr-3"></div>
+                        Quick Links
+                    </h4>
+                    <nav class="space-y-3">
+                        <a href="#hero" class="block text-gray-400 hover:text-blue-400 transition-colors duration-300 hover:translate-x-2 transform">
+                            The Magic
+                        </a>
+                        <a href="#about" class="block text-gray-400 hover:text-purple-400 transition-colors duration-300 hover:translate-x-2 transform">
+                            What I Create
+                        </a>
+                        <a href="#skills" class="block text-gray-400 hover:text-pink-400 transition-colors duration-300 hover:translate-x-2 transform">
+                            My Arsenal
+                        </a>
+                        <a href="#contact" class="block text-gray-400 hover:text-green-400 transition-colors duration-300 hover:translate-x-2 transform">
+                            Get In Touch
+                        </a>
+                    </nav>
+                    
+                    <!-- Fun Stats - HIDDEN
+                    <div class="pt-6 border-t border-white/10">
+                        <div class="grid grid-cols-2 gap-4 text-center">
+                            <div class="bg-blue-500/10 rounded-lg p-3 border border-blue-500/20">
+                                <div class="text-2xl font-bold text-blue-400" id="projectCount">50+</div>
+                                <div class="text-xs text-gray-400">Projects</div>
+                            </div>
+                            <div class="bg-purple-500/10 rounded-lg p-3 border border-purple-500/20">
+                                <div class="text-2xl font-bold text-purple-400" id="clientCount">25+</div>
+                                <div class="text-xs text-gray-400">Happy Clients</div>
+                            </div>
+                        </div>
+                    </div>
+                    -->
+                </div>
+                
+                <!-- Connect & Legal -->
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="text-white font-semibold text-lg mb-6 flex items-center">
+                            <div class="w-2 h-2 bg-purple-400 rounded-full mr-3"></div>
+                            Let's Connect
+                        </h4>
+                        <div class="grid grid-cols-2 gap-3">
+                            <a href="https://github.com/daiViis" target="_blank" class="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors duration-300 hover:scale-105 transform">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/>
+                                    <path d="M9 18c-4.51 2-5-2-7-2"/>
+                                </svg>
+                                <span class="text-sm">GitHub</span>
+                            </a>
+                            <a href="https://x.com/daiViis_" target="_blank" class="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors duration-300 hover:scale-105 transform">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                    <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/>
+                                </svg>
+                                <span class="text-sm">Twitter</span>
+                            </a>
+                            <a href="https://www.instagram.com/cit.david/" target="_blank" class="flex items-center space-x-2 text-gray-400 hover:text-pink-400 transition-colors duration-300 hover:scale-105 transform">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                    <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
+                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                                    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+                                </svg>
+                                <span class="text-sm">Instagram</span>
+                            </a>
+                            <a href="https://www.upwork.com/freelancers/~01ba3334cf947e474c" target="_blank" class="flex items-center space-x-2 text-gray-400 hover:text-green-400 transition-colors duration-300 hover:scale-105 transform">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                    <path d="M12 2a10 10 0 0 1 7.38 16.75"/>
+                                    <path d="M12 8v8"/>
+                                    <path d="M16 12H8"/>
+                                    <path d="M2.5 8.875a10 10 0 0 0-.5 3"/>
+                                    <path d="M2.83 16a10 10 0 0 0 2.43 3.4"/>
+                                    <path d="M4.636 5.235a10 10 0 0 1 .891-.857"/>
+                                    <path d="M8.644 21.42a10 10 0 0 0 7.631-.38"/>
+                                </svg>
+                                <span class="text-sm">Upwork</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Availability Status -->
+                    <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                            <div>
+                                <div class="text-green-300 font-medium text-sm">Available for projects</div>
+                                <div class="text-green-400/70 text-xs">Let's create something amazing!</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Legal Links -->
+                    <div class="space-y-2 pt-4 border-t border-white/10">
+                        <h5 class="text-gray-400 text-sm font-medium">Legal</h5>
+                        <div class="space-y-1">
+                            <a href="privacy-policy.html" class="block text-gray-500 hover:text-gray-300 transition-colors duration-300 text-xs">
+                                Privacy Policy
+                            </a>
+                            <a href="terms-of-service.html" class="block text-gray-500 hover:text-gray-300 transition-colors duration-300 text-xs">
+                                Terms of Service
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer Bottom -->
+            <div class="border-t border-white/10 pt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                    <div class="text-gray-400 text-sm">
+                        &copy; 2025 David Cit. Creating digital magic, one pixel at a time.
+                    </div>
+                    
+                    <!-- Tech Stack -->
+                    <div class="flex items-center space-x-4">
+                        <span class="text-gray-500 text-xs">Built with:</span>
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs rounded border border-orange-500/30">HTML5</span>
+                            <span class="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded border border-blue-500/30">CSS3</span>
+                            <span class="px-2 py-1 bg-yellow-500/20 text-yellow-300 text-xs rounded border border-yellow-500/30">JavaScript</span>
+                            <span class="px-2 py-1 bg-cyan-500/20 text-cyan-300 text-xs rounded border border-cyan-500/30">Tailwind</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Back to Top -->
+                    <button id="backToTop" class="group flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 rounded-lg text-blue-300 hover:from-blue-500/30 hover:to-purple-500/30 transition-all duration-300 hover:scale-105">
+                        <span class="text-sm">Back to Top</span>
+                        <svg class="w-4 h-4 transition-transform duration-300 group-hover:-translate-y-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
