@@ -414,6 +414,17 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         
+        // Validate character limit before submission
+        const richTextEditor = document.getElementById('richTextEditor');
+        if (richTextEditor) {
+            const plainText = richTextEditor.textContent || '';
+            if (plainText.length > 1000) {
+                formMessage.innerHTML = '<p class="text-red-400">❌ Message is too long. Please limit to 1000 characters.</p>';
+                formMessage.classList.remove('hidden');
+                return;
+            }
+        }
+        
         // Show loading state
         btnText.classList.add('hidden');
         btnLoader.classList.remove('hidden');
@@ -423,8 +434,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Get form data
         const formData = new FormData(form);
         
-        // Get rich text content
-        const richTextEditor = document.getElementById('richTextEditor');
+        // Get rich text content (reuse the element from validation above)
         const messageHTML = formData.get('message') || '';
         const messagePlain = richTextEditor ? richTextEditor.textContent || '' : '';
         
@@ -606,26 +616,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-
-// Add scroll animations
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    .animate-slideInUp {
-        animation: slideInUp 0.8s ease-out;
-    }
-`;
-document.head.appendChild(style);
 
 // Modern Skills Animation System
 function initializeSkillsAnimations() {
@@ -2255,6 +2245,34 @@ class RichTextEditor {
     }
     
     initEditorEvents() {
+        // Prevent input when at character limit
+        this.editor.addEventListener('beforeinput', (e) => {
+            const currentLength = this.getPlainText().length;
+            
+            // Allow deletions and cuts
+            if (e.inputType === 'deleteContentBackward' || 
+                e.inputType === 'deleteContentForward' ||
+                e.inputType === 'deleteByCut') {
+                return;
+            }
+            
+            // Get the length of text being inserted
+            let insertLength = 0;
+            if (e.data) {
+                insertLength = e.data.length;
+            } else if (e.dataTransfer) {
+                const pastedText = e.dataTransfer.getData('text/plain');
+                insertLength = pastedText.length;
+            }
+            
+            // Prevent input if it would exceed the limit
+            if (currentLength + insertLength > this.charLimit) {
+                e.preventDefault();
+                this.showLimitWarning();
+                return;
+            }
+        });
+
         this.editor.addEventListener('input', () => {
             this.updateCounts();
             this.updateHiddenInput();
@@ -2264,10 +2282,12 @@ class RichTextEditor {
         
         this.editor.addEventListener('focus', () => {
             this.updateFloatingLabel();
+            this.container.classList.add('editor-focused');
         });
         
         this.editor.addEventListener('blur', () => {
             this.updateFloatingLabel();
+            this.container.classList.remove('editor-focused');
         });
         
         this.editor.addEventListener('keydown', (e) => {
@@ -2302,7 +2322,21 @@ class RichTextEditor {
         this.editor.addEventListener('paste', (e) => {
             e.preventDefault();
             const text = e.clipboardData.getData('text/plain');
-            this.insertText(text);
+            const currentLength = this.getPlainText().length;
+            const remainingChars = this.charLimit - currentLength;
+            
+            if (remainingChars <= 0) {
+                this.showLimitWarning();
+                return;
+            }
+            
+            let textToInsert = text;
+            if (text.length > remainingChars) {
+                textToInsert = text.substring(0, remainingChars);
+                this.showTruncationWarning(text.length - remainingChars);
+            }
+            
+            this.insertText(textToInsert);
         });
     }
     
@@ -2379,7 +2413,7 @@ class RichTextEditor {
     updateCounts() {
         const text = this.getPlainText();
         const charCount = text.length;
-        const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
+        const wordCount = text.length > 0 ? text.trim().split(/\s+/).filter(word => word.length > 0).length : 0;
         
         this.charCount.textContent = charCount;
         this.wordCount.textContent = wordCount;
@@ -2393,11 +2427,14 @@ class RichTextEditor {
             counter.classList.add('warning');
         }
         
-        // Limit characters
+        // This should no longer be needed as we prevent input at limit,
+        // but keeping as failsafe for edge cases
         if (charCount > this.charLimit) {
             const truncated = text.substring(0, this.charLimit);
-            this.editor.textContent = truncated;
+            // Preserve cursor position and formatting where possible
+            this.setPlainTextContent(truncated);
             this.updateHiddenInput();
+            this.showLimitWarning();
         }
     }
     
@@ -2436,7 +2473,45 @@ class RichTextEditor {
     }
     
     getPlainText() {
-        return this.editor.textContent || '';
+        // Get the actual text content
+        const text = this.editor.textContent || '';
+        
+        // Remove any zero-width characters or non-printing characters
+        const cleanText = text.replace(/[\u200B-\u200D\uFEFF]/g, '');
+        
+        // If editor is effectively empty (just whitespace), return empty string
+        if (!cleanText.trim()) {
+            return '';
+        }
+        
+        return cleanText;
+    }
+    
+    showLimitWarning() {
+        const counter = document.getElementById('message-count');
+        counter.classList.add('limit-reached');
+        
+        // Flash red briefly
+        setTimeout(() => {
+            counter.classList.remove('limit-reached');
+        }, 1000);
+    }
+    
+    showTruncationWarning(charsRemoved) {
+        const formMessage = document.getElementById('formMessage');
+        formMessage.innerHTML = `<p class="text-yellow-400">⚠️ Text was truncated by ${charsRemoved} characters to fit the limit.</p>`;
+        formMessage.classList.remove('hidden');
+        
+        // Hide after 3 seconds
+        setTimeout(() => {
+            formMessage.classList.add('hidden');
+        }, 3000);
+    }
+    
+    setPlainTextContent(text) {
+        // Clear the editor and set plain text, losing formatting
+        this.editor.innerHTML = '';
+        this.editor.textContent = text;
     }
     
     sanitizeHTML(html) {
