@@ -423,11 +423,18 @@ document.addEventListener('DOMContentLoaded', function() {
         // Get form data
         const formData = new FormData(form);
         
+        // Get rich text content
+        const richTextEditor = document.getElementById('richTextEditor');
+        const messageHTML = formData.get('message') || '';
+        const messagePlain = richTextEditor ? richTextEditor.textContent || '' : '';
+        
         // Prepare EmailJS template parameters
         const templateParams = {
             from_name: formData.get('name'),
             from_email: formData.get('email'),
-            message: formData.get('message')
+            message: messagePlain, // Plain text for compatibility
+            message_html: messageHTML, // HTML formatted content
+            message_plain: messagePlain // Plain text version
         };
         
         // Send email via EmailJS
@@ -1831,6 +1838,7 @@ function initScrollRevealAnimations() {
 // Initialize Contact Section Effects
 function initContactSectionEffects() {
     createContactOrbs();
+    initRichTextEditor();
     initFloatingLabels();
     initInputGlowEffects();
     initFormValidation();
@@ -1950,14 +1958,32 @@ function initFormValidation() {
 
 // Validate individual field
 function validateField(field) {
-    const value = field.value.trim();
-    const fieldGroup = field.closest('.floating-input-group');
+    let value;
+    let fieldGroup;
+    
+    // Handle rich text editor
+    if (field.id === 'richTextEditor') {
+        value = field.textContent.trim();
+        fieldGroup = field.closest('.floating-input-group');
+        const hiddenInput = document.getElementById('messageInput');
+        if (hiddenInput && value === '') {
+            hiddenInput.value = '';
+        }
+    } else {
+        value = field.value.trim();
+        fieldGroup = field.closest('.floating-input-group');
+    }
+    
+    if (!fieldGroup) return true;
     
     // Remove existing validation classes
     fieldGroup.classList.remove('field-valid', 'field-invalid');
     
     // Check if field is required and empty
-    if (field.hasAttribute('required') && value === '') {
+    const isRequired = field.hasAttribute('required') || 
+                      (field.id === 'richTextEditor' && document.getElementById('messageInput').hasAttribute('required'));
+    
+    if (isRequired && value === '') {
         fieldGroup.classList.add('field-invalid');
         return false;
     }
@@ -2191,4 +2217,319 @@ function initFooterLinkEffects() {
 function isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
+}
+
+// Rich Text Editor Implementation
+class RichTextEditor {
+    constructor(editorId, toolbarId) {
+        this.editor = document.getElementById(editorId);
+        this.toolbar = document.getElementById(toolbarId);
+        this.hiddenInput = document.getElementById('messageInput');
+        this.charCount = document.getElementById('char-count');
+        this.wordCount = document.getElementById('word-count');
+        this.charLimit = parseInt(document.getElementById('char-limit').textContent);
+        this.container = this.editor.closest('.rich-text-container');
+        
+        this.init();
+    }
+    
+    init() {
+        if (!this.editor || !this.toolbar) return;
+        
+        this.initToolbarButtons();
+        this.initEditorEvents();
+        this.initKeyboardShortcuts();
+        this.initPasteHandling();
+        this.updateCounts();
+    }
+    
+    initToolbarButtons() {
+        const buttons = this.toolbar.querySelectorAll('.toolbar-btn');
+        
+        buttons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.handleToolbarClick(button);
+            });
+        });
+    }
+    
+    initEditorEvents() {
+        this.editor.addEventListener('input', () => {
+            this.updateCounts();
+            this.updateHiddenInput();
+            this.updateFloatingLabel();
+            this.updateToolbarState();
+        });
+        
+        this.editor.addEventListener('focus', () => {
+            this.updateFloatingLabel();
+        });
+        
+        this.editor.addEventListener('blur', () => {
+            this.updateFloatingLabel();
+        });
+        
+        this.editor.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                this.handleEnterKey(e);
+            }
+        });
+    }
+    
+    initKeyboardShortcuts() {
+        this.editor.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key.toLowerCase()) {
+                    case 'b':
+                        e.preventDefault();
+                        this.execCommand('bold');
+                        break;
+                    case 'i':
+                        e.preventDefault();
+                        this.execCommand('italic');
+                        break;
+                    case 'u':
+                        e.preventDefault();
+                        this.execCommand('underline');
+                        break;
+                }
+            }
+        });
+    }
+    
+    initPasteHandling() {
+        this.editor.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const text = e.clipboardData.getData('text/plain');
+            this.insertText(text);
+        });
+    }
+    
+    handleToolbarClick(button) {
+        const command = button.dataset.command;
+        const value = button.dataset.value;
+        
+        if (command === 'createLink') {
+            this.createLink();
+        } else if (command === 'formatBlock') {
+            this.execCommand('formatBlock', value);
+        } else {
+            this.execCommand(command);
+        }
+        
+        this.editor.focus();
+        this.updateToolbarState();
+    }
+    
+    execCommand(command, value = null) {
+        document.execCommand(command, false, value);
+        this.updateHiddenInput();
+        this.updateCounts();
+    }
+    
+    createLink() {
+        const selection = window.getSelection();
+        if (selection.rangeCount === 0) return;
+        
+        const selectedText = selection.toString();
+        const url = prompt('Enter URL:', 'https://');
+        
+        if (url && url !== 'https://') {
+            const link = document.createElement('a');
+            link.href = url;
+            link.textContent = selectedText || url;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            
+            const range = selection.getRangeAt(0);
+            range.deleteContents();
+            range.insertNode(link);
+            
+            this.updateHiddenInput();
+            this.updateCounts();
+        }
+    }
+    
+    insertText(text) {
+        const selection = window.getSelection();
+        if (selection.rangeCount === 0) return;
+        
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+        range.insertNode(document.createTextNode(text));
+        
+        this.updateHiddenInput();
+        this.updateCounts();
+    }
+    
+    handleEnterKey(e) {
+        // Allow natural paragraph breaks
+        const selection = window.getSelection();
+        if (selection.rangeCount === 0) return;
+        
+        // Check if we're in a list item
+        const listItem = selection.anchorNode.closest('li');
+        if (listItem && !listItem.textContent.trim()) {
+            e.preventDefault();
+            this.execCommand('outdent');
+        }
+    }
+    
+    updateCounts() {
+        const text = this.getPlainText();
+        const charCount = text.length;
+        const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
+        
+        this.charCount.textContent = charCount;
+        this.wordCount.textContent = wordCount;
+        
+        const counter = document.getElementById('message-count');
+        counter.classList.remove('warning', 'danger');
+        
+        if (charCount > this.charLimit * 0.9) {
+            counter.classList.add('danger');
+        } else if (charCount > this.charLimit * 0.8) {
+            counter.classList.add('warning');
+        }
+        
+        // Limit characters
+        if (charCount > this.charLimit) {
+            const truncated = text.substring(0, this.charLimit);
+            this.editor.textContent = truncated;
+            this.updateHiddenInput();
+        }
+    }
+    
+    updateHiddenInput() {
+        const html = this.sanitizeHTML(this.editor.innerHTML);
+        this.hiddenInput.value = html;
+        
+        // Trigger validation
+        this.hiddenInput.dispatchEvent(new Event('input'));
+    }
+    
+    updateFloatingLabel() {
+        const label = this.container.querySelector('.floating-label');
+        const hasContent = this.editor.textContent.trim().length > 0;
+        
+        if (hasContent || this.editor === document.activeElement) {
+            this.editor.classList.add('has-content');
+            this.container.classList.add('has-content');
+        } else {
+            this.editor.classList.remove('has-content');
+            this.container.classList.remove('has-content');
+        }
+    }
+    
+    updateToolbarState() {
+        const buttons = this.toolbar.querySelectorAll('.toolbar-btn');
+        
+        buttons.forEach(button => {
+            const command = button.dataset.command;
+            button.classList.remove('active');
+            
+            if (document.queryCommandState && document.queryCommandState(command)) {
+                button.classList.add('active');
+            }
+        });
+    }
+    
+    getPlainText() {
+        return this.editor.textContent || '';
+    }
+    
+    sanitizeHTML(html) {
+        // Create a temporary div to parse HTML
+        const temp = document.createElement('div');
+        temp.innerHTML = html;
+        
+        // Remove script tags and event handlers
+        const scripts = temp.querySelectorAll('script');
+        scripts.forEach(script => script.remove());
+        
+        // Remove event attributes
+        const elements = temp.querySelectorAll('*');
+        elements.forEach(element => {
+            Array.from(element.attributes).forEach(attr => {
+                if (attr.name.startsWith('on')) {
+                    element.removeAttribute(attr.name);
+                }
+            });
+        });
+        
+        // Allow only specific tags
+        const allowedTags = ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 'ul', 'ol', 'li', 'blockquote', 'a'];
+        const allElements = temp.querySelectorAll('*');
+        
+        allElements.forEach(element => {
+            if (!allowedTags.includes(element.tagName.toLowerCase())) {
+                element.replaceWith(...element.childNodes);
+            }
+        });
+        
+        return temp.innerHTML;
+    }
+}
+
+// Initialize Rich Text Editor
+let richTextEditor;
+
+function initRichTextEditor() {
+    richTextEditor = new RichTextEditor('richTextEditor', 'richTextToolbar');
+}
+
+// Update form validation to work with rich text editor
+function initFormValidation() {
+    const form = document.getElementById('contactForm');
+    const inputs = form.querySelectorAll('input:not([type="hidden"]), textarea');
+    const richTextEditor = document.getElementById('richTextEditor');
+    
+    // Add rich text editor to validation
+    if (richTextEditor) {
+        const allInputs = [...inputs, richTextEditor];
+        
+        allInputs.forEach(input => {
+            const eventType = input === richTextEditor ? 'input' : 'input';
+            input.addEventListener(eventType, function() {
+                validateField(this);
+            });
+        });
+    } else {
+        // Fallback for regular textarea
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                validateField(this);
+            });
+        });
+    }
+}
+
+// Update floating labels to work with rich text editor
+function initFloatingLabels() {
+    const inputs = document.querySelectorAll('.floating-input');
+    const richTextEditor = document.getElementById('richTextEditor');
+    
+    inputs.forEach(input => {
+        const label = input.parentElement.querySelector('.floating-label');
+        if (!label) return;
+        
+        function updateLabel() {
+            const hasValue = input.value.trim() !== '';
+            const isFocused = document.activeElement === input;
+            
+            if (hasValue || isFocused) {
+                label.classList.add('active');
+            } else {
+                label.classList.remove('active');
+            }
+        }
+        
+        input.addEventListener('focus', updateLabel);
+        input.addEventListener('blur', updateLabel);
+        input.addEventListener('input', updateLabel);
+        
+        // Initial check
+        updateLabel();
+    });
 }
