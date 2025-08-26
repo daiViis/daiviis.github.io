@@ -30,9 +30,9 @@ def main():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
     
     with socketserver.TCPServer(("", PORT), MyHTTPRequestHandler) as httpd:
-        print(f"🚀 Server starting at http://localhost:{PORT}")
-        print("📧 Note: PHP form will fallback to mailto on this local server")
-        print("🛑 Press Ctrl+C to stop the server")
+        print(f"Server starting at http://localhost:{PORT}")
+        print("Note: PHP form will fallback to mailto on this local server")
+        print("Press Ctrl+C to stop the server")
         
         # Try to open browser automatically
         try:
@@ -43,7 +43,7 @@ def main():
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:
-            print("\n👋 Server stopped!")
+            print("\nServer stopped!")
             sys.exit(0)
 
 if __name__ == "__main__":
