@@ -85,8 +85,10 @@
         },
         "address": {
           "@type": "PostalAddress",
-          "addressLocality": "Ostrava",
+          "streetAddress": "Komenského 18",
+          "addressLocality": "Ostrava Poruba",
           "addressRegion": "Moravian-Silesian Region",
+          "postalCode": "702 00",
           "addressCountry": "CZ"
         },
         "geo": {
@@ -206,6 +208,14 @@
           "@type": "Person",
           "name": "David Cit"
         },
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Komenského 18",
+          "addressLocality": "Ostrava Poruba",
+          "addressRegion": "Moravian-Silesian Region",
+          "postalCode": "702 00",
+          "addressCountry": "CZ"
+        },
         "areaServed": "Worldwide",
         "availableChannel": {
           "@type": "ServiceChannel",
@@ -219,22 +229,52 @@
           "itemListElement": [
             {
               "@type": "Offer",
-              "name": "Web Platform Development",
-              "description": "Fast, responsive, engaging digital experiences that convert visitors to customers",
+              "name": "Landing Page",
+              "description": "Single page presentation with professional design",
               "priceSpecification": {
                 "@type": "PriceSpecification",
-                "priceCurrency": "EUR",
-                "price": "2500.00"
+                "priceCurrency": "USD",
+                "price": "585.00"
               }
             },
             {
               "@type": "Offer",
-              "name": "SEO & Performance Optimization", 
-              "description": "Complete SEO implementation with measurable growth in 6-12 months",
+              "name": "Presentation Website",
+              "description": "2-4 pages presentation website",
               "priceSpecification": {
                 "@type": "PriceSpecification",
-                "priceCurrency": "EUR",
-                "price": "1200.00"
+                "priceCurrency": "USD",
+                "price": "1170.00"
+              }
+            },
+            {
+              "@type": "Offer",
+              "name": "Corporate Website",
+              "description": "5-10 pages enterprise website",
+              "priceSpecification": {
+                "@type": "PriceSpecification",
+                "priceCurrency": "USD",
+                "price": "1950.00"
+              }
+            },
+            {
+              "@type": "Offer",
+              "name": "Blog Package",
+              "description": "Landing page + CMS system with article management",
+              "priceSpecification": {
+                "@type": "PriceSpecification",
+                "priceCurrency": "USD",
+                "price": "685.00"
+              }
+            },
+            {
+              "@type": "Offer",
+              "name": "Portfolio Package",
+              "description": "Landing page + CMS system with project management",
+              "priceSpecification": {
+                "@type": "PriceSpecification",
+                "priceCurrency": "USD",
+                "price": "655.00"
               }
             }
           ]
@@ -317,6 +357,12 @@
           {
             "@type": "ListItem",
             "position": 5,
+            "name": "Pricing",
+            "item": "https://daiviis.github.io#pricing"
+          },
+          {
+            "@type": "ListItem",
+            "position": 6,
             "name": "Contact",
             "item": "https://daiviis.github.io#contact"
           }
@@ -472,7 +518,7 @@
         
         /* Mobile menu panel animation */
         #mobileMenu.show #mobileMenuPanel {
-            transform: translateX(0);
+            transform: translateY(0);
         }
         
         /* Hero section animations */
@@ -499,7 +545,7 @@
         
         .feature-item:hover {
             background: rgba(59, 130, 246, 0.05);
-            transform: translateX(8px);
+            transform: translateY(-4px);
         }
         
         .nav-link {
@@ -540,17 +586,12 @@
             transform: translateY(0);
         }
         
-        .page-transition.slide-left {
-            transform: translateX(-50px);
+        .page-transition.slide-up {
+            transform: translateY(50px);
         }
         
-        .page-transition.slide-right {
-            transform: translateX(50px);
-        }
-        
-        .page-transition.slide-left.visible,
-        .page-transition.slide-right.visible {
-            transform: translateX(0);
+        .page-transition.slide-up.visible {
+            transform: translateY(0);
         }
         
         /* Staggered animation for child elements */
@@ -597,7 +638,7 @@
         }
         
         .contact-btn:hover .arrow-icon {
-            transform: translateX(4px);
+            transform: translateY(-2px);
         }
         
         /* Launch project button animation */
@@ -606,9 +647,66 @@
         }
         
         .launch-btn:hover .arrow-icon {
-            transform: translateX(4px);
+            transform: translateY(-2px);
         }
         
+        /* Custom Select Dropdown Styling */
+        select.form-input {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 40px;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+
+        select.form-input:focus {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%233b82f6' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        }
+
+        select.form-input option {
+            padding: 12px 16px;
+            background-color: white;
+            color: #1f2937;
+            font-size: 14px;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        select.form-input option:hover {
+            background-color: #f3f4f6;
+            color: #111827;
+        }
+
+        select.form-input option:checked {
+            background-color: #3b82f6;
+            color: white;
+            font-weight: 500;
+        }
+
+        select.form-input option:disabled {
+            color: #9ca3af;
+            background-color: #f9fafb;
+            cursor: not-allowed;
+        }
+
+        /* Custom Checkbox Styling */
+        input[type="checkbox"] {
+            accent-color: #3b82f6;
+            cursor: pointer;
+        }
+
+        input[type="checkbox"]:focus {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+        }
+
+        input[type="checkbox"] + label {
+            cursor: pointer;
+        }
+
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
@@ -688,7 +786,7 @@
 
         .animated-heading .line.highlighted {
             opacity: 1;
-            transform: translateX(4px);
+            transform: translateY(-2px);
             color: #000;
         }
 
@@ -967,6 +1065,7 @@
                 <a href="#about" class="nav-link text-gray-700 hover:text-black">Work</a>
                 <a href="#skills" class="nav-link text-gray-700 hover:text-black">Tools</a>
                 <a href="#seo-demo" class="nav-link text-gray-700 hover:text-black">Results</a>
+                <a href="#pricing" class="nav-link text-gray-700 hover:text-black">Pricing</a>
                 <a href="#contact" class="nav-link text-gray-700 hover:text-black">Connect</a>
             </div>
             
@@ -985,7 +1084,7 @@
         <div class="absolute inset-0 bg-black bg-opacity-50" id="mobileMenuBackdrop"></div>
         
         <!-- Menu Panel -->
-        <div class="absolute top-0 right-0 h-full w-full max-w-sm bg-white shadow-xl transform translate-x-full transition-transform duration-300" id="mobileMenuPanel">
+        <div class="absolute bottom-0 left-0 w-full h-auto max-h-96 bg-white shadow-xl transform translate-y-full transition-transform duration-300" id="mobileMenuPanel">
             <div class="flex flex-col h-full">
                 <!-- Menu Header -->
                 <div class="flex items-center justify-end p-6 border-b">
@@ -1003,6 +1102,7 @@
                         <li><a href="#about" class="block text-xl text-gray-700 hover:text-black transition-colors mobile-menu-link">Work</a></li>
                         <li><a href="#skills" class="block text-xl text-gray-700 hover:text-black transition-colors mobile-menu-link">Tools</a></li>
                         <li><a href="#seo-demo" class="block text-xl text-gray-700 hover:text-black transition-colors mobile-menu-link">Results</a></li>
+                        <li><a href="#pricing" class="block text-xl text-gray-700 hover:text-black transition-colors mobile-menu-link">Pricing</a></li>
                         <li><a href="#contact" class="block text-xl text-gray-700 hover:text-black transition-colors mobile-menu-link">Connect</a></li>
                     </ul>
                     
@@ -1113,7 +1213,7 @@
     </main>
 
     <!-- About Section with Modern Design -->
-    <section id="about" class="section-padding px-8 bg-white page-transition slide-left" role="region" aria-label="About section">
+    <section id="about" class="section-padding px-8 bg-white page-transition slide-up" role="region" aria-label="About section">
         <div class="max-w-7xl mx-auto">
             <div class="grid lg:grid-cols-2 gap-20 items-start">
                 <!-- Left Column - Heading -->
@@ -1134,7 +1234,7 @@
                     <!-- Service Sections -->
                     <div class="grid md:grid-cols-2 gap-12">
                         <!-- Web Platforms -->
-                        <div class="space-y-6">
+                        <div class="p-6 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl border border-gray-200 hover:shadow-lg hover:shadow-blue-200/50 hover:border-blue-300 transition-all duration-300 hover:-translate-y-1">
                             <div class="content-spacing">
                                 <h3 class="text-2xl lg:text-3xl font-bold text-black section-title mb-4">
                                     Web Platforms
@@ -1146,24 +1246,24 @@
                             </div>
                             
                             <!-- Features List -->
-                            <div class="space-y-2">
+                            <div class="flex flex-col gap-4">
                                 <div class="feature-item flex items-center text-gray-700">
-                                    <div class="w-1 h-1 bg-black rounded-full mr-4"></div>
+                                    <div class="w-1.5 h-1.5 bg-black rounded-full mr-4 flex-shrink-0"></div>
                                     <span class="font-medium text-sm">Performance Optimized</span>
                                 </div>
                                 <div class="feature-item flex items-center text-gray-700">
-                                    <div class="w-1 h-1 bg-black rounded-full mr-4"></div>
+                                    <div class="w-1.5 h-1.5 bg-black rounded-full mr-4 flex-shrink-0"></div>
                                     <span class="font-medium text-sm">Mobile Excellence</span>
                                 </div>
                                 <div class="feature-item flex items-center text-gray-700">
-                                    <div class="w-1 h-1 bg-black rounded-full mr-4"></div>
+                                    <div class="w-1.5 h-1.5 bg-black rounded-full mr-4 flex-shrink-0"></div>
                                     <span class="font-medium text-sm">Strategic Design</span>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Smart Systems -->
-                        <div class="space-y-6">
+                        <div class="p-6 bg-gradient-to-br from-gray-50 to-slate-100 rounded-2xl border border-gray-200 hover:shadow-lg hover:shadow-gray-300/50 hover:border-gray-300 transition-all duration-300 hover:-translate-y-1">
                             <div class="content-spacing">
                                 <h3 class="text-2xl lg:text-3xl font-bold text-black section-title mb-4">
                                     Smart Systems
@@ -1175,17 +1275,17 @@
                             </div>
                             
                             <!-- Features List -->
-                            <div class="space-y-2">
+                            <div class="flex flex-col gap-4">
                                 <div class="feature-item flex items-center text-gray-700">
-                                    <div class="w-1 h-1 bg-black rounded-full mr-4"></div>
+                                    <div class="w-1.5 h-1.5 bg-black rounded-full mr-4 flex-shrink-0"></div>
                                     <span class="font-medium text-sm">Enterprise Architecture</span>
                                 </div>
                                 <div class="feature-item flex items-center text-gray-700">
-                                    <div class="w-1 h-1 bg-black rounded-full mr-4"></div>
+                                    <div class="w-1.5 h-1.5 bg-black rounded-full mr-4 flex-shrink-0"></div>
                                     <span class="font-medium text-sm">Advanced Integration</span>
                                 </div>
                                 <div class="feature-item flex items-center text-gray-700">
-                                    <div class="w-1 h-1 bg-black rounded-full mr-4"></div>
+                                    <div class="w-1.5 h-1.5 bg-black rounded-full mr-4 flex-shrink-0"></div>
                                     <span class="font-medium text-sm">Secure Solutions</span>
                                 </div>
                             </div>
@@ -1193,11 +1293,25 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Full Width Claude Code Section -->
+            <div class="mt-20 pt-12 border-t border-gray-200">
+                <div class="max-w-4xl mx-auto">
+                    <div class="p-6 bg-gray-50 rounded-2xl">
+                        <p class="text-base text-gray-800 font-medium leading-relaxed text-center">
+                            Leveraging cutting-edge AI technology like <strong>Claude Code</strong> to accelerate development and exceed client expectations. Years of experience combined with modern tools deliver unmatched speed and precision.<br><br>
+                            <img src="assets/logos/claude.png" alt="Claude AI" class="mx-auto mt-2 mb-6 h-4 opacity-60 filter grayscale hover:filter-none hover:opacity-100 hover:scale-110 transition-all duration-300 ease-in-out cursor-pointer">
+                            Your vision becomes reality. Your requirements are sacred.<br>
+                            <span class="text-sm text-gray-600 font-normal italic">Excellence through innovation and expertise.</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
     <!-- Skills Arsenal Section -->
-    <section id="skills" class="section-padding px-8 bg-gradient-to-br from-blue-50 to-indigo-100 page-transition slide-right" role="region" aria-label="Technical skills and expertise">
+    <section id="skills" class="section-padding px-8 bg-gradient-to-br from-blue-50 to-indigo-100 page-transition slide-up" role="region" aria-label="Technical skills and expertise">
         <div class="max-w-7xl mx-auto">
             <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
                 <!-- Left Column - Content -->
@@ -1323,7 +1437,7 @@
     </section>
 
     <!-- SEO Demo Section -->
-    <section id="seo-demo" class="section-padding px-8 bg-white page-transition slide-left" role="region" aria-label="SEO demonstration and results showcase">
+    <section id="seo-demo" class="section-padding px-8 bg-white page-transition slide-up" role="region" aria-label="SEO demonstration and results showcase">
         <div class="max-w-7xl mx-auto">
             <!-- Hero Heading -->
             <div class="text-center mb-20">
@@ -1593,8 +1707,325 @@
         </div>
     </section>
 
+    <!-- Pricing Section -->
+    <section id="pricing" class="section-padding px-8 bg-gradient-to-br from-gray-50 to-blue-50 page-transition slide-up" role="region" aria-label="Pricing plans and packages">
+        <div class="max-w-7xl mx-auto">
+            <!-- Hero Heading -->
+            <div class="text-center mb-20">
+                <h2 class="text-6xl lg:text-7xl font-bold text-black hero-title mb-8">
+                    Plan.<br>
+                    Price.<br>
+                    Progress.
+                </h2>
+                <p class="text-xl text-gray-800 font-medium leading-relaxed max-w-3xl mx-auto">
+                    Transparent pricing for professional web solutions.<br>
+                    All packages include design, development, hosting setup, SEO optimization, and 60-day guarantee.
+                </p>
+            </div>
+
+            <!-- Pricing Cards Grid -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+                <!-- Landing Page -->
+                <div class="glass-card p-8 bg-white border border-gray-200 rounded-3xl hover:border-blue-300 transition-all group">
+                    <div class="mb-6">
+                        <h3 class="text-2xl font-bold text-black mb-2">Landing Page</h3>
+                        <p class="text-gray-600 text-sm">Single page presentation</p>
+                    </div>
+                    
+                    <div class="mb-8">
+                        <div class="flex items-baseline">
+                            <span class="text-4xl font-bold text-black">$585</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">5 days delivery</p>
+                    </div>
+
+                    <div class="space-y-3 mb-8">
+                        <div class="flex items-center text-gray-700">
+                            <div class="w-1 h-1 bg-blue-500 rounded-full mr-3 flex-shrink-0"></div>
+                            <span class="text-sm">Professional single-page design</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <div class="w-1 h-1 bg-blue-500 rounded-full mr-3 flex-shrink-0"></div>
+                            <span class="text-sm">Responsive for all devices</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <div class="w-1 h-1 bg-blue-500 rounded-full mr-3 flex-shrink-0"></div>
+                            <span class="text-sm">Contact form integration</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <div class="w-1 h-1 bg-blue-500 rounded-full mr-3 flex-shrink-0"></div>
+                            <span class="text-sm">Basic SEO optimization</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <div class="w-1 h-1 bg-blue-500 rounded-full mr-3 flex-shrink-0"></div>
+                            <span class="text-sm">60-day bug guarantee</span>
+                        </div>
+                    </div>
+
+                    <a href="#contact" class="block w-full text-center bg-black text-white py-3 rounded-xl hover:bg-gray-800 transition-colors font-medium" onclick="preselectProject('Landing Page')">
+                        Learn More
+                    </a>
+                </div>
+
+                <!-- Presentation Website -->
+                <div class="glass-card p-8 bg-white border-2 border-blue-200 rounded-3xl hover:border-blue-400 transition-all group relative">
+                    <!-- Popular Badge -->
+                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                        <div class="bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-medium">
+                            Most Popular
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <h3 class="text-2xl font-bold text-black mb-2">Presentation Website</h3>
+                        <p class="text-gray-600 text-sm">2-4 pages presentation</p>
+                    </div>
+                    
+                    <div class="mb-8">
+                        <div class="flex items-baseline">
+                            <span class="text-4xl font-bold text-black">$1,170</span>
+                            <span class="text-gray-600 ml-2">- $1,755</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">Max 20 days delivery</p>
+                    </div>
+
+                    <div class="space-y-3 mb-8">
+                        <div class="flex items-center text-gray-700">
+                            <div class="w-1 h-1 bg-blue-500 rounded-full mr-3 flex-shrink-0"></div>
+                            <span class="text-sm">Multiple sections & pages</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <div class="w-1 h-1 bg-blue-500 rounded-full mr-3 flex-shrink-0"></div>
+                            <span class="text-sm">Navigation menu</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <div class="w-1 h-1 bg-blue-500 rounded-full mr-3 flex-shrink-0"></div>
+                            <span class="text-sm">Image gallery</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <div class="w-1 h-1 bg-blue-500 rounded-full mr-3 flex-shrink-0"></div>
+                            <span class="text-sm">Advanced SEO optimization</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <div class="w-1 h-1 bg-blue-500 rounded-full mr-3 flex-shrink-0"></div>
+                            <span class="text-sm">Contact forms & info</span>
+                        </div>
+                    </div>
+
+                    <a href="#contact" class="block w-full text-center bg-blue-500 text-white py-3 rounded-xl hover:bg-blue-600 transition-colors font-medium" onclick="preselectProject('Presentation Website')">
+                        Learn More
+                    </a>
+                </div>
+
+                <!-- Corporate Website -->
+                <div class="glass-card p-8 bg-white border border-gray-200 rounded-3xl hover:border-purple-300 transition-all group">
+                    <div class="mb-6">
+                        <h3 class="text-2xl font-bold text-black mb-2">Corporate Website</h3>
+                        <p class="text-gray-600 text-sm">5-10 pages enterprise</p>
+                    </div>
+                    
+                    <div class="mb-8">
+                        <div class="flex items-baseline">
+                            <span class="text-4xl font-bold text-black">$1,950</span>
+                            <span class="text-gray-600 ml-2">- $3,510</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">Custom timeline</p>
+                    </div>
+
+                    <div class="space-y-3 mb-8">
+                        <div class="flex items-center text-gray-700">
+                            <div class="w-1 h-1 bg-purple-500 rounded-full mr-3 flex-shrink-0"></div>
+                            <span class="text-sm">Complete business presentation</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <div class="w-1 h-1 bg-purple-500 rounded-full mr-3 flex-shrink-0"></div>
+                            <span class="text-sm">About, services, products</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <div class="w-1 h-1 bg-purple-500 rounded-full mr-3 flex-shrink-0"></div>
+                            <span class="text-sm">References & portfolio</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <div class="w-1 h-1 bg-purple-500 rounded-full mr-3 flex-shrink-0"></div>
+                            <span class="text-sm">Blog/news (optional)</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <div class="w-1 h-1 bg-purple-500 rounded-full mr-3 flex-shrink-0"></div>
+                            <span class="text-sm">Advanced SEO & social media</span>
+                        </div>
+                    </div>
+
+                    <a href="#contact" class="block w-full text-center bg-purple-500 text-white py-3 rounded-xl hover:bg-purple-600 transition-colors font-medium" onclick="preselectProject('Corporate Website')">
+                        Learn More
+                    </a>
+                </div>
+            </div>
+
+            <!-- Specialized Solutions -->
+            <div class="grid md:grid-cols-2 gap-8 mb-16">
+                <!-- Blog Package -->
+                <div class="glass-card p-8 bg-white border border-gray-200 rounded-3xl hover:border-green-300 transition-all cursor-pointer" onclick="preselectProject('Blog Package')">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="text-xl font-bold text-black mb-1">Blog Package</h3>
+                            <p class="text-gray-600 text-sm">Landing page + CMS system</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-3xl font-bold text-black">$685</div>
+                            <p class="text-xs text-gray-600">7 days delivery</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 text-sm text-gray-700">
+                        <div class="flex items-center">
+                            <div class="w-1 h-1 bg-green-500 rounded-full mr-2 flex-shrink-0"></div>
+                            <span>Article management</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-1 h-1 bg-green-500 rounded-full mr-2 flex-shrink-0"></div>
+                            <span>Categories & tags</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-1 h-1 bg-green-500 rounded-full mr-2 flex-shrink-0"></div>
+                            <span>RSS feed</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-1 h-1 bg-green-500 rounded-full mr-2 flex-shrink-0"></div>
+                            <span>SEO for articles</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Portfolio Package -->
+                <div class="glass-card p-8 bg-white border border-gray-200 rounded-3xl hover:border-orange-300 transition-all cursor-pointer" onclick="preselectProject('Portfolio Package')">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="text-xl font-bold text-black mb-1">Portfolio Package</h3>
+                            <p class="text-gray-600 text-sm">Landing page + CMS system</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-3xl font-bold text-black">$655</div>
+                            <p class="text-xs text-gray-600">7 days delivery</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 text-sm text-gray-700">
+                        <div class="flex items-center">
+                            <div class="w-1 h-1 bg-orange-500 rounded-full mr-2 flex-shrink-0"></div>
+                            <span>Project management</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-1 h-1 bg-orange-500 rounded-full mr-2 flex-shrink-0"></div>
+                            <span>Gallery with categories</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-1 h-1 bg-orange-500 rounded-full mr-2 flex-shrink-0"></div>
+                            <span>Lightbox viewing</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-1 h-1 bg-orange-500 rounded-full mr-2 flex-shrink-0"></div>
+                            <span>Responsive display</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- What's Included -->
+            <div class="bg-white rounded-3xl p-8 lg:p-12 border border-gray-200">
+                <h3 class="text-3xl lg:text-4xl font-bold text-black section-title mb-8 text-center">
+                    What's Included in Every Package
+                </h3>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <svg class="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-black text-sm">Initial Consultation</h4>
+                            <p class="text-gray-600 text-sm">Understanding your needs and goals</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-3">
+                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <svg class="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-black text-sm">Professional Design</h4>
+                            <p class="text-gray-600 text-sm">Unique look tailored to your brand</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-3">
+                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <svg class="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-black text-sm">Responsive Development</h4>
+                            <p class="text-gray-600 text-sm">Perfect display on all devices</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-3">
+                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <svg class="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-black text-sm">Hosting Setup</h4>
+                            <p class="text-gray-600 text-sm">Complete configuration included</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-3">
+                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <svg class="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-black text-sm">SEO Optimization</h4>
+                            <p class="text-gray-600 text-sm">Search engine friendly code</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-3">
+                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <svg class="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-black text-sm">60-Day Guarantee</h4>
+                            <p class="text-gray-600 text-sm">Bug fixes for 2 months after delivery</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Call to Action -->
+                <div class="text-center mt-12">
+                    <p class="text-gray-600 mb-6">Ready to start your project?</p>
+                    <a href="#contact" class="contact-btn inline-flex items-center space-x-3 bg-black text-white px-8 py-4 rounded-xl hover:bg-gray-800 text-lg font-medium">
+                        <span>Discuss Your Project</span>
+                        <svg class="arrow-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Contact Section -->
-    <section id="contact" class="section-padding px-8 bg-white page-transition slide-right" role="region" aria-label="Contact information and form">
+    <section id="contact" class="section-padding px-8 bg-white page-transition slide-up" role="region" aria-label="Contact information and form">
         <div class="max-w-7xl mx-auto">
             <div class="grid lg:grid-cols-2 gap-20 items-start">
                 <!-- Left Column - Heading -->
@@ -1655,6 +2086,18 @@
                             <span class="text-green-800 font-medium">Available for strategic partnerships</span>
                         </div>
                     </div>
+
+                    <!-- Dynamic Form Heading -->
+                    <div class="mb-6">
+                        <h3 id="form-heading" class="text-2xl lg:text-3xl font-bold text-black mb-3">
+                            Let's discuss your project
+                        </h3>
+                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                            <p class="text-sm text-blue-800 leading-relaxed">
+                                <span class="font-medium">No commitment required.</span> This is a free consultation to understand your needs. Nothing will be billed, and you're under no obligation even if we discuss details and don't meet expectations.
+                            </p>
+                        </div>
+                    </div>
                     
                     <!-- Contact Form Container -->
                     <div class="bg-gray-50 rounded-3xl card-spacing border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-500">
@@ -1671,6 +2114,52 @@
                             <div id="email-hint" class="sr-only">Enter your email address</div>
                         </div>
 
+                        <!-- Project Type Selection -->
+                        <div class="relative">
+                            <select name="project_type" id="project_type" required class="form-input w-full px-4 py-4 bg-white border border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none text-gray-900 hover:border-gray-400" aria-describedby="project-type-hint">
+                                <option value="" disabled selected>Select Project Type</option>
+                                <option value="Landing Page">Landing Page</option>
+                                <option value="Presentation Website">Presentation Website</option>
+                                <option value="Corporate Website">Corporate Website</option>
+                                <option value="Blog Package">Blog Package</option>
+                                <option value="Portfolio Package">Portfolio Package</option>
+                                <option value="Full Stack Application">Full Stack Application</option>
+                                <option value="Other">Other (Please specify in message)</option>
+                            </select>
+                            <div id="project-type-hint" class="sr-only">Select the type of project you need</div>
+                        </div>
+
+                        <!-- Current Website Input -->
+                        <div class="relative">
+                            <input type="url" name="current_website" id="current_website" class="form-input w-full px-4 py-4 bg-white border border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none text-gray-900 hover:border-gray-400" placeholder="Current website (if any)" aria-describedby="website-hint">
+                            <div id="website-hint" class="sr-only">Enter your current website URL if you have one</div>
+                        </div>
+
+                        <!-- Alternative Contact Preference -->
+                        <div class="space-y-3">
+                            <div class="flex items-center space-x-3">
+                                <input type="checkbox" id="alt-contact" name="alt_contact" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 flex-shrink-0">
+                                <label for="alt-contact" class="text-sm text-gray-700">
+                                    Contact me rather on social media
+                                </label>
+                            </div>
+                            
+                            <div id="alt-contact-fields" class="space-y-3 hidden">
+                                <div class="grid grid-cols-2 gap-3">
+                                    <select name="social_platform" id="social_platform" class="form-input w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none text-gray-900 hover:border-gray-400 text-sm">
+                                        <option value="" disabled selected>Select Platform</option>
+                                        <option value="Instagram">Instagram</option>
+                                        <option value="X (Twitter)">X (Twitter)</option>
+                                        <option value="LinkedIn">LinkedIn</option>
+                                        <option value="Facebook">Facebook</option>
+                                        <option value="Telegram">Telegram</option>
+                                        <option value="WhatsApp">WhatsApp</option>
+                                    </select>
+                                    <input type="text" name="social_username" id="social_username" class="form-input w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none text-gray-900 hover:border-gray-400 text-sm" placeholder="@username or number">
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Message Textarea -->
                         <div class="relative">
                             <textarea name="message" id="message" required rows="5" class="form-input w-full px-4 py-4 bg-white border border-gray-300 rounded-xl focus:border-green-500 focus:outline-none text-gray-900 hover:border-gray-400 resize-none" placeholder="Tell me about your project..." aria-describedby="message-hint message-count" maxlength="1000"></textarea>
@@ -1680,6 +2169,14 @@
                         <!-- Character Counter -->
                         <div id="message-count" class="text-right text-xs text-gray-500">
                             <span id="char-count">0</span>/<span id="char-limit">1000</span> chars • <span id="word-count">0</span> words
+                        </div>
+
+                        <!-- Privacy Consent Checkbox -->
+                        <div class="flex items-start space-x-3">
+                            <input type="checkbox" id="privacy-consent" name="privacy_consent" required class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 mt-0.5 flex-shrink-0">
+                            <label for="privacy-consent" class="text-sm text-gray-700 leading-relaxed">
+                                I agree to the processing of personal data in accordance with the principles of their protection.
+                            </label>
                         </div>
 
                         <!-- Submit Button -->
@@ -1742,6 +2239,7 @@
                         <li><a href="#about" class="text-gray-400 hover:text-white hover-lift transition-colors">Work</a></li>
                         <li><a href="#skills" class="text-gray-400 hover:text-white hover-lift transition-colors">Tools</a></li>
                         <li><a href="#seo-demo" class="text-gray-400 hover:text-white hover-lift transition-colors">Results</a></li>
+                        <li><a href="#pricing" class="text-gray-400 hover:text-white hover-lift transition-colors">Pricing</a></li>
                         <li><a href="#contact" class="text-gray-400 hover:text-white hover-lift transition-colors">Connect</a></li>
                     </ul>
                 </div>
@@ -1788,6 +2286,95 @@
     </button>
 
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    
+    <script>
+        // Alternative contact fields toggle
+        document.getElementById('alt-contact').addEventListener('change', function() {
+            const altContactFields = document.getElementById('alt-contact-fields');
+            const socialPlatform = document.getElementById('social_platform');
+            const socialUsername = document.getElementById('social_username');
+            
+            if (this.checked) {
+                altContactFields.classList.remove('hidden');
+                socialPlatform.required = true;
+                socialUsername.required = true;
+            } else {
+                altContactFields.classList.add('hidden');
+                socialPlatform.required = false;
+                socialUsername.required = false;
+                socialPlatform.value = '';
+                socialUsername.value = '';
+            }
+        });
+
+        // Preselect project type function
+        function preselectProject(projectType) {
+            // Scroll to contact form
+            document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+            
+            // Wait for scroll to complete, then select the project type and update heading
+            setTimeout(() => {
+                const projectTypeSelect = document.getElementById('project_type');
+                const formHeading = document.getElementById('form-heading');
+                
+                // Update project type selection
+                projectTypeSelect.value = projectType;
+                
+                // Update form heading based on project type
+                updateFormHeading(projectType);
+                
+                // Add a slight highlight effect to show it was selected
+                projectTypeSelect.style.borderColor = '#3b82f6';
+                projectTypeSelect.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                
+                // Remove highlight after 2 seconds
+                setTimeout(() => {
+                    projectTypeSelect.style.borderColor = '';
+                    projectTypeSelect.style.boxShadow = '';
+                }, 2000);
+            }, 800);
+        }
+
+        // Update form heading based on project type
+        function updateFormHeading(projectType) {
+            const formHeading = document.getElementById('form-heading');
+            
+            switch(projectType) {
+                case 'Landing Page':
+                    formHeading.textContent = "Let's discuss your Landing Page";
+                    break;
+                case 'Presentation Website':
+                    formHeading.textContent = "Let's discuss your Presentation Website";
+                    break;
+                case 'Corporate Website':
+                    formHeading.textContent = "Let's discuss your Corporate Website";
+                    break;
+                case 'Blog Package':
+                    formHeading.textContent = "Let's discuss your Blog Package";
+                    break;
+                case 'Portfolio Package':
+                    formHeading.textContent = "Let's discuss your Portfolio Package";
+                    break;
+                case 'Full Stack Application':
+                    formHeading.textContent = "Let's discuss your Full Stack Application";
+                    break;
+                case 'Other':
+                    formHeading.textContent = "Let's discuss your project";
+                    break;
+                default:
+                    formHeading.textContent = "Let's discuss your project";
+            }
+        }
+
+        // Add event listener to project type dropdown for manual changes
+        document.addEventListener('DOMContentLoaded', function() {
+            const projectTypeSelect = document.getElementById('project_type');
+            projectTypeSelect.addEventListener('change', function() {
+                updateFormHeading(this.value);
+            });
+        });
+    </script>
+    
     <script src="script.js"></script>
 </body>
 </html>

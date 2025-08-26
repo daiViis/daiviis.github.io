@@ -451,12 +451,27 @@ function initContactForm() {
     // Primary method: EmailJS
     async function sendViaEmailJS(name, email, messageContent) {
         const messagePlain = stripHTML(messageContent);
+        const formData = new FormData(form);
+        
+        // Get all form field values
+        const projectType = formData.get('project_type') || 'Not specified';
+        const currentWebsite = formData.get('current_website') || 'Not provided';
+        const altContact = formData.get('alt_contact') ? 'Yes' : 'No';
+        const socialPlatform = formData.get('social_platform') || 'Not specified';
+        const socialUsername = formData.get('social_username') || 'Not provided';
+        const privacyConsent = formData.get('privacy_consent') ? 'Agreed' : 'Not agreed';
         
         const templateParams = {
             from_name: name,
             from_email: email,
             message: messagePlain,
-            message_html: messageContent
+            message_html: messageContent,
+            project_type: projectType,
+            current_website: currentWebsite,
+            alt_contact: altContact,
+            social_platform: socialPlatform,
+            social_username: socialUsername,
+            privacy_consent: privacyConsent
         };
         
         const response = await emailjs.send('service_2uq6kt8', 'template_fryqiz8', templateParams);
