@@ -1051,55 +1051,63 @@ function initSEODemo() {
     }
 }
 
-// Rating widget connected to Rich Snippet data
+// Rating widget with expandable quick rating functionality
 function initRatingWidget() {
     try {
-        // Find the structured data script containing LocalBusiness data
-        const scripts = document.querySelectorAll('script[type="application/ld+json"]');
-        let aggregateRating = null;
+        // Initialize display from structured data
+        updateRatingDisplay();
         
-        scripts.forEach(script => {
-            try {
-                const data = JSON.parse(script.textContent);
-                // Handle both single object and array of objects
-                const items = Array.isArray(data) ? data : [data];
-                
-                items.forEach(item => {
-                    if (item['@type'] === 'LocalBusiness' && item.aggregateRating) {
-                        aggregateRating = item.aggregateRating;
-                    }
-                });
-            } catch (e) {
-                console.warn('Could not parse structured data:', e);
-            }
-        });
-        
-        if (!aggregateRating) {
-            console.warn('No aggregate rating found in structured data');
-            return;
-        }
-        
-        const ratingValue = parseFloat(aggregateRating.ratingValue);
-        const reviewCount = parseInt(aggregateRating.reviewCount);
-        
-        // Update rating value display
-        const ratingValueElement = document.getElementById('ratingValue');
-        if (ratingValueElement) {
-            ratingValueElement.textContent = ratingValue.toFixed(1);
-        }
-        
-        // Update review count display
-        const reviewCountElement = document.getElementById('reviewCount');
-        if (reviewCountElement) {
-            reviewCountElement.textContent = `${reviewCount} reviews`;
-        }
-        
-        // Generate stars
-        generateStars(ratingValue);
+        // Initialize expandable quick rating functionality
+        initQuickRating();
         
     } catch (error) {
         console.error('Error initializing rating widget:', error);
     }
+}
+
+function updateRatingDisplay() {
+    // Find the structured data script containing LocalBusiness data
+    const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+    let aggregateRating = null;
+    
+    scripts.forEach(script => {
+        try {
+            const data = JSON.parse(script.textContent);
+            // Handle both single object and array of objects
+            const items = Array.isArray(data) ? data : [data];
+            
+            items.forEach(item => {
+                if (item['@type'] === 'LocalBusiness' && item.aggregateRating) {
+                    aggregateRating = item.aggregateRating;
+                }
+            });
+        } catch (e) {
+            console.warn('Could not parse structured data:', e);
+        }
+    });
+    
+    if (!aggregateRating) {
+        console.warn('No aggregate rating found in structured data');
+        return;
+    }
+    
+    const ratingValue = parseFloat(aggregateRating.ratingValue);
+    const reviewCount = parseInt(aggregateRating.reviewCount);
+    
+    // Update rating value display
+    const ratingValueElement = document.getElementById('ratingValue');
+    if (ratingValueElement) {
+        ratingValueElement.textContent = ratingValue.toFixed(1);
+    }
+    
+    // Update review count display
+    const reviewCountElement = document.getElementById('reviewCount');
+    if (reviewCountElement) {
+        reviewCountElement.textContent = `${reviewCount} reviews`;
+    }
+    
+    // Generate stars
+    generateStars(ratingValue);
 }
 
 function generateStars(rating) {
@@ -1128,6 +1136,366 @@ function generateStars(rating) {
         }
         
         starsContainer.appendChild(starWrapper);
+    }
+}
+
+// Initialize quick rating functionality with one-rating-per-user limitation
+function initQuickRating() {
+    // Check if user has already rated
+    if (hasUserAlreadyRated()) {
+        showAlreadyRatedState();
+        return;
+    }
+
+    const widgetCollapsed = document.getElementById('ratingWidgetCollapsed');
+    const quickRatingForm = document.getElementById('quickRatingForm');
+    const cancelBtn = document.getElementById('cancelQuickRating');
+    const submitBtn = document.getElementById('submitQuickRating');
+    const quickStars = document.querySelectorAll('.quick-star');
+    const quickRatingText = document.getElementById('quickRatingText');
+    
+    let selectedRating = 0;
+    let isSubmitting = false;
+
+    // Widget click to expand
+    if (widgetCollapsed) {
+        widgetCollapsed.addEventListener('click', function(e) {
+            e.preventDefault();
+            expandRatingWidget();
+        });
+    }
+
+    // Cancel button
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', function() {
+            collapseRatingWidget();
+        });
+    }
+
+    // Star rating functionality
+    quickStars.forEach(star => {
+        const rating = parseInt(star.dataset.rating);
+        
+        star.addEventListener('click', function() {
+            selectedRating = rating;
+            updateQuickStars(rating);
+            updateRatingText(rating);
+            enableSubmitButton();
+        });
+        
+        star.addEventListener('mouseenter', function() {
+            updateQuickStars(rating, true);
+        });
+    });
+
+    // Reset stars on mouse leave
+    document.getElementById('quickRatingStars').addEventListener('mouseleave', function() {
+        updateQuickStars(selectedRating);
+    });
+
+    // Submit rating
+    if (submitBtn) {
+        submitBtn.addEventListener('click', async function() {
+            if (selectedRating > 0 && !isSubmitting) {
+                await submitQuickRating();
+            }
+        });
+    }
+
+    function hasUserAlreadyRated() {
+        // Check localStorage for previous rating from this browser/device
+        const hasRated = localStorage.getItem('user_has_rated_quick');
+        const lastRatingTime = localStorage.getItem('last_quick_rating_time');
+        
+        if (hasRated && lastRatingTime) {
+            // Allow re-rating after 30 days
+            const daysSince = (Date.now() - parseInt(lastRatingTime)) / (1000 * 60 * 60 * 24);
+            return daysSince < 30;
+        }
+        return false;
+    }
+
+    function markUserAsRated() {
+        localStorage.setItem('user_has_rated_quick', 'true');
+        localStorage.setItem('last_quick_rating_time', Date.now().toString());
+    }
+
+    function showAlreadyRatedState() {
+        const widgetCollapsed = document.getElementById('ratingWidgetCollapsed');
+        if (widgetCollapsed) {
+            // Update click hint to show already rated
+            const clickHint = widgetCollapsed.querySelector('.text-xs.text-gray-400');
+            if (clickHint) {
+                clickHint.textContent = '✅ Already rated';
+                clickHint.style.color = '#059669';
+            }
+            
+            // Remove click functionality
+            widgetCollapsed.style.cursor = 'default';
+            widgetCollapsed.onclick = null;
+        }
+    }
+
+    function expandRatingWidget() {
+        quickRatingForm.classList.remove('hidden');
+        widgetCollapsed.style.pointerEvents = 'none';
+        widgetCollapsed.style.opacity = '0.7';
+    }
+
+    function collapseRatingWidget() {
+        quickRatingForm.classList.add('hidden');
+        widgetCollapsed.style.pointerEvents = 'auto';
+        widgetCollapsed.style.opacity = '1';
+        resetQuickRating();
+    }
+
+    function resetQuickRating() {
+        selectedRating = 0;
+        updateQuickStars(0);
+        updateRatingText(0);
+        document.getElementById('quickComment').value = '';
+        disableSubmitButton();
+        hideQuickStatus();
+    }
+
+    function updateQuickStars(rating, isHover = false) {
+        quickStars.forEach((star, index) => {
+            if (index < rating) {
+                star.style.color = '#fbbf24';
+            } else {
+                star.style.color = isHover ? '#fed7aa' : '#d1d5db';
+            }
+        });
+    }
+
+    function updateRatingText(rating) {
+        const texts = {
+            0: 'Click a star to rate',
+            1: '1/5 - Very Poor',
+            2: '2/5 - Poor', 
+            3: '3/5 - Average',
+            4: '4/5 - Good',
+            5: '5/5 - Excellent'
+        };
+        quickRatingText.textContent = texts[rating];
+        quickRatingText.style.color = rating >= 4 ? '#059669' : rating >= 3 ? '#d97706' : rating > 0 ? '#dc2626' : '#6b7280';
+    }
+
+    function enableSubmitButton() {
+        submitBtn.disabled = false;
+    }
+
+    function disableSubmitButton() {
+        submitBtn.disabled = true;
+    }
+
+    async function submitQuickRating() {
+        if (isSubmitting) return;
+        
+        isSubmitting = true;
+        setQuickLoadingState(true);
+
+        try {
+            const comment = document.getElementById('quickComment').value.trim();
+            
+            // Generate unique user identifier for duplicate prevention
+            const userFingerprint = generateUserFingerprint();
+            
+            // Prepare feedback data in same format as full form
+            const feedbackData = {
+                customer_name: 'Anonymous User',
+                customer_website: 'Quick Rating',
+                customer_ref: 'QUICK_' + userFingerprint + '_' + Date.now(),
+                process_rating: selectedRating,
+                product_rating: selectedRating,
+                recommendation_rating: selectedRating,
+                overall_rating: selectedRating,
+                average_rating: selectedRating.toFixed(1),
+                comments: comment || 'Quick rating submission from main page',
+                share_permission: 'No',
+                submission_date: new Date().toLocaleDateString(),
+                submission_time: new Date().toLocaleTimeString(),
+                page_url: window.location.href
+            };
+
+            // Send to database if available
+            await saveQuickRatingToDatabase(feedbackData);
+            
+            // Send via EmailJS
+            await sendQuickRatingViaEmail(feedbackData);
+
+            // Mark user as having rated (prevents duplicate ratings)
+            markUserAsRated();
+
+            // Show success message
+            showQuickStatus('✅ Thank you for your rating!', 'success');
+            
+            // Auto-close after 3 seconds and refresh ratings
+            setTimeout(() => {
+                collapseRatingWidget();
+                showAlreadyRatedState(); // Update widget to show already rated
+                
+                // Trigger Rich Snippets update
+                if (window.RichSnippetsFeedback) {
+                    window.RichSnippetsFeedback.update();
+                }
+                // Update local display
+                setTimeout(updateRatingDisplay, 1000);
+            }, 3000);
+
+        } catch (error) {
+            console.error('Quick rating submission error:', error);
+            showQuickStatus('❌ Failed to submit rating. Please try again.', 'error');
+        } finally {
+            isSubmitting = false;
+            setQuickLoadingState(false);
+        }
+    }
+
+    function generateUserFingerprint() {
+        // Create a semi-persistent user identifier (not perfect but good enough)
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        ctx.textBaseline = 'top';
+        ctx.font = '14px Arial';
+        ctx.fillText('User fingerprint', 2, 2);
+        
+        const fingerprint = canvas.toDataURL() + 
+            navigator.userAgent + 
+            navigator.language + 
+            screen.width + 'x' + screen.height +
+            new Date().getTimezoneOffset();
+            
+        // Create hash of fingerprint
+        let hash = 0;
+        for (let i = 0; i < fingerprint.length; i++) {
+            const char = fingerprint.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32-bit integer
+        }
+        return Math.abs(hash).toString(16);
+    }
+
+    async function saveQuickRatingToDatabase(feedbackData) {
+        // Check if database is available
+        console.log('🔍 Checking database availability...');
+        console.log('DATABASE_CONFIG exists:', !!window.DATABASE_CONFIG);
+        console.log('DATABASE_CONFIG.enabled:', window.DATABASE_CONFIG?.enabled);
+        console.log('Supabase exists:', !!window.supabase);
+        
+        if (window.DATABASE_CONFIG && window.DATABASE_CONFIG.enabled && window.supabase) {
+            try {
+                console.log('🔗 Creating Supabase client...');
+                const supabaseClient = window.supabase.createClient(
+                    window.DATABASE_CONFIG.supabaseUrl,
+                    window.DATABASE_CONFIG.supabaseKey
+                );
+
+                console.log('📤 Inserting data to database:', feedbackData);
+
+                const { data, error } = await supabaseClient
+                    .from('feedback_submissions')
+                    .insert([{
+                        customer_name: feedbackData.customer_name,
+                        customer_website: feedbackData.customer_website,
+                        customer_ref: feedbackData.customer_ref,
+                        process_rating: parseInt(feedbackData.process_rating),
+                        product_rating: parseInt(feedbackData.product_rating),
+                        recommendation_rating: parseInt(feedbackData.recommendation_rating),
+                        overall_rating: parseInt(feedbackData.overall_rating),
+                        average_rating: parseFloat(feedbackData.average_rating),
+                        comments: feedbackData.comments,
+                        share_permission: false,
+                        submission_date: feedbackData.submission_date,
+                        submission_time: feedbackData.submission_time,
+                        page_url: feedbackData.page_url,
+                        user_agent: navigator.userAgent
+                    }]);
+
+                if (error) {
+                    console.error('❌ Supabase error details:', error);
+                    throw error;
+                }
+                console.log('✅ Quick rating saved to database successfully:', data);
+                return data;
+            } catch (error) {
+                console.error('❌ Database save failed with error:', error);
+                // Show error to user for debugging
+                showQuickStatus(`Database error: ${error.message}`, 'error');
+                // Don't throw - we still want to send email
+            }
+        } else {
+            console.warn('⚠️ Database not available - missing requirements');
+            showQuickStatus('⚠️ Database unavailable - only email will be sent', 'error');
+        }
+    }
+
+    async function sendQuickRatingViaEmail(feedbackData) {
+        if (window.emailjs) {
+            try {
+                const templateParams = {
+                    from_name: 'Quick Rating System',
+                    from_email: 'quickrating@system.generated',
+                    message: `⭐ QUICK RATING SUBMISSION ⭐
+
+🎯 Rating: ${feedbackData.average_rating}/5 stars
+💬 Comment: ${feedbackData.comments}
+📅 Date: ${feedbackData.submission_date}
+⏰ Time: ${feedbackData.submission_time}
+🌐 Page: ${feedbackData.page_url}
+🔒 User ID: ${feedbackData.customer_ref}
+
+---
+This was a quick rating submission from the main page widget.`,
+                    project_type: 'Quick Rating',
+                    current_website: 'Main Page Widget',
+                    alt_contact: 'No',
+                    social_platform: 'Quick Rating Widget',
+                    social_username: feedbackData.customer_ref,
+                    privacy_consent: 'Widget Submission'
+                };
+
+                await emailjs.send('service_2uq6kt8', 'template_fryqiz8', templateParams);
+                console.log('✅ Quick rating email sent');
+            } catch (error) {
+                console.error('Email send failed:', error);
+                throw error;
+            }
+        }
+    }
+
+    function setQuickLoadingState(loading) {
+        const submitText = submitBtn.querySelector('.submit-text');
+        const loadingText = submitBtn.querySelector('.loading-text');
+        
+        if (loading) {
+            submitBtn.disabled = true;
+            submitText.classList.add('hidden');
+            loadingText.classList.remove('hidden');
+        } else {
+            submitText.classList.remove('hidden');
+            loadingText.classList.add('hidden');
+            if (selectedRating > 0) {
+                submitBtn.disabled = false;
+            }
+        }
+    }
+
+    function showQuickStatus(message, type) {
+        const statusEl = document.getElementById('quickRatingStatus');
+        const classes = {
+            'success': 'bg-green-100 text-green-800 border border-green-200',
+            'error': 'bg-red-100 text-red-800 border border-red-200'
+        };
+        
+        statusEl.textContent = message;
+        statusEl.className = `text-xs text-center p-2 rounded-lg ${classes[type]}`;
+        statusEl.classList.remove('hidden');
+    }
+
+    function hideQuickStatus() {
+        const statusEl = document.getElementById('quickRatingStatus');
+        statusEl.classList.add('hidden');
     }
 }
 

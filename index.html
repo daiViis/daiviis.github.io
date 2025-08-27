@@ -117,55 +117,11 @@
         "openingHours": "Mo-Fr 09:00-18:00",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": "4.4",
-          "reviewCount": "27",
+          "ratingValue": "5.0",
+          "reviewCount": "1",
           "bestRating": "5",
           "worstRating": "1"
         },
-        "review": [
-          {
-            "@type": "Review",
-            "author": {
-              "@type": "Person",
-              "name": "Sarah Johnson"
-            },
-            "reviewRating": {
-              "@type": "Rating",
-              "ratingValue": "5",
-              "bestRating": "5"
-            },
-            "reviewBody": "David delivered an outstanding website that exceeded our expectations. The SEO optimization results were phenomenal - we saw 180% increase in organic traffic within 6 months.",
-            "datePublished": "2024-11-15"
-          },
-          {
-            "@type": "Review", 
-            "author": {
-              "@type": "Person",
-              "name": "Michael Chen"
-            },
-            "reviewRating": {
-              "@type": "Rating",
-              "ratingValue": "5",
-              "bestRating": "5"
-            },
-            "reviewBody": "Professional, responsive, and results-driven. David's technical expertise and attention to detail made our project a huge success.",
-            "datePublished": "2024-10-22"
-          },
-          {
-            "@type": "Review",
-            "author": {
-              "@type": "Person", 
-              "name": "Lisa Rodriguez"
-            },
-            "reviewRating": {
-              "@type": "Rating",
-              "ratingValue": "5", 
-              "bestRating": "5"
-            },
-            "reviewBody": "Fast execution and smart solutions. Our new platform performs beautifully and the user experience is exceptional.",
-            "datePublished": "2024-12-03"
-          }
-        ],
         "hasOfferCatalog": {
           "@type": "OfferCatalog",
           "name": "Web Development Services",
@@ -2199,18 +2155,68 @@
                             Transform your vision into reality.
                         </p>
                         
-                        <!-- Client Rating Widget -->
-                        <div id="ratingWidget" class="inline-flex items-center space-x-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-all mb-4">
-                            <span class="text-xs text-gray-600 font-mono">daiviis.github.io</span>
-                            <div class="w-px h-3 bg-gray-300"></div>
-                            <div class="flex items-center space-x-1.5">
-                                <div id="starsContainer" class="flex items-center">
-                                    <!-- Stars will be generated dynamically -->
+                        <!-- Client Rating Widget (Expandable) -->
+                        <div id="ratingWidget" class="inline-block bg-gray-50 rounded-lg border border-gray-200 transition-all mb-4 overflow-hidden">
+                            <!-- Collapsed View (Clickable) -->
+                            <div id="ratingWidgetCollapsed" class="inline-flex items-center space-x-2 px-3 py-2 hover:bg-gray-100 transition-all cursor-pointer">
+                                <span class="text-xs text-gray-600 font-mono">daiviis.github.io</span>
+                                <div class="w-px h-3 bg-gray-300"></div>
+                                <div class="flex items-center space-x-1.5">
+                                    <div id="starsContainer" class="flex items-center">
+                                        <!-- Stars will be generated dynamically -->
+                                    </div>
+                                    <span id="ratingValue" class="text-xs font-semibold text-gray-900">--</span>
                                 </div>
-                                <span id="ratingValue" class="text-xs font-semibold text-gray-900">--</span>
+                                <div class="w-px h-3 bg-gray-300"></div>
+                                <span id="reviewCount" class="text-xs text-gray-700 font-medium">-- reviews</span>
+                                <div class="ml-2 text-xs text-gray-400">👆 Click to rate</div>
                             </div>
-                            <div class="w-px h-3 bg-gray-300"></div>
-                            <span id="reviewCount" class="text-xs text-gray-700 font-medium">-- reviews</span>
+
+                            <!-- Expanded Quick Rating Form (Hidden by default) -->
+                            <div id="quickRatingForm" class="hidden p-4 border-t border-gray-200 bg-white">
+                                <div class="space-y-3">
+                                    <div class="text-center">
+                                        <h4 class="text-sm font-semibold text-gray-900 mb-2">Rate your experience</h4>
+                                        <div class="flex items-center justify-center space-x-1">
+                                            <div id="quickRatingStars" class="flex items-center space-x-1">
+                                                <span class="quick-star cursor-pointer text-2xl text-gray-300 hover:text-yellow-400 transition-colors" data-rating="1">★</span>
+                                                <span class="quick-star cursor-pointer text-2xl text-gray-300 hover:text-yellow-400 transition-colors" data-rating="2">★</span>
+                                                <span class="quick-star cursor-pointer text-2xl text-gray-300 hover:text-yellow-400 transition-colors" data-rating="3">★</span>
+                                                <span class="quick-star cursor-pointer text-2xl text-gray-300 hover:text-yellow-400 transition-colors" data-rating="4">★</span>
+                                                <span class="quick-star cursor-pointer text-2xl text-gray-300 hover:text-yellow-400 transition-colors" data-rating="5">★</span>
+                                            </div>
+                                        </div>
+                                        <div id="quickRatingText" class="text-xs text-gray-500 mt-1">Click a star to rate</div>
+                                    </div>
+
+                                    <!-- Optional Comment -->
+                                    <div>
+                                        <textarea 
+                                            id="quickComment" 
+                                            placeholder="Quick comment (optional)"
+                                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                                            rows="2"
+                                            maxlength="200"
+                                        ></textarea>
+                                    </div>
+
+                                    <!-- Action Buttons -->
+                                    <div class="flex items-center justify-between">
+                                        <button id="cancelQuickRating" class="text-xs text-gray-500 hover:text-gray-700 transition-colors">
+                                            Cancel
+                                        </button>
+                                        <div class="flex items-center space-x-2">
+                                            <button id="submitQuickRating" class="px-4 py-2 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                                <span class="submit-text">Submit Rating</span>
+                                                <span class="loading-text hidden">Submitting...</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Status Message -->
+                                    <div id="quickRatingStatus" class="hidden text-xs text-center p-2 rounded-lg"></div>
+                                </div>
+                            </div>
                         </div>
                         <div class="text-gray-700 leading-relaxed space-y-4">
                             <p>Share your project vision through the form to the right. This helps me understand your goals and requirements before we schedule a detailed consultation.</p>
@@ -2694,5 +2700,10 @@
     </script>
     
     <script src="script.js"></script>
+    <script src="feedback/rich-snippets-integration.js"></script>
+    
+    <!-- Database Integration for Quick Rating -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="feedback/database-config.js"></script>
 </body>
 </html>

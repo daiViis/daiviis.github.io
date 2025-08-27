@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Admin Dashboard</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oxygen:wght@300;400;700&family=Oxygen+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Oxygen', 'system-ui', '-apple-system', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Supabase -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <!-- Database Configuration -->
+    <script src="database-config.js"></script>
+
+    <style>
+        body { font-family: 'Oxygen', sans-serif; }
+        .loading { animation: pulse 2s infinite; }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <!-- Login Form (Hidden by default) -->
+    <div id="loginContainer" class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <div>
+                <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                    Admin Dashboard Login
+                </h2>
+                <p class="mt-2 text-center text-sm text-gray-600">
+                    Enter your credentials to access the feedback dashboard
+                </p>
+            </div>
+            <form id="loginForm" class="mt-8 space-y-6">
+                <div class="rounded-md shadow-sm -space-y-px">
+                    <div>
+                        <label for="email" class="sr-only">Email address</label>
+                        <input id="email" name="email" type="email" required 
+                               class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" 
+                               placeholder="Email address">
+                    </div>
+                    <div>
+                        <label for="password" class="sr-only">Password</label>
+                        <input id="password" name="password" type="password" required 
+                               class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" 
+                               placeholder="Password">
+                    </div>
+                </div>
+
+                <div id="loginError" class="hidden text-red-600 text-sm text-center"></div>
+
+                <div>
+                    <button type="submit" id="loginBtn" 
+                            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <span id="loginBtnText">Sign in</span>
+                        <span id="loginLoader" class="hidden ml-2">
+                            <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Dashboard (Hidden by default) -->
+    <div id="dashboardContainer" class="hidden max-w-7xl mx-auto px-6 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Feedback Dashboard</h1>
+                    <p class="text-gray-600">View and manage customer feedback submissions</p>
+                </div>
+                <div class="flex space-x-4">
+                    <button id="createLinkBtn" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
+                        🔗 Create Feedback Link
+                    </button>
+                    <button id="refreshBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        🔄 Refresh
+                    </button>
+                    <button id="exportBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                        📊 Export CSV
+                    </button>
+                    <a href="../index.html" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
+                        🏠 Back to Site
+                    </a>
+                    <button id="logoutBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                        🚪 Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Link Generator Modal (Hidden by default) -->
+        <div id="linkGeneratorModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-semibold text-gray-900">Create Feedback Link</h3>
+                        <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Client Name</label>
+                            <input 
+                                type="text" 
+                                id="clientName" 
+                                placeholder="e.g., John Smith or Acme Corp"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            >
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Project Name</label>
+                            <input 
+                                type="text" 
+                                id="projectName" 
+                                placeholder="e.g., Website Redesign or Mobile App"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            >
+                            <p class="text-xs text-gray-500 mt-1">Both fields will be prefilled in the feedback form</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Generated Link</label>
+                            <div class="flex items-center space-x-2">
+                                <input 
+                                    type="text" 
+                                    id="generatedLink" 
+                                    readonly
+                                    class="flex-1 px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm"
+                                    placeholder="Link will appear here..."
+                                >
+                                <button 
+                                    id="copyLinkBtn" 
+                                    class="px-3 py-2 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-700 disabled:opacity-50"
+                                    disabled
+                                >
+                                    📋 Copy
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h4 class="font-medium text-blue-900 mb-2">How to Use:</h4>
+                            <ul class="text-sm text-blue-700 space-y-1">
+                                <li>• Enter a unique reference for this customer/project</li>
+                                <li>• Copy the generated link and send it to your customer</li>
+                                <li>• Feedback will be tagged with your reference</li>
+                                <li>• Each customer can only submit feedback once per project</li>
+                            </ul>
+                        </div>
+
+                        <div class="flex justify-end space-x-3 pt-4">
+                            <button id="cancelModalBtn" class="px-4 py-2 text-gray-600 hover:text-gray-800">
+                                Cancel
+                            </button>
+                            <button id="generateBtn" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50">
+                                Generate Link
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-sm border">
+                <div class="text-2xl font-bold text-blue-600" id="totalSubmissions">--</div>
+                <div class="text-gray-600 text-sm">Total Submissions</div>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border">
+                <div class="text-2xl font-bold text-green-600" id="averageRating">--</div>
+                <div class="text-gray-600 text-sm">Average Rating</div>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border">
+                <div class="text-2xl font-bold text-purple-600" id="shareableCount">--</div>
+                <div class="text-gray-600 text-sm">Shareable Testimonials</div>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border">
+                <div class="text-2xl font-bold text-orange-600" id="thisMonthCount">--</div>
+                <div class="text-gray-600 text-sm">This Month</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border mb-8">
+            <div class="flex flex-wrap gap-4 items-center">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Rating Filter</label>
+                    <select id="ratingFilter" class="border border-gray-300 rounded-lg px-3 py-2">
+                        <option value="">All Ratings</option>
+                        <option value="5">5 Stars</option>
+                        <option value="4">4+ Stars</option>
+                        <option value="3">3+ Stars</option>
+                        <option value="2">2+ Stars</option>
+                        <option value="1">1+ Stars</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Share Permission</label>
+                    <select id="shareFilter" class="border border-gray-300 rounded-lg px-3 py-2">
+                        <option value="">All</option>
+                        <option value="true">Shareable</option>
+                        <option value="false">Private</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Time Period</label>
+                    <select id="timeFilter" class="border border-gray-300 rounded-lg px-3 py-2">
+                        <option value="">All Time</option>
+                        <option value="7">Last 7 Days</option>
+                        <option value="30">Last 30 Days</option>
+                        <option value="90">Last 90 Days</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedback Table -->
+        <div class="bg-white rounded-xl shadow-sm border">
+            <div class="p-6 border-b">
+                <h2 class="text-xl font-semibold text-gray-900">Recent Feedback</h2>
+            </div>
+            
+            <div id="loadingState" class="p-8 text-center loading">
+                <div class="text-gray-500">Loading feedback data...</div>
+            </div>
+
+            <div id="errorState" class="p-8 text-center hidden">
+                <div class="text-red-500 mb-4">❌ Failed to load feedback data</div>
+                <div class="text-gray-600 text-sm" id="errorMessage"></div>
+                <button id="retryBtn" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                    Retry
+                </button>
+            </div>
+
+            <div id="tableContainer" class="hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rating</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Process</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Recommend</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Shareable</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Comments</th>
+                            </tr>
+                        </thead>
+                        <tbody id="feedbackTableBody" class="divide-y divide-gray-200">
+                            <!-- Data will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="emptyState" class="p-8 text-center hidden">
+                <div class="text-gray-500 mb-4">📭 No feedback submissions found</div>
+                <div class="text-gray-400 text-sm">Feedback will appear here after customers submit reviews</div>
+            </div>
+        </div>
+
+        <!-- Testimonials Section -->
+        <div class="mt-8 bg-white rounded-xl shadow-sm border">
+            <div class="p-6 border-b">
+                <h2 class="text-xl font-semibold text-gray-900">Shareable Testimonials</h2>
+                <p class="text-gray-600 text-sm">High-rated feedback that customers allowed you to share</p>
+            </div>
+            <div id="testimonialsContainer" class="p-6">
+                <!-- Testimonials will be populated here -->
+            </div>
+        </div>
+    </div>  <!-- End dashboardContainer -->
+
+    <script>
+        // Authentication variables
+        let isAuthenticated = false;
+        let currentUser = null;
+        let supabaseClient = null;
+        let allFeedback = [];
+        let filteredFeedback = [];
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', async function() {
+            await initializeApp();
+        });
+
+        async function initializeApp() {
+            try {
+                // Initialize Supabase client
+                if (!window.DATABASE_CONFIG || !window.DATABASE_CONFIG.enabled || 
+                    window.DATABASE_CONFIG.provider !== 'supabase') {
+                    throw new Error('Supabase not configured. Please set up database first.');
+                }
+
+                supabaseClient = window.supabase.createClient(
+                    window.DATABASE_CONFIG.supabaseUrl,
+                    window.DATABASE_CONFIG.supabaseKey
+                );
+
+                // Check if user is already logged in
+                const savedAuth = localStorage.getItem('admin_auth');
+                if (savedAuth) {
+                    const authData = JSON.parse(savedAuth);
+                    if (await validateSession(authData)) {
+                        currentUser = authData;
+                        await showDashboard();
+                        return;
+                    }
+                }
+
+                // Show login form
+                showLogin();
+                
+            } catch (error) {
+                console.error('Initialization error:', error);
+                showError('Failed to initialize application: ' + error.message);
+            }
+        }
+
+        // Authentication functions
+        function showLogin() {
+            document.getElementById('loginContainer').classList.remove('hidden');
+            document.getElementById('dashboardContainer').classList.add('hidden');
+            setupLoginListeners();
+        }
+
+        async function showDashboard() {
+            document.getElementById('loginContainer').classList.add('hidden');
+            document.getElementById('dashboardContainer').classList.remove('hidden');
+            isAuthenticated = true;
+            
+            await loadFeedbackData();
+            setupEventListeners();
+        }
+
+        function setupLoginListeners() {
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', handleLogin);
+            }
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                showLoginError('Please enter both email and password');
+                return;
+            }
+
+            setLoginLoading(true);
+            hideLoginError();
+
+            try {
+                // First get the user by email
+                const { data: userData, error: userError } = await supabaseClient
+                    .from('admin_users')
+                    .select('id, email, full_name, role, is_active, password_hash')
+                    .eq('email', email)
+                    .single();
+
+                if (userError || !userData) {
+                    throw new Error('Invalid email or password');
+                }
+
+                // Verify password using Supabase function
+                const { data: passwordValid, error: passwordError } = await supabaseClient
+                    .rpc('verify_password', { input_password: password, stored_hash: userData.password_hash });
+
+                if (passwordError || !passwordValid) {
+                    throw new Error('Invalid email or password');
+                }
+
+                const data = userData;
+
+                if (!data.is_active) {
+                    throw new Error('Account is disabled');
+                }
+
+                // Store authentication data
+                currentUser = data;
+                const authData = {
+                    ...data,
+                    loginTime: new Date().toISOString(),
+                    sessionId: generateSessionId()
+                };
+                
+                localStorage.setItem('admin_auth', JSON.stringify(authData));
+
+                // Update last login
+                await supabaseClient
+                    .from('admin_users')
+                    .update({ last_login: new Date().toISOString() })
+                    .eq('id', data.id);
+
+                await showDashboard();
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                showLoginError(error.message);
+            } finally {
+                setLoginLoading(false);
+            }
+        }
+
+        async function validateSession(authData) {
+            try {
+                if (!authData || !authData.id || !authData.sessionId) {
+                    return false;
+                }
+
+                // Check if session is too old (24 hours)
+                const loginTime = new Date(authData.loginTime);
+                const now = new Date();
+                const hoursDiff = (now - loginTime) / (1000 * 60 * 60);
+                
+                if (hoursDiff > 24) {
+                    localStorage.removeItem('admin_auth');
+                    return false;
+                }
+
+                // Verify user still exists and is active
+                const { data, error } = await supabaseClient
+                    .from('admin_users')
+                    .select('is_active')
+                    .eq('id', authData.id)
+                    .single();
+
+                if (error || !data || !data.is_active) {
+                    localStorage.removeItem('admin_auth');
+                    return false;
+                }
+
+                return true;
+            } catch (error) {
+                console.error('Session validation error:', error);
+                return false;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('admin_auth');
+            currentUser = null;
+            isAuthenticated = false;
+            showLogin();
+        }
+
+        function generateSessionId() {
+            return Math.random().toString(36).substring(2) + Date.now().toString(36);
+        }
+
+        function showLoginError(message) {
+            const errorEl = document.getElementById('loginError');
+            errorEl.textContent = message;
+            errorEl.classList.remove('hidden');
+        }
+
+        function hideLoginError() {
+            document.getElementById('loginError').classList.add('hidden');
+        }
+
+        function setLoginLoading(loading) {
+            const btn = document.getElementById('loginBtn');
+            const btnText = document.getElementById('loginBtnText');
+            const loader = document.getElementById('loginLoader');
+            
+            if (loading) {
+                btn.disabled = true;
+                btnText.textContent = 'Signing in...';
+                loader.classList.remove('hidden');
+            } else {
+                btn.disabled = false;
+                btnText.textContent = 'Sign in';
+                loader.classList.add('hidden');
+            }
+        }
+
+        async function initializeDashboard() {
+            try {
+                await loadFeedbackData();
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        async function loadFeedbackData() {
+            try {
+                document.getElementById('loadingState').classList.remove('hidden');
+                document.getElementById('errorState').classList.add('hidden');
+                document.getElementById('tableContainer').classList.add('hidden');
+                document.getElementById('emptyState').classList.add('hidden');
+
+                const { data, error } = await supabaseClient
+                    .from('feedback_submissions')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                allFeedback = data || [];
+                filteredFeedback = [...allFeedback];
+
+                updateStats();
+                updateTable();
+                updateTestimonials();
+
+                document.getElementById('loadingState').classList.add('hidden');
+                
+                if (allFeedback.length === 0) {
+                    document.getElementById('emptyState').classList.remove('hidden');
+                } else {
+                    document.getElementById('tableContainer').classList.remove('hidden');
+                }
+
+            } catch (error) {
+                console.error('Error loading feedback:', error);
+                showError(error.message);
+            }
+        }
+
+        function updateStats() {
+            const total = allFeedback.length;
+            const avgRating = total > 0 ? 
+                (allFeedback.reduce((sum, f) => sum + parseFloat(f.average_rating), 0) / total).toFixed(1) : 
+                '0.0';
+            const shareable = allFeedback.filter(f => f.share_permission).length;
+            
+            const thisMonth = allFeedback.filter(f => {
+                const date = new Date(f.created_at);
+                const now = new Date();
+                return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+            }).length;
+
+            document.getElementById('totalSubmissions').textContent = total;
+            document.getElementById('averageRating').textContent = avgRating + '⭐';
+            document.getElementById('shareableCount').textContent = shareable;
+            document.getElementById('thisMonthCount').textContent = thisMonth;
+        }
+
+        function updateTable() {
+            const tbody = document.getElementById('feedbackTableBody');
+            tbody.innerHTML = '';
+
+            filteredFeedback.forEach(feedback => {
+                const row = createFeedbackRow(feedback);
+                tbody.appendChild(row);
+            });
+        }
+
+        function createFeedbackRow(feedback) {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50';
+
+            const date = new Date(feedback.created_at).toLocaleDateString();
+            const stars = '⭐'.repeat(Math.round(feedback.average_rating));
+            
+            row.innerHTML = `
+                <td class="px-6 py-4 text-sm text-gray-900">${date}</td>
+                <td class="px-6 py-4 text-sm">
+                    <div class="font-medium text-gray-900">${feedback.customer_name || 'Anonymous'}</div>
+                    <div class="text-gray-500">${feedback.customer_website || ''}</div>
+                    <div class="text-xs text-gray-400">${feedback.customer_ref || ''}</div>
+                </td>
+                <td class="px-6 py-4 text-sm">
+                    <div class="font-medium">${feedback.average_rating}/5</div>
+                    <div class="text-yellow-500">${stars}</div>
+                </td>
+                <td class="px-6 py-4 text-sm text-center">${feedback.process_rating}/5</td>
+                <td class="px-6 py-4 text-sm text-center">${feedback.product_rating}/5</td>
+                <td class="px-6 py-4 text-sm text-center">${feedback.recommendation_rating}/5</td>
+                <td class="px-6 py-4 text-sm">
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        feedback.share_permission 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-gray-100 text-gray-800'
+                    }">
+                        ${feedback.share_permission ? '✅ Yes' : '❌ No'}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-sm">
+                    <div class="max-w-xs truncate" title="${feedback.comments || ''}">
+                        ${feedback.comments || 'No comments'}
+                    </div>
+                </td>
+            `;
+
+            return row;
+        }
+
+        function updateTestimonials() {
+            const container = document.getElementById('testimonialsContainer');
+            const testimonials = allFeedback
+                .filter(f => f.share_permission && f.average_rating >= 4 && f.comments)
+                .slice(0, 6);
+
+            if (testimonials.length === 0) {
+                container.innerHTML = '<div class="text-gray-500 text-center">No shareable testimonials yet</div>';
+                return;
+            }
+
+            container.innerHTML = testimonials.map(t => `
+                <div class="border border-gray-200 rounded-lg p-4 mb-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <div class="font-medium text-gray-900">${t.customer_name || 'Anonymous'}</div>
+                            <div class="text-sm text-gray-500">${t.customer_website || ''}</div>
+                        </div>
+                        <div class="text-yellow-500">${'⭐'.repeat(Math.round(t.average_rating))}</div>
+                    </div>
+                    <div class="text-gray-700 italic">"${t.comments}"</div>
+                    <div class="text-xs text-gray-400 mt-2">
+                        ${new Date(t.created_at).toLocaleDateString()}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function setupEventListeners() {
+            document.getElementById('refreshBtn').addEventListener('click', loadFeedbackData);
+            document.getElementById('exportBtn').addEventListener('click', exportToCsv);
+            document.getElementById('retryBtn').addEventListener('click', loadFeedbackData);
+
+            // Authentication listeners
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+
+            // Link generator listeners
+            document.getElementById('createLinkBtn').addEventListener('click', openLinkGenerator);
+            document.getElementById('closeModalBtn').addEventListener('click', closeLinkGenerator);
+            document.getElementById('cancelModalBtn').addEventListener('click', closeLinkGenerator);
+            document.getElementById('generateBtn').addEventListener('click', generateFeedbackLink);
+            document.getElementById('copyLinkBtn').addEventListener('click', copyLinkToClipboard);
+            document.getElementById('clientName').addEventListener('input', onInputChange);
+            document.getElementById('projectName').addEventListener('input', onInputChange);
+
+            // Close modal on outside click
+            document.getElementById('linkGeneratorModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeLinkGenerator();
+                }
+            });
+
+            // Filter listeners
+            ['ratingFilter', 'shareFilter', 'timeFilter'].forEach(id => {
+                document.getElementById(id).addEventListener('change', applyFilters);
+            });
+        }
+
+        // Link Generator Functions
+        function openLinkGenerator() {
+            document.getElementById('linkGeneratorModal').classList.remove('hidden');
+            document.getElementById('clientName').focus();
+        }
+
+        function closeLinkGenerator() {
+            document.getElementById('linkGeneratorModal').classList.add('hidden');
+            resetLinkGenerator();
+        }
+
+        function resetLinkGenerator() {
+            document.getElementById('clientName').value = '';
+            document.getElementById('projectName').value = '';
+            document.getElementById('generatedLink').value = '';
+            document.getElementById('copyLinkBtn').disabled = true;
+            document.getElementById('generateBtn').disabled = false;
+        }
+
+        function onInputChange() {
+            const clientName = document.getElementById('clientName').value.trim();
+            const projectName = document.getElementById('projectName').value.trim();
+            document.getElementById('generateBtn').disabled = clientName.length === 0 || projectName.length === 0;
+            
+            // Clear generated link when inputs change
+            document.getElementById('generatedLink').value = '';
+            document.getElementById('copyLinkBtn').disabled = true;
+        }
+
+        function generateFeedbackLink() {
+            const clientName = document.getElementById('clientName').value.trim();
+            const projectName = document.getElementById('projectName').value.trim();
+            
+            if (!clientName || !projectName) {
+                alert('Please enter both client name and project name');
+                return;
+            }
+
+            // Create customer ref from inputs
+            const cleanClientName = clientName.replace(/[^a-zA-Z0-9_-]/g, '_');
+            const cleanProjectName = projectName.replace(/[^a-zA-Z0-9_-]/g, '_');
+            const customerRef = `${cleanClientName}_${cleanProjectName}`.toUpperCase();
+            
+            // Generate the feedback link (pointing to index.html in feedback folder)
+            const baseUrl = window.location.origin + window.location.pathname.replace('admin-dashboard.html', '');
+            const feedbackLink = `${baseUrl}index.html?name=${encodeURIComponent(clientName)}&project=${encodeURIComponent(projectName)}&customer=${encodeURIComponent(customerRef)}`;
+            
+            // Display the generated link
+            document.getElementById('generatedLink').value = feedbackLink;
+            document.getElementById('copyLinkBtn').disabled = false;
+            
+            // Show success feedback
+            const generateBtn = document.getElementById('generateBtn');
+            const originalText = generateBtn.textContent;
+            generateBtn.textContent = '✅ Generated!';
+            generateBtn.disabled = true;
+            
+            setTimeout(() => {
+                generateBtn.textContent = originalText;
+                generateBtn.disabled = false;
+            }, 2000);
+
+            // Store generated link for tracking
+            storeGeneratedLink(customerRef, feedbackLink);
+        }
+
+        function copyLinkToClipboard() {
+            const linkInput = document.getElementById('generatedLink');
+            
+            try {
+                linkInput.select();
+                linkInput.setSelectionRange(0, 99999); // For mobile devices
+                
+                // Modern clipboard API
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(linkInput.value).then(() => {
+                        showCopySuccess();
+                    }).catch(() => {
+                        // Fallback for clipboard API failure
+                        document.execCommand('copy');
+                        showCopySuccess();
+                    });
+                } else {
+                    // Fallback for older browsers
+                    document.execCommand('copy');
+                    showCopySuccess();
+                }
+            } catch (error) {
+                console.error('Copy failed:', error);
+                alert('Copy failed. Please manually select and copy the link.');
+            }
+        }
+
+        function showCopySuccess() {
+            const copyBtn = document.getElementById('copyLinkBtn');
+            const originalText = copyBtn.textContent;
+            
+            copyBtn.textContent = '✅ Copied!';
+            copyBtn.classList.add('bg-green-600');
+            copyBtn.classList.remove('bg-gray-600');
+            
+            setTimeout(() => {
+                copyBtn.textContent = originalText;
+                copyBtn.classList.remove('bg-green-600');
+                copyBtn.classList.add('bg-gray-600');
+            }, 2000);
+        }
+
+        function storeGeneratedLink(reference, link) {
+            try {
+                const generatedLinks = JSON.parse(localStorage.getItem('generated_feedback_links') || '[]');
+                
+                // Add new link (avoid duplicates)
+                const existingIndex = generatedLinks.findIndex(item => item.reference === reference);
+                const linkData = {
+                    reference: reference,
+                    link: link,
+                    created: new Date().toISOString(),
+                    used: false
+                };
+                
+                if (existingIndex >= 0) {
+                    generatedLinks[existingIndex] = linkData;
+                } else {
+                    generatedLinks.push(linkData);
+                }
+                
+                // Keep only last 50 generated links
+                if (generatedLinks.length > 50) {
+                    generatedLinks.splice(0, generatedLinks.length - 50);
+                }
+                
+                localStorage.setItem('generated_feedback_links', JSON.stringify(generatedLinks));
+            } catch (error) {
+                console.error('Failed to store generated link:', error);
+            }
+        }
+
+        function applyFilters() {
+            const ratingFilter = document.getElementById('ratingFilter').value;
+            const shareFilter = document.getElementById('shareFilter').value;
+            const timeFilter = document.getElementById('timeFilter').value;
+
+            filteredFeedback = allFeedback.filter(feedback => {
+                // Rating filter
+                if (ratingFilter && feedback.average_rating < parseFloat(ratingFilter)) {
+                    return false;
+                }
+
+                // Share filter
+                if (shareFilter !== '') {
+                    const isShareable = shareFilter === 'true';
+                    if (feedback.share_permission !== isShareable) {
+                        return false;
+                    }
+                }
+
+                // Time filter
+                if (timeFilter) {
+                    const daysAgo = parseInt(timeFilter);
+                    const cutoff = new Date();
+                    cutoff.setDate(cutoff.getDate() - daysAgo);
+                    if (new Date(feedback.created_at) < cutoff) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+
+            updateTable();
+        }
+
+        function exportToCsv() {
+            const headers = [
+                'Date', 'Customer Name', 'Website', 'Reference', 
+                'Process Rating', 'Product Rating', 'Recommendation Rating', 
+                'Overall Rating', 'Average Rating', 'Comments', 
+                'Share Permission', 'Submission Date', 'Page URL'
+            ];
+
+            const rows = filteredFeedback.map(f => [
+                new Date(f.created_at).toISOString(),
+                f.customer_name || '',
+                f.customer_website || '',
+                f.customer_ref || '',
+                f.process_rating,
+                f.product_rating,
+                f.recommendation_rating,
+                f.overall_rating,
+                f.average_rating,
+                f.comments || '',
+                f.share_permission ? 'Yes' : 'No',
+                f.submission_date || '',
+                f.page_url || ''
+            ]);
+
+            const csv = [headers, ...rows]
+                .map(row => row.map(field => `"${field}"`).join(','))
+                .join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `feedback-export-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function showError(message) {
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('tableContainer').classList.add('hidden');
+            document.getElementById('emptyState').classList.add('hidden');
+            document.getElementById('errorState').classList.remove('hidden');
+            document.getElementById('errorMessage').textContent = message;
+        }
+    </script>
+</body>
+</html>
