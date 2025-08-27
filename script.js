@@ -21,8 +21,10 @@ document.addEventListener('DOMContentLoaded', function() {
     initLocalTime();
     initSEODemo();
     initRatingWidget();
+    initInfoPopup();
     initActiveNavHighlighting();
     initAnimatedHeading();
+    initCurrencySwitcher();
     
     console.log('🚀 Portfolio website loaded successfully');
 });
@@ -1224,10 +1226,10 @@ function initQuickRating() {
         const widgetCollapsed = document.getElementById('ratingWidgetCollapsed');
         if (widgetCollapsed) {
             // Update click hint to show already rated
-            const clickHint = widgetCollapsed.querySelector('.text-xs.text-gray-400');
+            const clickHint = widgetCollapsed.querySelector('.text-xs.text-gray-500');
             if (clickHint) {
-                clickHint.textContent = '✅ Already rated';
-                clickHint.style.color = '#059669';
+                clickHint.textContent = 'Already rated';
+                clickHint.className = 'ml-2 text-xs text-green-600';
             }
             
             // Remove click functionality
@@ -1616,6 +1618,45 @@ function initActiveNavHighlighting() {
             }, 500);
         });
     });
+}
+
+// Info popup functionality for rating widget
+function initInfoPopup() {
+    const infoButton = document.getElementById('infoButton');
+    const infoModal = document.getElementById('infoModal');
+    const closeModalButton = document.getElementById('closeInfoModal');
+    
+    if (infoButton && infoModal && closeModalButton) {
+        // Open modal when info button is clicked
+        infoButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation(); // Prevent the rating widget from expanding
+            infoModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        });
+        
+        // Close modal when X button is clicked
+        closeModalButton.addEventListener('click', function() {
+            infoModal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        });
+        
+        // Close modal when clicking outside the modal content
+        infoModal.addEventListener('click', function(e) {
+            if (e.target === infoModal) {
+                infoModal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        });
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !infoModal.classList.contains('hidden')) {
+                infoModal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        });
+    }
 }
 
 // Animated heading functionality

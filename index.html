@@ -368,6 +368,36 @@
             -ms-user-select: text;
             user-select: text;
         }
+
+        /* Currency button styles */
+        .currency-btn {
+            background-color: transparent;
+            color: #6b7280;
+        }
+        
+        .currency-btn.active {
+            background-color: #000 !important;
+            color: #fff !important;
+        }
+        
+        .currency-btn.active:hover {
+            background-color: #1f2937 !important;
+        }
+        
+        /* Auto-detect button special styling */
+        .currency-auto {
+            background-color: #f3f4f6;
+            color: #4b5563;
+        }
+        
+        .currency-auto.active {
+            background-color: #3b82f6 !important;
+            color: #fff !important;
+        }
+        
+        .currency-auto.active:hover {
+            background-color: #2563eb !important;
+        }
         
         /* Improved typography hierarchy */
         h1, h2, h3, h4, h5, h6 {
@@ -1155,6 +1185,7 @@
                 <a href="#seo-demo" class="nav-link text-gray-700 hover:text-black">Results</a>
                 <a href="#pricing" class="nav-link text-gray-700 hover:text-black">Pricing</a>
                 <a href="#contact" class="nav-link text-gray-700 hover:text-black">Connect</a>
+                <a href="#faq" class="nav-link text-gray-700 hover:text-black">FAQ</a>
             </div>
             
             <!-- Mobile Menu Button -->
@@ -1172,7 +1203,7 @@
         <div class="absolute inset-0 bg-black bg-opacity-50" id="mobileMenuBackdrop"></div>
         
         <!-- Menu Panel -->
-        <div class="absolute bottom-0 left-0 w-full h-auto max-h-96 bg-white shadow-xl transform translate-y-full transition-transform duration-300" id="mobileMenuPanel">
+        <div class="absolute bottom-0 left-0 w-full h-auto max-h-[28rem] bg-white shadow-xl transform translate-y-full transition-transform duration-300" id="mobileMenuPanel">
             <div class="flex flex-col h-full">
                 <!-- Menu Header -->
                 <div class="flex items-center justify-end p-6 border-b">
@@ -1192,6 +1223,7 @@
                         <li><a href="#seo-demo" class="block text-xl text-gray-700 hover:text-black transition-colors mobile-menu-link">Results</a></li>
                         <li><a href="#pricing" class="block text-xl text-gray-700 hover:text-black transition-colors mobile-menu-link">Pricing</a></li>
                         <li><a href="#contact" class="block text-xl text-gray-700 hover:text-black transition-colors mobile-menu-link">Connect</a></li>
+                        <li><a href="#faq" class="block text-xl text-gray-700 hover:text-black transition-colors mobile-menu-link">FAQ</a></li>
                     </ul>
                     
                 </nav>
@@ -1405,7 +1437,7 @@
     </section>
 
     <!-- Skills Arsenal Section -->
-    <section id="skills" class="section-padding px-8 bg-gradient-to-br from-blue-50 to-indigo-100 page-transition slide-up" role="region" aria-label="Technical skills and expertise">
+    <section id="skills" class="section-padding px-8 bg-gradient-to-br from-blue-50 to-indigo-100 border-t border-b border-gray-200 page-transition slide-up" role="region" aria-label="Technical skills and expertise">
         <div class="max-w-7xl mx-auto">
             <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
                 <!-- Left Column - Content -->
@@ -1413,7 +1445,7 @@
                     <!-- Skills Display -->
                     <div class="space-y-4">
                         <!-- Frontend -->
-                        <div class="skill-card p-4 bg-blue-50 md:bg-white rounded-xl border border-gray-200 hover:border-blue-300">
+                        <div class="skill-card p-4 bg-gradient-to-br from-blue-200 via-blue-300 to-indigo-400 md:bg-none rounded-xl border border-gray-200 md:border-blue-500 hover:border-blue-600 shadow-md hover:shadow-lg transition-all duration-300">
                             <div class="flex items-center space-x-4 md:hidden">
                                 <span class="font-medium text-gray-800">Frontend</span>
                             </div>
@@ -1430,7 +1462,7 @@
                         </div>
                         
                         <!-- Backend -->
-                        <div class="skill-card p-4 bg-purple-50 md:bg-white rounded-xl border border-gray-200 hover:border-purple-300">
+                        <div class="skill-card p-4 bg-gradient-to-br from-purple-200 via-purple-400 to-pink-400 md:bg-none rounded-xl border border-gray-200 md:border-purple-500 hover:border-purple-600 shadow-md hover:shadow-lg transition-all duration-300">
                             <div class="flex items-center space-x-4 md:hidden">
                                 <span class="font-medium text-gray-800">Backend</span>
                             </div>
@@ -1447,7 +1479,7 @@
                         </div>
                         
                         <!-- Database -->
-                        <div class="skill-card p-4 bg-green-50 md:bg-white rounded-xl border border-gray-200 hover:border-green-300">
+                        <div class="skill-card p-4 bg-gradient-to-br from-green-200 via-emerald-300 to-teal-400 md:bg-none rounded-xl border border-gray-200 md:border-green-500 hover:border-green-600 shadow-md hover:shadow-lg transition-all duration-300">
                             <div class="flex items-center space-x-4 md:hidden">
                                 <span class="font-medium text-gray-800">Database</span>
                             </div>
@@ -1464,7 +1496,7 @@
                         </div>
                         
                         <!-- AI & ML -->
-                        <div class="skill-card p-4 bg-pink-50 md:bg-white rounded-xl border border-gray-200 hover:border-pink-300">
+                        <div class="skill-card p-4 bg-gradient-to-br from-pink-200 via-rose-300 to-red-400 md:bg-none rounded-xl border border-gray-200 md:border-pink-500 hover:border-pink-600 shadow-md hover:shadow-lg transition-all duration-300">
                             <div class="flex items-center space-x-4 md:hidden">
                                 <span class="font-medium text-gray-800">AI & ML</span>
                             </div>
@@ -1481,7 +1513,7 @@
                         </div>
                         
                         <!-- Tools -->
-                        <div class="skill-card p-4 bg-orange-50 md:bg-white rounded-xl border border-gray-200 hover:border-orange-300">
+                        <div class="skill-card p-4 bg-gradient-to-br from-orange-200 via-amber-300 to-yellow-400 md:bg-none rounded-xl border border-gray-200 md:border-orange-500 hover:border-orange-600 shadow-md hover:shadow-lg transition-all duration-300">
                             <div class="flex items-center space-x-4 md:hidden">
                                 <span class="font-medium text-gray-800">DevOps</span>
                             </div>
@@ -1815,6 +1847,24 @@
                     Transparent pricing for professional web solutions.<br>
                     All packages include design, development, hosting setup, SEO optimization, and 60-day guarantee.
                 </p>
+
+                <!-- Currency Switcher -->
+                <div class="mt-8 flex flex-col items-center space-y-4">
+                    <div class="text-sm text-gray-600">View prices in your currency:</div>
+                    <div id="currency-buttons" class="inline-flex bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+                        <button class="currency-btn px-3 py-2 text-sm font-medium border-r border-gray-200 hover:bg-gray-50 transition-all" data-currency="USD">USD</button>
+                        <button class="currency-btn px-3 py-2 text-sm font-medium border-r border-gray-200 hover:bg-gray-50 transition-all" data-currency="EUR">EUR</button>
+                        <button class="currency-btn px-3 py-2 text-sm font-medium border-r border-gray-200 hover:bg-gray-50 transition-all" data-currency="CZK">CZK</button>
+                        <button class="currency-btn px-3 py-2 text-sm font-medium border-r border-gray-200 hover:bg-gray-50 transition-all" data-currency="GBP">GBP</button>
+                        <button class="currency-btn currency-auto px-3 py-2 text-sm font-medium hover:bg-blue-50 transition-all" data-currency="AUTO">Auto</button>
+                    </div>
+                    <div id="currency-disclaimer" class="text-xs text-gray-500 text-center max-w-md hidden">
+                        * Converted prices are estimates based on current exchange rates. Final pricing is always in USD.
+                    </div>
+                    <div class="text-xs text-gray-400 text-center max-w-md mt-2">
+                        Exchange rates from <a href="https://fixer.io/" target="_blank" rel="noopener" class="underline hover:text-gray-600">Fixer API</a> • Updated daily • Cached for 24h
+                    </div>
+                </div>
             </div>
 
             <!-- Pricing Cards Grid -->
@@ -1828,7 +1878,7 @@
                     
                     <div class="mb-8">
                         <div class="flex items-baseline">
-                            <span class="text-4xl font-bold text-black">$585</span>
+                            <span class="text-4xl font-bold text-black price-display" data-usd-price="585">$585</span>
                         </div>
                         <p class="text-sm text-gray-600 mt-1">5 days delivery</p>
                     </div>
@@ -1877,8 +1927,8 @@
                     
                     <div class="mb-8">
                         <div class="flex items-baseline">
-                            <span class="text-4xl font-bold text-black">$1,170</span>
-                            <span class="text-gray-600 ml-2">- $1,755</span>
+                            <span class="text-4xl font-bold text-black price-display" data-usd-price="1170">$1,170</span>
+                            <span class="text-gray-600 ml-2 price-display" data-usd-price="1755">- $1,755</span>
                         </div>
                         <p class="text-sm text-gray-600 mt-1">Max 20 days delivery</p>
                     </div>
@@ -1920,8 +1970,8 @@
                     
                     <div class="mb-8">
                         <div class="flex items-baseline">
-                            <span class="text-4xl font-bold text-black">$1,950</span>
-                            <span class="text-gray-600 ml-2">- $3,510</span>
+                            <span class="text-4xl font-bold text-black price-display" data-usd-price="1950">$1,950</span>
+                            <span class="text-gray-600 ml-2 price-display" data-usd-price="3510">- $3,510</span>
                         </div>
                         <p class="text-sm text-gray-600 mt-1">Custom timeline</p>
                     </div>
@@ -1986,7 +2036,7 @@
                             <p class="text-gray-600 text-sm">Landing page + CMS system</p>
                         </div>
                         <div class="text-right">
-                            <div class="text-3xl font-bold text-black">$685</div>
+                            <div class="text-3xl font-bold text-black price-display" data-usd-price="685">$685</div>
                             <p class="text-xs text-gray-600">7 days delivery</p>
                         </div>
                     </div>
@@ -2019,7 +2069,7 @@
                             <p class="text-gray-600 text-sm">Landing page + CMS system</p>
                         </div>
                         <div class="text-right">
-                            <div class="text-3xl font-bold text-black">$655</div>
+                            <div class="text-3xl font-bold text-black price-display" data-usd-price="655">$655</div>
                             <p class="text-xs text-gray-600">7 days delivery</p>
                         </div>
                     </div>
@@ -2159,8 +2209,6 @@
                         <div id="ratingWidget" class="inline-block bg-gray-50 rounded-lg border border-gray-200 transition-all mb-4 overflow-hidden">
                             <!-- Collapsed View (Clickable) -->
                             <div id="ratingWidgetCollapsed" class="inline-flex items-center space-x-2 px-3 py-2 hover:bg-gray-100 transition-all cursor-pointer">
-                                <span class="text-xs text-gray-600 font-mono">daiviis.github.io</span>
-                                <div class="w-px h-3 bg-gray-300"></div>
                                 <div class="flex items-center space-x-1.5">
                                     <div id="starsContainer" class="flex items-center">
                                         <!-- Stars will be generated dynamically -->
@@ -2169,7 +2217,11 @@
                                 </div>
                                 <div class="w-px h-3 bg-gray-300"></div>
                                 <span id="reviewCount" class="text-xs text-gray-700 font-medium">-- reviews</span>
-                                <div class="ml-2 text-xs text-gray-400">👆 Click to rate</div>
+                                <div class="ml-2 text-xs text-gray-500">Click to rate</div>
+                                <!-- Info Button -->
+                                <button id="infoButton" class="ml-1 text-gray-500 hover:text-gray-700 transition-colors text-xs" aria-label="Rating information">
+                                    ℹ
+                                </button>
                             </div>
 
                             <!-- Expanded Quick Rating Form (Hidden by default) -->
@@ -2363,6 +2415,192 @@
         </div>
     </section>
 
+    <!-- FAQ Section -->
+    <section id="faq" class="pt-8 pb-16 px-8 bg-gradient-to-br from-gray-100 via-blue-100 to-indigo-100 border-t border-gray-200 page-transition slide-up" role="region" aria-label="Frequently asked questions">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-5xl lg:text-6xl font-bold text-black hero-title mb-6">
+                    Questions. Answered. Simply.
+                </h2>
+                <p class="text-xl text-gray-800 font-medium leading-relaxed">
+                    Clear insights for informed decisions.
+                </p>
+            </div>
+
+            <div class="space-y-6">
+                <!-- FAQ Item 1 -->
+                <div class="group p-6 bg-white rounded-2xl border border-gray-200 hover:shadow-lg hover:shadow-gray-200/50 hover:border-gray-300 transition-all duration-300 hover:-translate-y-1">
+                    <div class="flex justify-between items-start cursor-pointer" onclick="toggleFaq(1)">
+                        <h3 class="text-xl font-bold text-black pr-4">
+                            How do you ensure project success?
+                        </h3>
+                        <span id="faq-icon-1" class="text-2xl text-gray-400 group-hover:text-black transition-colors flex-shrink-0">+</span>
+                    </div>
+                    <div id="faq-content-1" class="hidden mt-4 pt-4 border-t border-gray-200">
+                        <p class="text-gray-700 leading-relaxed">
+                            Strategic planning meets technical excellence. Every project starts with understanding your vision, followed by structured development phases, continuous testing, and regular communication. Success is built through attention to detail and proven methodologies.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 2 -->
+                <div class="group p-6 bg-white rounded-2xl border border-gray-200 hover:shadow-lg hover:shadow-gray-200/50 hover:border-gray-300 transition-all duration-300 hover:-translate-y-1">
+                    <div class="flex justify-between items-start cursor-pointer" onclick="toggleFaq(2)">
+                        <h3 class="text-xl font-bold text-black pr-4">
+                            What makes your development approach different?
+                        </h3>
+                        <span id="faq-icon-2" class="text-2xl text-gray-400 group-hover:text-black transition-colors flex-shrink-0">+</span>
+                    </div>
+                    <div id="faq-content-2" class="hidden mt-4 pt-4 border-t border-gray-200">
+                        <p class="text-gray-700 leading-relaxed">
+                            Modern AI-powered development tools combined with proven expertise. This technological advantage delivers faster development cycles, higher code quality, and solutions that adapt to your evolving business needs. Innovation with reliability.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 3 -->
+                <div class="group p-6 bg-white rounded-2xl border border-gray-200 hover:shadow-lg hover:shadow-gray-200/50 hover:border-gray-300 transition-all duration-300 hover:-translate-y-1">
+                    <div class="flex justify-between items-start cursor-pointer" onclick="toggleFaq(3)">
+                        <h3 class="text-xl font-bold text-black pr-4">
+                            How long does a typical project take?
+                        </h3>
+                        <span id="faq-icon-3" class="text-2xl text-gray-400 group-hover:text-black transition-colors flex-shrink-0">+</span>
+                    </div>
+                    <div id="faq-content-3" class="hidden mt-4 pt-4 border-t border-gray-200">
+                        <p class="text-gray-700 leading-relaxed">
+                            Timeline depends on scope and complexity. Simple business websites: 1-2 weeks. Complex web platforms: 4-8 weeks. Enterprise solutions: 8-16 weeks. Every project receives dedicated focus with clear milestones and regular updates.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 4 -->
+                <div class="group p-6 bg-white rounded-2xl border border-gray-200 hover:shadow-lg hover:shadow-gray-200/50 hover:border-gray-300 transition-all duration-300 hover:-translate-y-1">
+                    <div class="flex justify-between items-start cursor-pointer" onclick="toggleFaq(4)">
+                        <h3 class="text-xl font-bold text-black pr-4">
+                            Do you provide ongoing support?
+                        </h3>
+                        <span id="faq-icon-4" class="text-2xl text-gray-400 group-hover:text-black transition-colors flex-shrink-0">+</span>
+                    </div>
+                    <div id="faq-content-4" class="hidden mt-4 pt-4 border-t border-gray-200">
+                        <p class="text-gray-700 leading-relaxed">
+                            Comprehensive post-launch support included. Technical maintenance, security updates, performance monitoring, and feature enhancements. Your success continues beyond deployment with reliable, responsive support when you need it.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 5 -->
+                <div class="group p-6 bg-white rounded-2xl border border-gray-200 hover:shadow-lg hover:shadow-gray-200/50 hover:border-gray-300 transition-all duration-300 hover:-translate-y-1">
+                    <div class="flex justify-between items-start cursor-pointer" onclick="toggleFaq(5)">
+                        <h3 class="text-xl font-bold text-black pr-4">
+                            What's included in your web development service?
+                        </h3>
+                        <span id="faq-icon-5" class="text-2xl text-gray-400 group-hover:text-black transition-colors flex-shrink-0">+</span>
+                    </div>
+                    <div id="faq-content-5" class="hidden mt-4 pt-4 border-t border-gray-200">
+                        <p class="text-gray-700 leading-relaxed">
+                            Complete digital solution. Custom design, responsive development, performance optimization, SEO implementation, security configuration, content management setup, testing, deployment, and documentation. Everything needed for digital success.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Additional Questions Contact -->
+                <div class="mt-12 text-center p-8 bg-white rounded-2xl border border-gray-200">
+                    <h3 class="text-2xl font-bold text-black mb-4">
+                        Have More Questions?
+                    </h3>
+                    <p class="text-lg text-gray-700 mb-6 leading-relaxed">
+                        Feel free to reach out directly for any additional questions or clarifications.
+                    </p>
+                    
+                    <!-- Contact Options -->
+                    <div class="flex flex-wrap justify-center items-center gap-4 text-gray-600">
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 2 0 002 2z"></path>
+                            </svg>
+                            <span class="text-black font-medium">
+                                david.cit1999@gmail.com
+                            </span>
+                        </div>
+                        
+                        <span class="text-gray-400">•</span>
+                        
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                            </svg>
+                            <a href="https://x.com/daiViis_" target="_blank" rel="noopener noreferrer" class="text-black font-medium hover:text-gray-600 transition-colors">
+                                @daiViis_
+                            </a>
+                        </div>
+                        
+                        <span class="text-gray-400">•</span>
+                        
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                            </svg>
+                            <a href="https://instagram.com/cit.david" target="_blank" rel="noopener noreferrer" class="text-black font-medium hover:text-gray-600 transition-colors">
+                                @cit.david
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <p class="text-sm text-gray-500 mt-4">
+                        I typically respond within 24-48 hours across all platforms.
+                    </p>
+                </div>
+
+                <!-- Additional Questions Chat -->
+                <div class="mt-12 p-6 bg-white rounded-2xl border-2 border-blue-200 shadow-sm hidden">
+                    <div class="text-center mb-6">
+                        <h3 class="text-2xl font-bold text-black mb-3">
+                            Have More Questions?
+                        </h3>
+                        <p class="text-gray-700 leading-relaxed">
+                            Ask me directly and I'll respond personally within 24 hours.
+                        </p>
+                    </div>
+
+                    <!-- Chat Interface -->
+                    <div class="space-y-4">
+                        <!-- Chat Messages Container -->
+                        <div id="chatMessages" class="bg-gray-50 rounded-xl p-4 min-h-[200px] max-h-[400px] overflow-y-auto border border-gray-200">
+                            <div class="text-center text-gray-500 text-sm" id="chatPlaceholder">
+                                Start the conversation by asking your question below...
+                            </div>
+                        </div>
+
+                        <!-- Input Form -->
+                        <div class="flex gap-3">
+                            <input 
+                                type="text" 
+                                id="chatInput" 
+                                placeholder="Type your question here..." 
+                                class="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none text-gray-900 hover:border-gray-400"
+                                maxlength="500"
+                            >
+                            <button 
+                                id="sendChatBtn" 
+                                class="px-6 py-3 bg-black text-white rounded-xl hover:bg-gray-800 transition-colors font-medium flex items-center space-x-2"
+                            >
+                                <span>Send</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Info Text -->
+                        <div class="text-xs text-gray-500 text-center">
+                            <p>Questions are sent directly to David Cit. Responses typically within 24 hours.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Enhanced Footer -->
     <footer class="relative py-16 px-8 bg-black text-white overflow-hidden">
         <!-- Animated Border -->
@@ -2470,6 +2708,14 @@
                             </svg>
                             <span class="text-gray-300 group-hover:text-white text-sm font-medium">Connect</span>
                             <div class="ml-auto w-2 h-2 bg-blue-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        </a>
+                        
+                        <a href="#faq" class="group flex items-center p-3 rounded-lg bg-gray-800 hover:bg-gray-700 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
+                            <svg class="w-4 h-4 mr-3 text-white group-hover:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="text-gray-300 group-hover:text-white text-sm font-medium">FAQ</span>
+                            <div class="ml-auto w-2 h-2 bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         </a>
                     </div>
                 </div>
@@ -2697,11 +2943,129 @@
                 document.body.removeChild(textArea);
             });
         }
+
+        // FAQ Toggle Function
+        function toggleFaq(faqNumber) {
+            const content = document.getElementById(`faq-content-${faqNumber}`);
+            const icon = document.getElementById(`faq-icon-${faqNumber}`);
+            
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.textContent = '−';
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                content.classList.add('hidden');
+                icon.textContent = '+';
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // Chat Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatInput = document.getElementById('chatInput');
+            const sendChatBtn = document.getElementById('sendChatBtn');
+            const chatMessages = document.getElementById('chatMessages');
+            const chatPlaceholder = document.getElementById('chatPlaceholder');
+
+            function addMessage(message, isUser = false) {
+                if (chatPlaceholder && chatPlaceholder.style.display !== 'none') {
+                    chatPlaceholder.style.display = 'none';
+                }
+
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `mb-3 ${isUser ? 'text-right' : 'text-left'}`;
+                
+                const messageBubble = document.createElement('div');
+                messageBubble.className = `inline-block max-w-[80%] px-4 py-2 rounded-lg ${
+                    isUser 
+                        ? 'bg-black text-white' 
+                        : 'bg-white border border-gray-200 text-gray-900'
+                }`;
+                messageBubble.textContent = message;
+                
+                messageDiv.appendChild(messageBubble);
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            function sendMessage() {
+                const message = chatInput.value.trim();
+                if (!message) return;
+
+                // Add user message
+                addMessage(message, true);
+                chatInput.value = '';
+
+                // Simulate typing indicator
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'text-left mb-3';
+                typingDiv.innerHTML = '<div class="inline-block bg-white border border-gray-200 px-4 py-2 rounded-lg text-gray-500"><em>David is typing...</em></div>';
+                chatMessages.appendChild(typingDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                // Simulate response after 2 seconds
+                setTimeout(() => {
+                    typingDiv.remove();
+                    addMessage("Thanks for your question! I'll get back to you within 24 hours with a detailed response. In the meantime, feel free to check out the contact form above for urgent inquiries.", false);
+                }, 2000);
+            }
+
+            sendChatBtn.addEventListener('click', sendMessage);
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        });
     </script>
     
     <script src="script.js"></script>
+    <script src="currency-switcher.js"></script>
     <script src="feedback/rich-snippets-integration.js"></script>
     
+    <!-- Info Modal for Rating Widget -->
+    <div id="infoModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Website Feedback</h3>
+                    <button id="closeInfoModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="space-y-4 text-sm text-gray-700">
+                    <div>
+                        <h4 class="font-medium text-gray-900 mb-2">Rate This Website</h4>
+                        <p>Share your thoughts on the design, user experience, and overall presentation of this portfolio website.</p>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-medium text-gray-900 mb-2">Quick & Anonymous</h4>
+                        <p>Click to rate your experience with this website. Your feedback helps improve the design and user interface.</p>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-medium text-gray-900 mb-2">Rating Scale</h4>
+                        <ul class="space-y-1 ml-2">
+                            <li>⭐⭐⭐⭐⭐ Excellent design & experience</li>
+                            <li>⭐⭐⭐⭐ Good design & usability</li>
+                            <li>⭐⭐⭐ Decent presentation</li>
+                            <li>⭐⭐ Needs improvement</li>
+                            <li>⭐ Poor design execution</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="pt-2 border-t border-gray-200">
+                        <p class="text-xs text-gray-500">This rating reflects your website experience only. Professional client reviews are collected separately and included in search results.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Database Integration for Quick Rating -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="feedback/database-config.js"></script>
