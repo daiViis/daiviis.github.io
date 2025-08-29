@@ -35,32 +35,14 @@
     
     <!-- Shared Navbar -->
     <script src="js/shared-navbar.js"></script>
+    
+    <!-- Shared Admin Authentication -->
+    <script src="js/admin-auth.js"></script>
 </head>
 
 <body class="bg-white min-h-screen">
-    <!-- Login Form (Hidden by default) -->
-    <div id="loginContainer" class="min-h-screen flex items-center justify-center">
-        <div class="w-full max-w-sm">
-            <h1 class="text-2xl font-light text-center mb-8 text-black">Admin Login</h1>
-            <form id="loginForm" class="space-y-4">
-                <input id="email" name="email" type="email" required 
-                       class="w-full px-4 py-3 border border-black bg-white text-black placeholder-gray-400 focus:outline-none focus:border-gray-400" 
-                       placeholder="Email">
-                <input id="password" name="password" type="password" required 
-                       class="w-full px-4 py-3 border border-black bg-white text-black placeholder-gray-400 focus:outline-none focus:border-gray-400" 
-                       placeholder="Password">
-                <div id="loginError" class="hidden text-black text-sm text-center"></div>
-                <button type="submit" id="loginBtn" 
-                        class="w-full py-3 bg-black text-white hover:bg-gray-800 transition-colors">
-                    <span id="loginBtnText">Sign in</span>
-                    <span id="loginLoader" class="hidden ml-2">...</span>
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Main Dashboard (Hidden by default) -->
-    <div id="dashboardContainer" class="hidden max-w-6xl mx-auto px-4 py-6">
+    <!-- Main Dashboard -->
+    <div id="dashboardContainer" class="max-w-6xl mx-auto px-4 py-6">
         <!-- Navbar will be injected here by shared-navbar.js -->
 
         <!-- Stats Cards -->
@@ -322,75 +304,66 @@
         let customerNotes = {};
         let currentCustomerId = null;
 
-        // Initialize app (same auth logic as admin-dashboard)
+        // Initialize app
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('DOM loaded, initializing app...');
-            await initializeApp();
+            console.log('🚀 DOM loaded, initializing customer management...');
+            
+            try {
+                // Initialize AdminAuth
+                if (window.AdminAuth) {
+                    console.log('✅ AdminAuth found');
+                    await window.AdminAuth.initialize();
+                    
+                    // Check authentication - redirect to login if not authenticated
+                    if (!window.AdminAuth.requireAuth()) {
+                        return; // Redirect will happen in requireAuth()
+                    }
+                    
+                    console.log('✅ User authenticated, showing dashboard');
+                    await showDashboard();
+                } else {
+                    console.error('❌ AdminAuth not found! Check if admin-auth.js is loaded.');
+                    window.location.href = 'login.html';
+                }
+            } catch (error) {
+                console.error('❌ Initialization error:', error);
+                window.location.href = 'login.html';
+            }
         });
 
-        async function initializeApp() {
+
+        async function showDashboard() {
+            console.log('🏠 Initializing customer dashboard...');
+            isAuthenticated = true;
+            
+            // Initialize supabase client for local development
             try {
-                // Check if we're in local development mode
                 const isLocalDevelopment = window.location.protocol === 'file:' || 
                                          window.location.hostname === 'localhost' || 
                                          window.location.hostname === '127.0.0.1' || 
                                          window.location.hostname === '';
 
-                let supabaseUrl, supabaseKey;
-
                 if (isLocalDevelopment) {
-                    // Use direct API credentials for local development
                     console.log('🔧 Customer management: Local development mode detected');
-                    supabaseUrl = 'https://ciulpbxkwcbzoshlzmvb.supabase.co';
-                    supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpdWxwYnhrd2Niem9zaGx6bXZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyOTY4NTcsImV4cCI6MjA3MTg3Mjg1N30.UvoAL-i_Xv-h_OKfa8NN2CoClGBfQYHv1vNeu0elERo';
+                    supabaseClient = window.supabase.createClient(
+                        'https://ciulpbxkwcbzoshlzmvb.supabase.co',
+                        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpdWxwYnhrd2Niem9zaGx6bXZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyOTY4NTcsImV4cCI6MjA3MTg3Mjg1N30.UvoAL-i_Xv-h_OKfa8NN2CoClGBfQYHv1vNeu0elERo'
+                    );
                 } else {
-                    // Check if DATABASE_CONFIG is properly configured for production
                     if (!window.DATABASE_CONFIG || !window.DATABASE_CONFIG.enabled || 
                         window.DATABASE_CONFIG.provider !== 'supabase') {
                         throw new Error('Database not configured for production. Customer management unavailable.');
                     }
-
-                    if (window.DATABASE_CONFIG.supabaseUrl === 'SECURE_PROXY_ENDPOINT' || 
-                        window.DATABASE_CONFIG.supabaseKey === 'SECURE_PROXY_ENDPOINT') {
-                        throw new Error('Customer management requires direct database access. Currently using proxy mode for security.');
-                    }
-
-                    supabaseUrl = window.DATABASE_CONFIG.supabaseUrl;
-                    supabaseKey = window.DATABASE_CONFIG.supabaseKey;
+                    supabaseClient = window.supabase.createClient(
+                        window.DATABASE_CONFIG.supabaseUrl,
+                        window.DATABASE_CONFIG.supabaseKey
+                    );
                 }
-
-                // Initialize Supabase client with detected credentials
-                supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-                const savedAuth = localStorage.getItem('admin_auth');
-                if (savedAuth) {
-                    const authData = JSON.parse(savedAuth);
-                    if (await validateSession(authData)) {
-                        currentUser = authData;
-                        await showDashboard();
-                        return;
-                    }
-                }
-
-                showLogin();
-                
             } catch (error) {
-                console.error('Initialization error:', error);
-                showError('Failed to initialize application: ' + error.message);
+                console.error('Database initialization error:', error);
+                showError('Failed to initialize database connection: ' + error.message);
+                return;
             }
-        }
-
-        // Use same auth functions as admin-dashboard (simplified version)
-        function showLogin() {
-            document.getElementById('loginContainer').classList.remove('hidden');
-            document.getElementById('dashboardContainer').classList.add('hidden');
-            setupLoginListeners();
-        }
-
-        async function showDashboard() {
-            document.getElementById('loginContainer').classList.add('hidden');
-            document.getElementById('dashboardContainer').classList.remove('hidden');
-            isAuthenticated = true;
             
             // Initialize shared navbar
             initializeNavbar('customers', 'Customer Management');
@@ -399,147 +372,6 @@
             setupEventListeners();
         }
 
-        function setupLoginListeners() {
-            const loginForm = document.getElementById('loginForm');
-            if (loginForm) {
-                loginForm.addEventListener('submit', handleLogin);
-            }
-        }
-
-        async function handleLogin(event) {
-            event.preventDefault();
-            
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            
-            if (!email || !password) {
-                showLoginError('Please enter both email and password');
-                return;
-            }
-
-            setLoginLoading(true);
-            hideLoginError();
-
-            try {
-                const { data: userData, error: userError } = await supabaseClient
-                    .from('admin_users')
-                    .select('id, email, full_name, role, is_active, password_hash')
-                    .eq('email', email)
-                    .single();
-
-                if (userError || !userData) {
-                    throw new Error('Invalid email or password');
-                }
-
-                const { data: passwordValid, error: passwordError } = await supabaseClient
-                    .rpc('verify_password', { input_password: password, stored_hash: userData.password_hash });
-
-                if (passwordError || !passwordValid) {
-                    throw new Error('Invalid email or password');
-                }
-
-                if (!userData.is_active) {
-                    throw new Error('Account is disabled');
-                }
-
-                currentUser = userData;
-                const authData = {
-                    ...userData,
-                    loginTime: new Date().toISOString(),
-                    sessionId: generateSessionId()
-                };
-                
-                localStorage.setItem('admin_auth', JSON.stringify(authData));
-
-                await supabaseClient
-                    .from('admin_users')
-                    .update({ last_login: new Date().toISOString() })
-                    .eq('id', userData.id);
-
-                await showDashboard();
-                
-            } catch (error) {
-                console.error('Login error:', error);
-                showLoginError(error.message);
-            } finally {
-                setLoginLoading(false);
-            }
-        }
-
-        async function validateSession(authData) {
-            try {
-                if (!authData || !authData.id || !authData.sessionId) {
-                    return false;
-                }
-
-                const loginTime = new Date(authData.loginTime);
-                const now = new Date();
-                const hoursDiff = (now - loginTime) / (1000 * 60 * 60);
-                
-                if (hoursDiff > 24) {
-                    localStorage.removeItem('admin_auth');
-                    return false;
-                }
-
-                const { data, error } = await supabaseClient
-                    .from('admin_users')
-                    .select('is_active')
-                    .eq('id', authData.id)
-                    .single();
-
-                if (error || !data || !data.is_active) {
-                    localStorage.removeItem('admin_auth');
-                    return false;
-                }
-
-                return true;
-            } catch (error) {
-                console.error('Session validation error:', error);
-                return false;
-            }
-        }
-
-        function logout() {
-            localStorage.removeItem('admin_auth');
-            currentUser = null;
-            isAuthenticated = false;
-            showLogin();
-        }
-
-        function generateSessionId() {
-            return Math.random().toString(36).substring(2) + Date.now().toString(36);
-        }
-
-        function showLoginError(message) {
-            const errorEl = document.getElementById('loginError');
-            errorEl.textContent = message;
-            errorEl.classList.remove('hidden');
-            errorEl.style.animation = 'error-shake 0.4s ease';
-            
-            setTimeout(() => {
-                errorEl.style.animation = '';
-            }, 400);
-        }
-
-        function hideLoginError() {
-            document.getElementById('loginError').classList.add('hidden');
-        }
-
-        function setLoginLoading(loading) {
-            const btn = document.getElementById('loginBtn');
-            const btnText = document.getElementById('loginBtnText');
-            const loader = document.getElementById('loginLoader');
-            
-            if (loading) {
-                btn.disabled = true;
-                btnText.textContent = 'Signing in...';
-                loader.classList.remove('hidden');
-            } else {
-                btn.disabled = false;
-                btnText.textContent = 'Sign in';
-                loader.classList.add('hidden');
-            }
-        }
 
         // Customer management functions
         async function loadCustomerData() {
@@ -695,7 +527,7 @@
         function setupEventListeners() {
             console.log('Setting up event listeners...');
             document.getElementById('refreshBtn').addEventListener('click', loadCustomerData);
-            document.getElementById('logoutBtn').addEventListener('click', logout);
+            document.getElementById('logoutBtn').addEventListener('click', () => window.AdminAuth.logout());
             document.getElementById('addNewCustomerBtn').addEventListener('click', showAddCustomerModal);
             document.getElementById('retryBtn').addEventListener('click', loadCustomerData);
 

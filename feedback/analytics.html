@@ -47,32 +47,14 @@
     
     <!-- Shared Navbar -->
     <script src="js/shared-navbar.js"></script>
+    
+    <!-- Shared Admin Authentication -->
+    <script src="js/admin-auth.js"></script>
 </head>
 
 <body class="bg-white min-h-screen">
-    <!-- Login Form (Hidden by default) -->
-    <div id="loginContainer" class="min-h-screen flex items-center justify-center">
-        <div class="w-full max-w-sm">
-            <h1 class="text-2xl font-light text-center mb-8 text-black">Admin Login</h1>
-            <form id="loginForm" class="space-y-4">
-                <input id="email" name="email" type="email" required 
-                       class="w-full px-4 py-3 border border-black bg-white text-black placeholder-gray-400 focus:outline-none focus:border-gray-400" 
-                       placeholder="Email">
-                <input id="password" name="password" type="password" required 
-                       class="w-full px-4 py-3 border border-black bg-white text-black placeholder-gray-400 focus:outline-none focus:border-gray-400" 
-                       placeholder="Password">
-                <div id="loginError" class="hidden text-black text-sm text-center"></div>
-                <button type="submit" id="loginBtn" 
-                        class="w-full py-3 bg-black text-white hover:bg-gray-800 transition-colors">
-                    <span id="loginBtnText">Sign in</span>
-                    <span id="loginLoader" class="hidden ml-2">...</span>
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Main Dashboard (Hidden by default) -->
-    <div id="dashboardContainer" class="hidden max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
+    <!-- Main Dashboard -->
+    <div id="dashboardContainer" class="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         <!-- Navbar will be injected here by shared-navbar.js -->
         
         <!-- Loading State -->
@@ -558,96 +540,9 @@
 
     <!-- Analytics Dashboard Script -->
     <script>
-        // Authentication System
-        let supabaseClient = null;
-
-        async function initializeAuth() {
-            // Check if we're in local development mode
-            const isLocalDevelopment = window.location.protocol === 'file:' || 
-                                     window.location.hostname === 'localhost' || 
-                                     window.location.hostname === '127.0.0.1' || 
-                                     window.location.hostname === '';
-
-            let supabaseUrl, supabaseKey;
-
-            if (isLocalDevelopment) {
-                // Use direct API credentials for local development
-                console.log('🔧 Analytics: Local development mode detected');
-                supabaseUrl = 'https://ciulpbxkwcbzoshlzmvb.supabase.co';
-                supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpdWxwYnhrd2Niem9zaGx6bXZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyOTY4NTcsImV4cCI6MjA3MTg3Mjg1N30.UvoAL-i_Xv-h_OKfa8NN2CoClGBfQYHv1vNeu0elERo';
-            } else {
-                // Check production database config
-                if (!window.DATABASE_CONFIG || !window.DATABASE_CONFIG.enabled) {
-                    console.error('Database config not found or disabled');
-                    return;
-                }
-
-                if (window.DATABASE_CONFIG.supabaseUrl === 'SECURE_PROXY_ENDPOINT' || 
-                    window.DATABASE_CONFIG.supabaseKey === 'SECURE_PROXY_ENDPOINT') {
-                    console.error('Analytics requires direct database access. Currently using proxy mode for security.');
-                    return;
-                }
-
-                supabaseUrl = window.DATABASE_CONFIG.supabaseUrl;
-                supabaseKey = window.DATABASE_CONFIG.supabaseKey;
-            }
-
-            // Initialize Supabase client with detected credentials
-            if (window.DATABASE_CONFIG?.provider === 'supabase' || isLocalDevelopment) {
-                try {
-                    supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
-                } catch (error) {
-                    console.error('Failed to initialize Supabase client:', error);
-                }
-            }
-
-            // Check authentication status
-            const savedAuth = localStorage.getItem('admin_auth');
-            
-            if (savedAuth) {
-                try {
-                    const authData = JSON.parse(savedAuth);
-                    if (await validateAuthData(authData)) {
-                        showDashboard();
-                        return;
-                    }
-                } catch (error) {
-                    console.error('Invalid auth data:', error);
-                    localStorage.removeItem('admin_auth');
-                }
-            }
-
-            // Show login form
-            showLogin();
-            setupLoginHandler();
-        }
-
-        async function validateAuthData(authData) {
-            if (!authData || !authData.email || !authData.loginTime) {
-                return false;
-            }
-
-            // Check if session is expired (24 hours)
-            const loginTime = new Date(authData.loginTime);
-            const now = new Date();
-            const hoursDiff = (now - loginTime) / (1000 * 60 * 60);
-
-            if (hoursDiff > 24) {
-                localStorage.removeItem('admin_auth');
-                return false;
-            }
-
-            return true;
-        }
-
-        function showLogin() {
-            document.getElementById('loginContainer').classList.remove('hidden');
-            document.getElementById('dashboardContainer').classList.add('hidden');
-        }
 
         function showDashboard() {
-            document.getElementById('loginContainer').classList.add('hidden');
-            document.getElementById('dashboardContainer').classList.remove('hidden');
+            console.log('🏠 Initializing analytics dashboard...');
             
             // Initialize shared navbar
             initializeNavbar('analytics', 'Analytics Dashboard');
@@ -656,85 +551,6 @@
             window.analyticsInstance = new AnalyticsDashboard();
         }
 
-        function setupLoginHandler() {
-            const loginForm = document.getElementById('loginForm');
-            if (loginForm) {
-                loginForm.addEventListener('submit', handleLogin);
-            }
-        }
-
-        async function handleLogin(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            setLoginLoading(true);
-            hideLoginError();
-            
-            try {
-                if (!supabaseClient) {
-                    throw new Error('Database not available');
-                }
-
-                const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email,
-                    password
-                });
-
-                if (error) throw error;
-
-                // Store auth data
-                const authData = {
-                    email: data.user.email,
-                    user_id: data.user.id,
-                    loginTime: new Date().toISOString(),
-                    role: 'admin'
-                };
-
-                localStorage.setItem('admin_auth', JSON.stringify(authData));
-
-                // Update last login
-                await supabaseClient
-                    .from('admin_users')
-                    .update({ last_login: new Date().toISOString() })
-                    .eq('email', email);
-
-                showDashboard();
-
-            } catch (error) {
-                console.error('Login error:', error);
-                showLoginError('Invalid credentials or server error');
-            } finally {
-                setLoginLoading(false);
-            }
-        }
-
-        function showLoginError(message) {
-            const errorEl = document.getElementById('loginError');
-            errorEl.textContent = message;
-            errorEl.classList.remove('hidden');
-        }
-
-        function hideLoginError() {
-            document.getElementById('loginError').classList.add('hidden');
-        }
-
-        function setLoginLoading(loading) {
-            const btn = document.getElementById('loginBtn');
-            const btnText = document.getElementById('loginBtnText');
-            const loader = document.getElementById('loginLoader');
-            
-            if (loading) {
-                btn.disabled = true;
-                btnText.classList.add('hidden');
-                loader.classList.remove('hidden');
-            } else {
-                btn.disabled = false;
-                btnText.classList.remove('hidden');
-                loader.classList.add('hidden');
-            }
-        }
     </script>
 
     <script>
@@ -1738,8 +1554,29 @@
 
         // Initialize dashboard when page loads
         document.addEventListener('DOMContentLoaded', async () => {
-            // Initialize authentication first
-            await initializeAuth();
+            console.log('🚀 Analytics dashboard initializing...');
+            
+            try {
+                // Initialize AdminAuth
+                if (window.AdminAuth) {
+                    console.log('✅ AdminAuth found');
+                    await window.AdminAuth.initialize();
+                    
+                    // Check authentication - redirect to login if not authenticated
+                    if (!window.AdminAuth.requireAuth()) {
+                        return; // Redirect will happen in requireAuth()
+                    }
+                    
+                    console.log('✅ User authenticated, showing dashboard');
+                    showDashboard();
+                } else {
+                    console.error('❌ AdminAuth not found! Check if admin-auth.js is loaded.');
+                    window.location.href = 'login.html';
+                }
+            } catch (error) {
+                console.error('❌ Initialization error:', error);
+                window.location.href = 'login.html';
+            }
         });
     </script>
 </body>

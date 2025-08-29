@@ -237,8 +237,8 @@ class AdminAuth {
         localStorage.removeItem('admin_jwt_token');
         
         // Redirect to login if not already there
-        if (!window.location.pathname.includes('admin-dashboard.html')) {
-            window.location.href = 'admin-dashboard.html';
+        if (!window.location.pathname.includes('login.html')) {
+            window.location.href = 'login.html';
         } else {
             window.location.reload();
         }
@@ -251,7 +251,10 @@ class AdminAuth {
 
     requireAuth() {
         if (!this.isAuthenticated) {
-            window.location.href = 'admin-dashboard.html';
+            // Store current page to return to after login
+            const currentPage = window.location.pathname.split('/').pop();
+            const returnUrl = encodeURIComponent(currentPage);
+            window.location.href = `login.html?returnTo=${returnUrl}`;
             return false;
         }
         return true;
