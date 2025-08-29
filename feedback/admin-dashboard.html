@@ -289,6 +289,12 @@
 
                 let data, error;
                 
+                // Check if we're using proxy mode
+                const useProxyMode = window.AdminAuth?.useProxyMode || 
+                                   (window.DATABASE_CONFIG && 
+                                    (window.DATABASE_CONFIG.supabaseUrl === 'SECURE_PROXY_ENDPOINT' || 
+                                     window.DATABASE_CONFIG.supabaseKey === 'SECURE_PROXY_ENDPOINT'));
+                
                 if (useProxyMode) {
                     // Use secure proxy endpoint
                     try {
@@ -307,6 +313,26 @@
                     }
                 } else {
                     // Use direct Supabase client (local development)
+                    // Initialize supabase client if not already done
+                    if (!supabaseClient) {
+                        const isLocalDevelopment = window.location.protocol === 'file:' || 
+                                                 window.location.hostname === 'localhost' || 
+                                                 window.location.hostname === '127.0.0.1' || 
+                                                 window.location.hostname === '';
+
+                        if (isLocalDevelopment) {
+                            supabaseClient = window.supabase.createClient(
+                                'https://ciulpbxkwcbzoshlzmvb.supabase.co',
+                                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpdWxwYnhrd2Niem9zaGx6bXZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyOTY4NTcsImV4cCI6MjA3MTg3Mjg1N30.UvoAL-i_Xv-h_OKfa8NN2CoClGBfQYHv1vNeu0elERo'
+                            );
+                        } else if (window.DATABASE_CONFIG) {
+                            supabaseClient = window.supabase.createClient(
+                                window.DATABASE_CONFIG.supabaseUrl,
+                                window.DATABASE_CONFIG.supabaseKey
+                            );
+                        }
+                    }
+                    
                     const result = await supabaseClient
                         .from('feedback_submissions')
                         .select('*')
