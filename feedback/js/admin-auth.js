@@ -145,7 +145,7 @@ class AdminAuth {
             try {
                 // Try secure admin auth endpoint first
                 console.log('🔐 Attempting secure admin auth endpoint...');
-                const authResponse = await fetch('/.netlify/functions/admin-auth', {
+                const authResponse = await fetch('https://radiant-dodol-0c0bca.netlify.app/.netlify/functions/admin-auth', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
