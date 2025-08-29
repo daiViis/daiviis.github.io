@@ -8,6 +8,10 @@ class FAQChatbot {
         this.currentLanguage = 'en'; // Default to English
         this.storageKey = 'faq_chatbot_conversation';
         
+        // Initialize chatbot analytics
+        this.analytics = null;
+        this.initializeChatbotAnalytics();
+        
         // FAQ Bot System Prompt
         this.systemPrompt = `# Web Design Services FAQ Bot
 
@@ -178,6 +182,18 @@ Always maintain professionalism and accuracy regardless of the language used.`;
         this.init();
     }
 
+    initializeChatbotAnalytics() {
+        try {
+            if (window.ChatbotAnalytics) {
+                this.analytics = new window.ChatbotAnalytics();
+                this.analytics.setupPageUnloadTracking();
+                console.log('Chatbot analytics initialized');
+            }
+        } catch (error) {
+            console.warn('Failed to initialize chatbot analytics:', error);
+        }
+    }
+
     init() {
         this.loadConversationHistory();
         this.attachEventListeners();
@@ -212,6 +228,11 @@ Always maintain professionalism and accuracy regardless of the language used.`;
         
         if (!message || this.isTyping) return;
         
+        // Track user message
+        if (this.analytics) {
+            await this.analytics.trackMessage('user', message, message.length);
+        }
+        
         // Clear input and add user message
         chatInput.value = '';
         this.addMessageToChat('user', message);
@@ -222,11 +243,50 @@ Always maintain professionalism and accuracy regardless of the language used.`;
         try {
             const response = await this.sendToGemini(message);
             this.hideTypingIndicator();
+            
+            // Track assistant response
+            if (this.analytics) {
+                await this.analytics.trackMessage('assistant', response, response.length);
+            }
+            
             this.addMessageToChat('assistant', response);
         } catch (error) {
             console.error('Chatbot API Error:', error);
             this.hideTypingIndicator();
-            this.addMessageToChat('assistant', "I'm sorry, I'm having trouble connecting right now. Please try again later or contact David directly at david.cit1999@gmail.com for immediate assistance.");
+            const errorMessage = "I'm sorry, I'm having trouble connecting right now. Please try again later or contact David directly at david.cit1999@gmail.com for immediate assistance.";
+            
+            // Track specific error type
+            if (this.analytics) {
+                // Determine error type based on the error
+                let errorType = 'api_error';
+                let errorCode = null;
+                
+                if (error.message?.includes('fetch') || error.name === 'TypeError') {
+                    errorType = 'network_error';
+                } else if (error.message?.includes('API key') || error.message?.includes('403')) {
+                    errorType = 'auth_error';
+                } else if (error.message?.includes('quota') || error.message?.includes('limit') || error.message?.includes('429')) {
+                    errorType = 'quota_error';
+                } else if (error.message?.includes('timeout')) {
+                    errorType = 'timeout_error';
+                } else if (error.status) {
+                    errorType = 'http_error';
+                    errorCode = error.status.toString();
+                }
+                
+                // Track the error event
+                await this.analytics.trackError(errorType, error.message || 'Unknown API error', errorCode);
+                
+                // Track the error response message with error info
+                const errorInfo = {
+                    type: errorType,
+                    message: error.message || 'API request failed',
+                    code: errorCode
+                };
+                await this.analytics.trackMessage('assistant', errorMessage, errorMessage.length, errorInfo);
+            }
+            
+            this.addMessageToChat('assistant', errorMessage);
         }
     }
 
@@ -459,7 +519,12 @@ Always maintain professionalism and accuracy regardless of the language used.`;
         chatMessages.appendChild(messageDiv);
     }
 
-    handleChatReset() {
+    async handleChatReset() {
+        // Track chat reset
+        if (this.analytics) {
+            await this.analytics.trackChatReset();
+        }
+        
         this.clearConversationHistory();
         this.showResetConfirmation();
         // Show welcome message after reset

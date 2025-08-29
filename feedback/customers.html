@@ -32,6 +32,9 @@
 
     <!-- Admin Styles -->
     <link rel="stylesheet" href="css/admin-styles.css">
+    
+    <!-- Shared Navbar -->
+    <script src="js/shared-navbar.js"></script>
 </head>
 
 <body class="bg-white min-h-screen">
@@ -58,16 +61,7 @@
 
     <!-- Main Dashboard (Hidden by default) -->
     <div id="dashboardContainer" class="hidden max-w-6xl mx-auto px-4 py-6">
-        <div class="mb-6 pb-4 border-b-2 border-black section-header pl-4">
-            <div class="flex justify-between items-center">
-                <h1 class="text-2xl font-light text-black">Customer Management</h1>
-                <div class="flex flex-wrap gap-2">
-                    <a href="admin-dashboard.html" class="border border-black text-black px-3 py-2 hover:bg-gray-100 btn-secondary">Feedback</a>
-                    <button id="refreshBtn" class="border border-black text-black px-3 py-2 hover:bg-gray-100 btn-secondary">Refresh</button>
-                    <button id="logoutBtn" class="border border-black text-black px-3 py-2 hover:bg-gray-100 btn-secondary">Logout</button>
-                </div>
-            </div>
-        </div>
+        <!-- Navbar will be injected here by shared-navbar.js -->
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
@@ -375,6 +369,9 @@
             document.getElementById('loginContainer').classList.add('hidden');
             document.getElementById('dashboardContainer').classList.remove('hidden');
             isAuthenticated = true;
+            
+            // Initialize shared navbar
+            initializeNavbar('customers', 'Customer Management');
             
             await loadCustomerData();
             setupEventListeners();
