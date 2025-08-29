@@ -261,10 +261,21 @@
         // Initialize app
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('🚀 DOMContentLoaded - Starting initialization...');
+            console.log('🔍 window.AdminAuth:', window.AdminAuth);
+            console.log('🔍 typeof AdminAuth:', typeof window.AdminAuth);
+            
             try {
                 if (window.AdminAuth) {
-                    console.log('✅ AdminAuth found, initializing...');
-                    await AdminAuth.initialize();
+                    console.log('✅ AdminAuth found');
+                    console.log('🔍 AdminAuth.initialize:', window.AdminAuth.initialize);
+                    console.log('🔍 typeof initialize:', typeof window.AdminAuth.initialize);
+                    
+                    if (typeof window.AdminAuth.initialize === 'function') {
+                        console.log('🔐 Calling AdminAuth.initialize()...');
+                        await window.AdminAuth.initialize();
+                    } else {
+                        console.error('❌ AdminAuth.initialize is not a function!');
+                    }
                 } else {
                     console.error('❌ AdminAuth not found! Check if admin-auth.js is loaded.');
                 }
