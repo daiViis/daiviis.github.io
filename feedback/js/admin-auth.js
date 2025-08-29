@@ -257,5 +257,12 @@ class AdminAuth {
     }
 }
 
-// Global instance
-window.AdminAuth = new AdminAuth();
+// Create global instance with error handling
+try {
+    console.log('🔧 Creating AdminAuth instance...');
+    window.AdminAuth = new AdminAuth();
+    console.log('✅ AdminAuth instance created successfully');
+    console.log('🔍 AdminAuth methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(window.AdminAuth)));
+} catch (error) {
+    console.error('❌ Failed to create AdminAuth instance:', error);
+}
