@@ -260,8 +260,18 @@
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', async function() {
-            await AdminAuth.initialize();
-            await initializeApp();
+            console.log('🚀 DOMContentLoaded - Starting initialization...');
+            try {
+                if (window.AdminAuth) {
+                    console.log('✅ AdminAuth found, initializing...');
+                    await AdminAuth.initialize();
+                } else {
+                    console.error('❌ AdminAuth not found! Check if admin-auth.js is loaded.');
+                }
+                await initializeApp();
+            } catch (error) {
+                console.error('❌ Initialization error:', error);
+            }
         });
 
         async function initializeApp() {
@@ -346,13 +356,18 @@
         }
 
         function setupLoginListeners() {
+            console.log('🔧 Setting up login listeners...');
             const loginForm = document.getElementById('loginForm');
             if (loginForm) {
+                console.log('✅ Login form found, adding event listener');
                 loginForm.addEventListener('submit', handleLogin);
+            } else {
+                console.error('❌ Login form not found!');
             }
         }
 
         async function handleLogin(event) {
+            console.log('🔐 handleLogin called!');
             event.preventDefault();
             
             const email = document.getElementById('email').value.trim();
