@@ -29,6 +29,10 @@
     
     <!-- Database Configuration -->
     <script src="database-config.js"></script>
+    
+    <!-- API Helper for secure proxy mode -->
+    <script src="../assets/js/env-loader.js"></script>
+    <script src="../assets/js/api-config.js"></script>
 
     <!-- Admin Styles -->
     <link rel="stylesheet" href="css/admin-styles.css">
@@ -336,28 +340,41 @@
             console.log('🏠 Initializing customer dashboard...');
             isAuthenticated = true;
             
-            // Initialize supabase client for local development
+            // Initialize database client
             try {
-                const isLocalDevelopment = window.location.protocol === 'file:' || 
-                                         window.location.hostname === 'localhost' || 
-                                         window.location.hostname === '127.0.0.1' || 
-                                         window.location.hostname === '';
-
-                if (isLocalDevelopment) {
-                    console.log('🔧 Customer management: Local development mode detected');
-                    supabaseClient = window.supabase.createClient(
-                        'https://ciulpbxkwcbzoshlzmvb.supabase.co',
-                        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpdWxwYnhrd2Niem9zaGx6bXZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyOTY4NTcsImV4cCI6MjA3MTg3Mjg1N30.UvoAL-i_Xv-h_OKfa8NN2CoClGBfQYHv1vNeu0elERo'
-                    );
+                // Detect proxy mode
+                const useProxyMode = window.DATABASE_CONFIG && 
+                                   (window.DATABASE_CONFIG.supabaseUrl === 'SECURE_PROXY_ENDPOINT' || 
+                                    window.DATABASE_CONFIG.supabaseKey === 'SECURE_PROXY_ENDPOINT');
+                
+                if (useProxyMode) {
+                    console.log('🔒 Customer management: Using secure proxy mode');
+                    // Customer management requires complex database operations not yet supported in proxy mode
+                    showError('Customer management requires direct database access for complex operations. Currently using secure proxy mode. This feature is not available in production.');
+                    return;
                 } else {
-                    if (!window.DATABASE_CONFIG || !window.DATABASE_CONFIG.enabled || 
-                        window.DATABASE_CONFIG.provider !== 'supabase') {
-                        throw new Error('Database not configured for production. Customer management unavailable.');
+                    console.log('🔓 Customer management: Using direct database mode');
+                    const isLocalDevelopment = window.location.protocol === 'file:' || 
+                                             window.location.hostname === 'localhost' || 
+                                             window.location.hostname === '127.0.0.1' || 
+                                             window.location.hostname === '';
+
+                    if (isLocalDevelopment) {
+                        console.log('🔧 Customer management: Local development mode detected');
+                        supabaseClient = window.supabase.createClient(
+                            'https://ciulpbxkwcbzoshlzmvb.supabase.co',
+                            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpdWxwYnhrd2Niem9zaGx6bXZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyOTY4NTcsImV4cCI6MjA3MTg3Mjg1N30.UvoAL-i_Xv-h_OKfa8NN2CoClGBfQYHv1vNeu0elERo'
+                        );
+                    } else {
+                        if (!window.DATABASE_CONFIG || !window.DATABASE_CONFIG.enabled || 
+                            window.DATABASE_CONFIG.provider !== 'supabase') {
+                            throw new Error('Database not configured for production. Customer management unavailable.');
+                        }
+                        supabaseClient = window.supabase.createClient(
+                            window.DATABASE_CONFIG.supabaseUrl,
+                            window.DATABASE_CONFIG.supabaseKey
+                        );
                     }
-                    supabaseClient = window.supabase.createClient(
-                        window.DATABASE_CONFIG.supabaseUrl,
-                        window.DATABASE_CONFIG.supabaseKey
-                    );
                 }
             } catch (error) {
                 console.error('Database initialization error:', error);
