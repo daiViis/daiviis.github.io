@@ -142,6 +142,7 @@ class AdminAuth {
         console.log('🔐 Attempting admin login for:', email);
 
         if (this.useProxyMode) {
+            let authData;
             try {
                 // Try secure admin auth endpoint first
                 console.log('🔐 Attempting secure admin auth endpoint...');
@@ -160,7 +161,6 @@ class AdminAuth {
                 const responseText = await authResponse.text();
                 console.log('📨 Auth response:', responseText);
 
-                let authData;
                 try {
                     authData = JSON.parse(responseText);
                 } catch (parseError) {
