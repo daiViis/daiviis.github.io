@@ -394,8 +394,8 @@
 
             try {
                 console.log('🔐 Using AdminAuth.login()...');
-                console.log('🔍 AdminAuth.login type:', typeof AdminAuth.login);
-                console.log('🔍 AdminAuth methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(AdminAuth)));
+                console.log('🔍 window.AdminAuth.login type:', typeof window.AdminAuth.login);
+                console.log('🔍 AdminAuth methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(window.AdminAuth)));
                 
                 // Use the shared AdminAuth system
                 const user = await window.AdminAuth.login(email, password);
