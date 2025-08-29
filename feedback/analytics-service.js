@@ -34,31 +34,38 @@ class AnalyticsService {
             throw new Error('Supabase client not loaded');
         }
         
-        // Check if we're in local development mode
-        const isLocalDevelopment = window.location.protocol === 'file:' || 
-                                 window.location.hostname === 'localhost' || 
-                                 window.location.hostname === '127.0.0.1' || 
-                                 window.location.hostname === '';
-
-        let supabaseUrl, supabaseKey;
-
-        if (isLocalDevelopment) {
-            // Use direct API credentials for local development
-            console.log('🔧 AnalyticsService: Local development mode detected');
-            supabaseUrl = 'https://ciulpbxkwcbzoshlzmvb.supabase.co';
-            supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpdWxwYnhrd2Niem9zaGx6bXZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyOTY4NTcsImV4cCI6MjA3MTg3Mjg1N30.UvoAL-i_Xv-h_OKfa8NN2CoClGBfQYHv1vNeu0elERo';
-        } else {
-            // Check production database config
-            if (this.config.supabaseUrl === 'SECURE_PROXY_ENDPOINT' || 
-                this.config.supabaseKey === 'SECURE_PROXY_ENDPOINT') {
-                throw new Error('AnalyticsService requires direct database access. Currently using proxy mode for security.');
-            }
-
-            supabaseUrl = this.config.supabaseUrl;
-            supabaseKey = this.config.supabaseKey;
-        }
+        // Detect proxy mode
+        this.useProxyMode = this.config.supabaseUrl === 'SECURE_PROXY_ENDPOINT' || 
+                           this.config.supabaseKey === 'SECURE_PROXY_ENDPOINT';
         
-        this.client = window.supabase.createClient(supabaseUrl, supabaseKey);
+        if (this.useProxyMode) {
+            console.log('🔒 AnalyticsService: Using secure proxy mode');
+            // Initialize API Helper for proxy mode
+            if (window.ApiHelper) {
+                await window.ApiHelper.initialize();
+            }
+        } else {
+            console.log('🔓 AnalyticsService: Using direct database mode');
+            // Check if we're in local development mode
+            const isLocalDevelopment = window.location.protocol === 'file:' || 
+                                     window.location.hostname === 'localhost' || 
+                                     window.location.hostname === '127.0.0.1' || 
+                                     window.location.hostname === '';
+
+            let supabaseUrl, supabaseKey;
+
+            if (isLocalDevelopment) {
+                // Use direct API credentials for local development
+                console.log('🔧 AnalyticsService: Local development mode detected');
+                supabaseUrl = 'https://ciulpbxkwcbzoshlzmvb.supabase.co';
+                supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpdWxwYnhrd2Niem9zaGx6bXZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyOTY4NTcsImV4cCI6MjA3MTg3Mjg1N30.UvoAL-i_Xv-h_OKfa8NN2CoClGBfQYHv1vNeu0elERo';
+            } else {
+                supabaseUrl = this.config.supabaseUrl;
+                supabaseKey = this.config.supabaseKey;
+            }
+            
+            this.client = window.supabase.createClient(supabaseUrl, supabaseKey);
+        }
     }
 
     /**
@@ -132,18 +139,43 @@ class AnalyticsService {
      * Get total statistics
      */
     async getTotalStats(startDate, endDate, pageUrl = null) {
-        let query = this.client
-            .from('page_analytics')
-            .select('id, visitor_id, session_id, timestamp, is_bot, page_url')
-            .gte('timestamp', startDate)
-            .lte('timestamp', endDate)
-            .eq('is_bot', false);
+        let data, error;
+        
+        if (this.useProxyMode) {
+            try {
+                let filters = { is_bot: false };
+                if (pageUrl) {
+                    filters.page_url = pageUrl;
+                }
+                
+                data = await window.ApiHelper.callDatabase(
+                    'select',
+                    'page_analytics',
+                    null,
+                    filters,
+                    'id, visitor_id, session_id, timestamp, is_bot, page_url'
+                );
+                error = null;
+            } catch (err) {
+                data = null;
+                error = err;
+            }
+        } else {
+            let query = this.client
+                .from('page_analytics')
+                .select('id, visitor_id, session_id, timestamp, is_bot, page_url')
+                .gte('timestamp', startDate)
+                .lte('timestamp', endDate)
+                .eq('is_bot', false);
 
-        if (pageUrl) {
-            query = query.eq('page_url', pageUrl);
+            if (pageUrl) {
+                query = query.eq('page_url', pageUrl);
+            }
+
+            const result = await query;
+            data = result.data;
+            error = result.error;
         }
-
-        const { data, error } = await query;
         
         if (error) throw error;
 
@@ -170,19 +202,44 @@ class AnalyticsService {
      * Get page views over time
      */
     async getViewsOverTime(startDate, endDate, pageUrl = null, groupBy = 'day') {
-        let query = this.client
-            .from('page_analytics')
-            .select('timestamp, page_url')
-            .gte('timestamp', startDate)
-            .lte('timestamp', endDate)
-            .eq('is_bot', false)
-            .order('timestamp', { ascending: true });
+        let data, error;
+        
+        if (this.useProxyMode) {
+            try {
+                let filters = { is_bot: false };
+                if (pageUrl) {
+                    filters.page_url = pageUrl;
+                }
+                
+                data = await window.ApiHelper.callDatabase(
+                    'select',
+                    'page_analytics',
+                    null,
+                    filters,
+                    'timestamp, page_url'
+                );
+                error = null;
+            } catch (err) {
+                data = null;
+                error = err;
+            }
+        } else {
+            let query = this.client
+                .from('page_analytics')
+                .select('timestamp, page_url')
+                .gte('timestamp', startDate)
+                .lte('timestamp', endDate)
+                .eq('is_bot', false)
+                .order('timestamp', { ascending: true });
 
-        if (pageUrl) {
-            query = query.eq('page_url', pageUrl);
+            if (pageUrl) {
+                query = query.eq('page_url', pageUrl);
+            }
+
+            const result = await query;
+            data = result.data;
+            error = result.error;
         }
-
-        const { data, error } = await query;
         
         if (error) throw error;
 
@@ -196,12 +253,33 @@ class AnalyticsService {
      * Get top pages by views
      */
     async getTopPages(startDate, endDate, limit = 10) {
-        const { data, error } = await this.client
-            .from('page_analytics')
-            .select('page_url, page_title')
-            .gte('timestamp', startDate)
-            .lte('timestamp', endDate)
-            .eq('is_bot', false);
+        let data, error;
+        
+        if (this.useProxyMode) {
+            try {
+                data = await window.ApiHelper.callDatabase(
+                    'select',
+                    'page_analytics',
+                    null,
+                    { is_bot: false },
+                    'page_url, page_title'
+                );
+                error = null;
+            } catch (err) {
+                data = null;
+                error = err;
+            }
+        } else {
+            const result = await this.client
+                .from('page_analytics')
+                .select('page_url, page_title')
+                .gte('timestamp', startDate)
+                .lte('timestamp', endDate)
+                .eq('is_bot', false);
+            
+            data = result.data;
+            error = result.error;
+        }
 
         if (error) throw error;
 
@@ -231,18 +309,43 @@ class AnalyticsService {
      * Get traffic sources
      */
     async getTrafficSources(startDate, endDate, pageUrl = null) {
-        let query = this.client
-            .from('page_analytics')
-            .select('referrer, page_url')
-            .gte('timestamp', startDate)
-            .lte('timestamp', endDate)
-            .eq('is_bot', false);
+        let data, error;
+        
+        if (this.useProxyMode) {
+            try {
+                let filters = { is_bot: false };
+                if (pageUrl) {
+                    filters.page_url = pageUrl;
+                }
+                
+                data = await window.ApiHelper.callDatabase(
+                    'select',
+                    'page_analytics',
+                    null,
+                    filters,
+                    'referrer, page_url'
+                );
+                error = null;
+            } catch (err) {
+                data = null;
+                error = err;
+            }
+        } else {
+            let query = this.client
+                .from('page_analytics')
+                .select('referrer, page_url')
+                .gte('timestamp', startDate)
+                .lte('timestamp', endDate)
+                .eq('is_bot', false);
 
-        if (pageUrl) {
-            query = query.eq('page_url', pageUrl);
+            if (pageUrl) {
+                query = query.eq('page_url', pageUrl);
+            }
+
+            const result = await query;
+            data = result.data;
+            error = result.error;
         }
-
-        const { data, error } = await query;
         
         if (error) throw error;
 
@@ -264,18 +367,43 @@ class AnalyticsService {
      * Get device breakdown
      */
     async getDeviceBreakdown(startDate, endDate, pageUrl = null) {
-        let query = this.client
-            .from('page_analytics')
-            .select('is_mobile, screen_width, screen_height, page_url')
-            .gte('timestamp', startDate)
-            .lte('timestamp', endDate)
-            .eq('is_bot', false);
+        let data, error;
+        
+        if (this.useProxyMode) {
+            try {
+                let filters = { is_bot: false };
+                if (pageUrl) {
+                    filters.page_url = pageUrl;
+                }
+                
+                data = await window.ApiHelper.callDatabase(
+                    'select',
+                    'page_analytics',
+                    null,
+                    filters,
+                    'is_mobile, screen_width, screen_height, page_url'
+                );
+                error = null;
+            } catch (err) {
+                data = null;
+                error = err;
+            }
+        } else {
+            let query = this.client
+                .from('page_analytics')
+                .select('is_mobile, screen_width, screen_height, page_url')
+                .gte('timestamp', startDate)
+                .lte('timestamp', endDate)
+                .eq('is_bot', false);
 
-        if (pageUrl) {
-            query = query.eq('page_url', pageUrl);
+            if (pageUrl) {
+                query = query.eq('page_url', pageUrl);
+            }
+
+            const result = await query;
+            data = result.data;
+            error = result.error;
         }
-
-        const { data, error } = await query;
         
         if (error) throw error;
 
@@ -317,13 +445,34 @@ class AnalyticsService {
      * Get visitor flow data
      */
     async getVisitorFlow(startDate, endDate) {
-        const { data, error } = await this.client
-            .from('page_analytics')
-            .select('session_id, page_url, timestamp')
-            .gte('timestamp', startDate)
-            .lte('timestamp', endDate)
-            .eq('is_bot', false)
-            .order('timestamp', { ascending: true });
+        let data, error;
+        
+        if (this.useProxyMode) {
+            try {
+                data = await window.ApiHelper.callDatabase(
+                    'select',
+                    'page_analytics',
+                    null,
+                    { is_bot: false },
+                    'session_id, page_url, timestamp'
+                );
+                error = null;
+            } catch (err) {
+                data = null;
+                error = err;
+            }
+        } else {
+            const result = await this.client
+                .from('page_analytics')
+                .select('session_id, page_url, timestamp')
+                .gte('timestamp', startDate)
+                .lte('timestamp', endDate)
+                .eq('is_bot', false)
+                .order('timestamp', { ascending: true });
+            
+            data = result.data;
+            error = result.error;
+        }
 
         if (error) throw error;
 
@@ -537,24 +686,66 @@ class AnalyticsService {
     async getChatbotAnalytics(startDate, endDate) {
         try {
             // Get total chat sessions
-            const { data: sessionsData, error: sessionsError } = await this.client
-                .from('chatbot_analytics')
-                .select('chat_session_id')
-                .eq('event_type', 'chat_session_start')
-                .gte('timestamp', startDate)
-                .lte('timestamp', endDate);
+            let sessionsData, sessionsError;
+            
+            if (this.useProxyMode) {
+                try {
+                    sessionsData = await window.ApiHelper.callDatabase(
+                        'select',
+                        'chatbot_analytics',
+                        null,
+                        { event_type: 'chat_session_start' },
+                        'chat_session_id'
+                    );
+                    sessionsError = null;
+                } catch (err) {
+                    sessionsData = null;
+                    sessionsError = err;
+                }
+            } else {
+                const result = await this.client
+                    .from('chatbot_analytics')
+                    .select('chat_session_id')
+                    .eq('event_type', 'chat_session_start')
+                    .gte('timestamp', startDate)
+                    .lte('timestamp', endDate);
+                
+                sessionsData = result.data;
+                sessionsError = result.error;
+            }
 
             if (sessionsError) throw sessionsError;
 
             const totalChatSessions = sessionsData?.length || 0;
 
             // Get total messages
-            const { data: messagesData, error: messagesError } = await this.client
-                .from('chatbot_analytics')
-                .select('id, message_sender')
-                .eq('event_type', 'message')
-                .gte('timestamp', startDate)
-                .lte('timestamp', endDate);
+            let messagesData, messagesError;
+            
+            if (this.useProxyMode) {
+                try {
+                    messagesData = await window.ApiHelper.callDatabase(
+                        'select',
+                        'chatbot_analytics',
+                        null,
+                        { event_type: 'message' },
+                        'id, message_sender'
+                    );
+                    messagesError = null;
+                } catch (err) {
+                    messagesData = null;
+                    messagesError = err;
+                }
+            } else {
+                const result = await this.client
+                    .from('chatbot_analytics')
+                    .select('id, message_sender')
+                    .eq('event_type', 'message')
+                    .gte('timestamp', startDate)
+                    .lte('timestamp', endDate);
+                
+                messagesData = result.data;
+                messagesError = result.error;
+            }
 
             if (messagesError) throw messagesError;
 
@@ -563,24 +754,66 @@ class AnalyticsService {
             const botMessages = messagesData?.filter(m => m.message_sender === 'assistant').length || 0;
 
             // Get total visitors who used chat
-            const { data: chatUsersData, error: chatUsersError } = await this.client
-                .from('chatbot_analytics')
-                .select('visitor_id')
-                .eq('event_type', 'chat_session_start')
-                .gte('timestamp', startDate)
-                .lte('timestamp', endDate);
+            let chatUsersData, chatUsersError;
+            
+            if (this.useProxyMode) {
+                try {
+                    chatUsersData = await window.ApiHelper.callDatabase(
+                        'select',
+                        'chatbot_analytics',
+                        null,
+                        { event_type: 'chat_session_start' },
+                        'visitor_id'
+                    );
+                    chatUsersError = null;
+                } catch (err) {
+                    chatUsersData = null;
+                    chatUsersError = err;
+                }
+            } else {
+                const result = await this.client
+                    .from('chatbot_analytics')
+                    .select('visitor_id')
+                    .eq('event_type', 'chat_session_start')
+                    .gte('timestamp', startDate)
+                    .lte('timestamp', endDate);
+                
+                chatUsersData = result.data;
+                chatUsersError = result.error;
+            }
 
             if (chatUsersError) throw chatUsersError;
 
             const uniqueChatUsers = new Set(chatUsersData?.map(u => u.visitor_id) || []).size;
 
             // Get total unique visitors for percentage calculation
-            const { data: allVisitorsData, error: allVisitorsError } = await this.client
-                .from('page_analytics')
-                .select('visitor_id')
-                .gte('timestamp', startDate)
-                .lte('timestamp', endDate)
-                .eq('is_bot', false);
+            let allVisitorsData, allVisitorsError;
+            
+            if (this.useProxyMode) {
+                try {
+                    allVisitorsData = await window.ApiHelper.callDatabase(
+                        'select',
+                        'page_analytics',
+                        null,
+                        { is_bot: false },
+                        'visitor_id'
+                    );
+                    allVisitorsError = null;
+                } catch (err) {
+                    allVisitorsData = null;
+                    allVisitorsError = err;
+                }
+            } else {
+                const result = await this.client
+                    .from('page_analytics')
+                    .select('visitor_id')
+                    .gte('timestamp', startDate)
+                    .lte('timestamp', endDate)
+                    .eq('is_bot', false);
+                
+                allVisitorsData = result.data;
+                allVisitorsError = result.error;
+            }
 
             if (allVisitorsError) throw allVisitorsError;
 
@@ -589,13 +822,36 @@ class AnalyticsService {
                 Math.round((uniqueChatUsers / totalUniqueVisitors) * 100) : 0;
 
             // Get average session duration
-            const { data: sessionDurations, error: durationsError } = await this.client
-                .from('chatbot_analytics')
-                .select('session_duration')
-                .eq('event_type', 'chat_session_end')
-                .gte('timestamp', startDate)
-                .lte('timestamp', endDate)
-                .gt('session_duration', 0);
+            let sessionDurations, durationsError;
+            
+            if (this.useProxyMode) {
+                try {
+                    sessionDurations = await window.ApiHelper.callDatabase(
+                        'select',
+                        'chatbot_analytics',
+                        null,
+                        { event_type: 'chat_session_end' },
+                        'session_duration'
+                    );
+                    // Filter for duration > 0 in JavaScript since proxy mode doesn't support gt()
+                    sessionDurations = sessionDurations?.filter(s => s.session_duration > 0) || [];
+                    durationsError = null;
+                } catch (err) {
+                    sessionDurations = null;
+                    durationsError = err;
+                }
+            } else {
+                const result = await this.client
+                    .from('chatbot_analytics')
+                    .select('session_duration')
+                    .eq('event_type', 'chat_session_end')
+                    .gte('timestamp', startDate)
+                    .lte('timestamp', endDate)
+                    .gt('session_duration', 0);
+                
+                sessionDurations = result.data;
+                durationsError = result.error;
+            }
 
             if (durationsError) throw durationsError;
 
@@ -603,57 +859,133 @@ class AnalyticsService {
                 Math.round(sessionDurations.reduce((sum, s) => sum + s.session_duration, 0) / sessionDurations.length) : 0;
 
             // Get chat sessions over time
-            const { data: chatOverTime, error: timeError } = await this.client
-                .from('chatbot_analytics')
-                .select('timestamp')
-                .eq('event_type', 'chat_session_start')
-                .gte('timestamp', startDate)
-                .lte('timestamp', endDate)
-                .order('timestamp', { ascending: true });
+            let chatOverTime, timeError;
+            
+            if (this.useProxyMode) {
+                try {
+                    chatOverTime = await window.ApiHelper.callDatabase(
+                        'select',
+                        'chatbot_analytics',
+                        null,
+                        { event_type: 'chat_session_start' },
+                        'timestamp'
+                    );
+                    timeError = null;
+                } catch (err) {
+                    chatOverTime = null;
+                    timeError = err;
+                }
+            } else {
+                const result = await this.client
+                    .from('chatbot_analytics')
+                    .select('timestamp')
+                    .eq('event_type', 'chat_session_start')
+                    .gte('timestamp', startDate)
+                    .lte('timestamp', endDate)
+                    .order('timestamp', { ascending: true });
+                
+                chatOverTime = result.data;
+                timeError = result.error;
+            }
 
             if (timeError) throw timeError;
 
             const chatSessionsOverTime = this.groupChatByTimeInterval(chatOverTime || []);
 
             // Get popular conversation starters (first user messages)
-            const { data: conversationStarters, error: startersError } = await this.client
-                .rpc('get_first_user_messages', {
-                    start_date: startDate,
-                    end_date: endDate
-                });
-
-            // Fallback if RPC doesn't exist
             let topConversationStarters = [];
-            if (startersError) {
-                console.warn('RPC get_first_user_messages not available, using fallback');
-                // Simple fallback - just get some user messages
-                const { data: userMsgs } = await this.client
-                    .from('chatbot_analytics')
-                    .select('message_count, chat_session_id')
-                    .eq('event_type', 'message')
-                    .eq('message_sender', 'user')
-                    .eq('message_count', 1)
-                    .gte('timestamp', startDate)
-                    .lte('timestamp', endDate)
-                    .limit(10);
-                
-                topConversationStarters = [
-                    { topic: 'Pricing Questions', count: Math.floor(userMsgs?.length * 0.4) || 0 },
-                    { topic: 'Service Inquiries', count: Math.floor(userMsgs?.length * 0.3) || 0 },
-                    { topic: 'Timeline Questions', count: Math.floor(userMsgs?.length * 0.2) || 0 },
-                    { topic: 'Technical Questions', count: Math.floor(userMsgs?.length * 0.1) || 0 }
-                ];
+            
+            if (this.useProxyMode) {
+                // Use fallback data for proxy mode since RPC functions aren't supported
+                try {
+                    const userMsgs = await window.ApiHelper.callDatabase(
+                        'select',
+                        'chatbot_analytics',
+                        null,
+                        { 
+                            event_type: 'message',
+                            message_sender: 'user',
+                            message_count: 1
+                        },
+                        'message_count, chat_session_id'
+                    );
+                    
+                    topConversationStarters = [
+                        { topic: 'Pricing Questions', count: Math.floor(userMsgs?.length * 0.4) || 0 },
+                        { topic: 'Service Inquiries', count: Math.floor(userMsgs?.length * 0.3) || 0 },
+                        { topic: 'Timeline Questions', count: Math.floor(userMsgs?.length * 0.2) || 0 },
+                        { topic: 'Technical Questions', count: Math.floor(userMsgs?.length * 0.1) || 0 }
+                    ];
+                } catch (err) {
+                    console.warn('Failed to get user messages in proxy mode:', err);
+                    topConversationStarters = [
+                        { topic: 'General Inquiries', count: 0 }
+                    ];
+                }
             } else {
-                topConversationStarters = conversationStarters || [];
+                try {
+                    const { data: conversationStarters, error: startersError } = await this.client
+                        .rpc('get_first_user_messages', {
+                            start_date: startDate,
+                            end_date: endDate
+                        });
+
+                    if (startersError) {
+                        console.warn('RPC get_first_user_messages not available, using fallback');
+                        // Simple fallback - just get some user messages
+                        const { data: userMsgs } = await this.client
+                            .from('chatbot_analytics')
+                            .select('message_count, chat_session_id')
+                            .eq('event_type', 'message')
+                            .eq('message_sender', 'user')
+                            .eq('message_count', 1)
+                            .gte('timestamp', startDate)
+                            .lte('timestamp', endDate)
+                            .limit(10);
+                        
+                        topConversationStarters = [
+                            { topic: 'Pricing Questions', count: Math.floor(userMsgs?.length * 0.4) || 0 },
+                            { topic: 'Service Inquiries', count: Math.floor(userMsgs?.length * 0.3) || 0 },
+                            { topic: 'Timeline Questions', count: Math.floor(userMsgs?.length * 0.2) || 0 },
+                            { topic: 'Technical Questions', count: Math.floor(userMsgs?.length * 0.1) || 0 }
+                        ];
+                    } else {
+                        topConversationStarters = conversationStarters || [];
+                    }
+                } catch (err) {
+                    console.warn('Error getting conversation starters:', err);
+                    topConversationStarters = [];
+                }
             }
 
             // Get error statistics
-            const { data: errorData, error: errorQueryError } = await this.client
-                .from('chatbot_analytics')
-                .select('error_type, has_error')
-                .gte('timestamp', startDate)
-                .lte('timestamp', endDate)
-                .eq('has_error', true);
+            let errorData, errorQueryError;
+            
+            if (this.useProxyMode) {
+                try {
+                    errorData = await window.ApiHelper.callDatabase(
+                        'select',
+                        'chatbot_analytics',
+                        null,
+                        { has_error: true },
+                        'error_type, has_error'
+                    );
+                    errorQueryError = null;
+                } catch (err) {
+                    errorData = null;
+                    errorQueryError = err;
+                }
+            } else {
+                const result = await this.client
+                    .from('chatbot_analytics')
+                    .select('error_type, has_error')
+                    .gte('timestamp', startDate)
+                    .lte('timestamp', endDate)
+                    .eq('has_error', true);
+                
+                errorData = result.data;
+                errorQueryError = result.error;
+            }
 
             if (errorQueryError) console.warn('Error fetching error data:', errorQueryError);
 
