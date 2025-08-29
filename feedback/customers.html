@@ -299,6 +299,7 @@
         let isAuthenticated = false;
         let currentUser = null;
         let supabaseClient = null;
+        let useProxyMode = false;
         let allCustomers = [];
         let filteredCustomers = [];
         let selectedCustomers = new Set();
@@ -343,15 +344,16 @@
             // Initialize database client
             try {
                 // Detect proxy mode
-                const useProxyMode = window.DATABASE_CONFIG && 
-                                   (window.DATABASE_CONFIG.supabaseUrl === 'SECURE_PROXY_ENDPOINT' || 
-                                    window.DATABASE_CONFIG.supabaseKey === 'SECURE_PROXY_ENDPOINT');
+                useProxyMode = window.DATABASE_CONFIG && 
+                              (window.DATABASE_CONFIG.supabaseUrl === 'SECURE_PROXY_ENDPOINT' || 
+                               window.DATABASE_CONFIG.supabaseKey === 'SECURE_PROXY_ENDPOINT');
                 
                 if (useProxyMode) {
                     console.log('🔒 Customer management: Using secure proxy mode');
-                    // Customer management requires complex database operations not yet supported in proxy mode
-                    showError('Customer management requires direct database access for complex operations. Currently using secure proxy mode. This feature is not available in production.');
-                    return;
+                    // Initialize API Helper for proxy mode
+                    if (window.ApiHelper) {
+                        await window.ApiHelper.initialize();
+                    }
                 } else {
                     console.log('🔓 Customer management: Using direct database mode');
                     const isLocalDevelopment = window.location.protocol === 'file:' || 
@@ -399,13 +401,38 @@
                 document.getElementById('tableContainer').classList.add('hidden');
                 document.getElementById('emptyState').classList.add('hidden');
 
-                console.log('Supabase client check:', supabaseClient);
+                let customers, error;
+                
+                if (useProxyMode) {
+                    console.log('🔒 Loading customers via API Helper...');
+                    try {
+                        customers = await window.ApiHelper.callDatabase(
+                            'select',
+                            'customers',
+                            null,
+                            {},
+                            '*'
+                        );
+                        // Sort by created_at desc in JavaScript since proxy mode doesn't support order()
+                        customers = customers?.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) || [];
+                        error = null;
+                    } catch (err) {
+                        customers = null;
+                        error = err;
+                    }
+                } else {
+                    console.log('🔓 Loading customers via direct Supabase...');
+                    console.log('Supabase client check:', supabaseClient);
 
-                // Load customers from Supabase
-                const { data: customers, error } = await supabaseClient
-                    .from('customers')
-                    .select('*')
-                    .order('created_at', { ascending: false });
+                    // Load customers from Supabase
+                    const result = await supabaseClient
+                        .from('customers')
+                        .select('*')
+                        .order('created_at', { ascending: false });
+
+                    customers = result.data;
+                    error = result.error;
+                }
 
                 console.log('Load customers response:', { data: customers, error });
 
@@ -439,10 +466,33 @@
 
         async function loadAllCustomerNotes() {
             try {
-                const { data: notes, error } = await supabaseClient
-                    .from('customer_notes')
-                    .select('*')
-                    .order('date', { ascending: true });
+                let notes, error;
+                
+                if (useProxyMode) {
+                    try {
+                        notes = await window.ApiHelper.callDatabase(
+                            'select',
+                            'customer_notes',
+                            null,
+                            {},
+                            '*'
+                        );
+                        // Sort by date asc in JavaScript since proxy mode doesn't support order()
+                        notes = notes?.sort((a, b) => new Date(a.date) - new Date(b.date)) || [];
+                        error = null;
+                    } catch (err) {
+                        notes = null;
+                        error = err;
+                    }
+                } else {
+                    const result = await supabaseClient
+                        .from('customer_notes')
+                        .select('*')
+                        .order('date', { ascending: true });
+
+                    notes = result.data;
+                    error = result.error;
+                }
 
                 if (error) throw error;
 
@@ -633,12 +683,34 @@
                 console.log('Form data:', formData);
                 console.log('Supabase client:', supabaseClient);
 
-                // Insert into database
-                const { data: newCustomer, error } = await supabaseClient
-                    .from('customers')
-                    .insert(formData)
-                    .select()
-                    .single();
+                let newCustomer, error;
+                
+                if (useProxyMode) {
+                    try {
+                        const result = await window.ApiHelper.callDatabase(
+                            'insert',
+                            'customers',
+                            formData,
+                            {},
+                            '*'
+                        );
+                        newCustomer = result && result.length > 0 ? result[0] : result;
+                        error = null;
+                    } catch (err) {
+                        newCustomer = null;
+                        error = err;
+                    }
+                } else {
+                    // Insert into database
+                    const result = await supabaseClient
+                        .from('customers')
+                        .insert(formData)
+                        .select()
+                        .single();
+
+                    newCustomer = result.data;
+                    error = result.error;
+                }
 
                 console.log('Database response:', { data: newCustomer, error });
 
@@ -878,15 +950,43 @@
         
         async function addCustomerNote(customerId, text, isStatusChange = false) {
             try {
-                const { data: note, error } = await supabaseClient
-                    .from('customer_notes')
-                    .insert({
-                        customer_id: customerId,
-                        text: text,
-                        is_status_change: isStatusChange
-                    })
-                    .select()
-                    .single();
+                let note, error;
+                
+                if (useProxyMode) {
+                    try {
+                        const noteData = {
+                            customer_id: customerId,
+                            text: text,
+                            is_status_change: isStatusChange
+                        };
+                        
+                        const result = await window.ApiHelper.callDatabase(
+                            'insert',
+                            'customer_notes',
+                            noteData,
+                            {},
+                            '*'
+                        );
+                        note = result && result.length > 0 ? result[0] : result;
+                        error = null;
+                    } catch (err) {
+                        note = null;
+                        error = err;
+                    }
+                } else {
+                    const result = await supabaseClient
+                        .from('customer_notes')
+                        .insert({
+                            customer_id: customerId,
+                            text: text,
+                            is_status_change: isStatusChange
+                        })
+                        .select()
+                        .single();
+                    
+                    note = result.data;
+                    error = result.error;
+                }
                 
                 if (error) throw error;
                 
@@ -1024,11 +1124,30 @@
                     return;
                 }
                 
-                // Delete from database
-                const { error } = await supabaseClient
-                    .from('customer_notes')
-                    .delete()
-                    .eq('id', noteId);
+                let error;
+                
+                if (useProxyMode) {
+                    try {
+                        await window.ApiHelper.callDatabase(
+                            'delete',
+                            'customer_notes',
+                            null,
+                            { id: noteId },
+                            null
+                        );
+                        error = null;
+                    } catch (err) {
+                        error = err;
+                    }
+                } else {
+                    // Delete from database
+                    const result = await supabaseClient
+                        .from('customer_notes')
+                        .delete()
+                        .eq('id', noteId);
+                    
+                    error = result.error;
+                }
                 
                 if (error) throw error;
                 
@@ -1084,11 +1203,30 @@
                 const oldStatus = allCustomers[customerIndex].status;
                 if (oldStatus === newStatus) return;
                 
-                // Update in database
-                const { error } = await supabaseClient
-                    .from('customers')
-                    .update({ status: newStatus })
-                    .eq('id', customerId);
+                let error;
+                
+                if (useProxyMode) {
+                    try {
+                        await window.ApiHelper.callDatabase(
+                            'update',
+                            'customers',
+                            { status: newStatus },
+                            { id: customerId },
+                            null
+                        );
+                        error = null;
+                    } catch (err) {
+                        error = err;
+                    }
+                } else {
+                    // Update in database
+                    const result = await supabaseClient
+                        .from('customers')
+                        .update({ status: newStatus })
+                        .eq('id', customerId);
+                    
+                    error = result.error;
+                }
                 
                 if (error) throw error;
                 
@@ -1139,11 +1277,30 @@
                 const oldPrice = allCustomers[customerIndex].agreed_price || 0;
                 if (oldPrice === price) return;
                 
-                // Update in database
-                const { error } = await supabaseClient
-                    .from('customers')
-                    .update({ agreed_price: price })
-                    .eq('id', customerId);
+                let error;
+                
+                if (useProxyMode) {
+                    try {
+                        await window.ApiHelper.callDatabase(
+                            'update',
+                            'customers',
+                            { agreed_price: price },
+                            { id: customerId },
+                            null
+                        );
+                        error = null;
+                    } catch (err) {
+                        error = err;
+                    }
+                } else {
+                    // Update in database
+                    const result = await supabaseClient
+                        .from('customers')
+                        .update({ agreed_price: price })
+                        .eq('id', customerId);
+                    
+                    error = result.error;
+                }
                 
                 if (error) throw error;
                 
@@ -1176,11 +1333,30 @@
         // Customer Field Update Functions
         async function togglePotentialStatus(customerId, isPotential) {
             try {
-                // Update in database
-                const { error } = await supabaseClient
-                    .from('customers')
-                    .update({ is_potential: isPotential })
-                    .eq('id', customerId);
+                let error;
+                
+                if (useProxyMode) {
+                    try {
+                        await window.ApiHelper.callDatabase(
+                            'update',
+                            'customers',
+                            { is_potential: isPotential },
+                            { id: customerId },
+                            null
+                        );
+                        error = null;
+                    } catch (err) {
+                        error = err;
+                    }
+                } else {
+                    // Update in database
+                    const result = await supabaseClient
+                        .from('customers')
+                        .update({ is_potential: isPotential })
+                        .eq('id', customerId);
+                    
+                    error = result.error;
+                }
                 
                 if (error) throw error;
                 
@@ -1226,11 +1402,30 @@
                 const oldValue = allCustomers[customerIndex][fieldName];
                 if (oldValue === newValue) return;
                 
-                // Update in database
-                const { error } = await supabaseClient
-                    .from('customers')
-                    .update({ [fieldName]: newValue })
-                    .eq('id', customerId);
+                let error;
+                
+                if (useProxyMode) {
+                    try {
+                        await window.ApiHelper.callDatabase(
+                            'update',
+                            'customers',
+                            { [fieldName]: newValue },
+                            { id: customerId },
+                            null
+                        );
+                        error = null;
+                    } catch (err) {
+                        error = err;
+                    }
+                } else {
+                    // Update in database
+                    const result = await supabaseClient
+                        .from('customers')
+                        .update({ [fieldName]: newValue })
+                        .eq('id', customerId);
+                    
+                    error = result.error;
+                }
                 
                 if (error) throw error;
                 
