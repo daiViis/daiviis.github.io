@@ -581,7 +581,13 @@
                     
                 } catch (error) {
                     console.error('Dashboard initialization failed:', error);
-                    this.showError('Failed to initialize analytics dashboard');
+                    
+                    // Check if this is the proxy mode error
+                    if (error.message.includes('requires direct database access')) {
+                        this.showProxyModeError();
+                    } else {
+                        this.showError('Failed to initialize analytics dashboard');
+                    }
                 }
             }
 
@@ -1459,6 +1465,35 @@
                         <button onclick="location.reload()" class="mt-4 bg-black text-white px-4 py-2">
                             Retry
                         </button>
+                    </div>
+                `;
+            }
+
+            showProxyModeError() {
+                document.getElementById('loadingState').innerHTML = `
+                    <div class="text-center max-w-2xl mx-auto">
+                        <div class="text-yellow-500 text-6xl mb-4">🔒</div>
+                        <h2 class="text-2xl font-light text-black mb-4">Analytics Unavailable in Secure Mode</h2>
+                        <div class="text-gray-600 space-y-3 text-left bg-gray-50 p-6 rounded border">
+                            <p><strong>Why is this happening?</strong></p>
+                            <p>The analytics dashboard requires direct database access to perform complex queries and aggregations. Your site is currently configured to use secure proxy mode, which protects sensitive database credentials but limits advanced features.</p>
+                            
+                            <p class="mt-4"><strong>Available options:</strong></p>
+                            <ul class="list-disc ml-6 space-y-1">
+                                <li>Use the <a href="admin-dashboard.html" class="text-blue-600 hover:underline">Feedback Dashboard</a> to view individual submissions</li>
+                                <li>Use the <a href="customers.html" class="text-blue-600 hover:underline">Customer Management</a> system</li>
+                                <li>For full analytics access, configure direct database credentials (not recommended for production)</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="mt-6 flex justify-center space-x-4">
+                            <a href="admin-dashboard.html" class="bg-black text-white px-6 py-2 hover:bg-gray-800 transition-colors">
+                                Feedback Dashboard
+                            </a>
+                            <a href="customers.html" class="border border-gray-400 text-black px-6 py-2 hover:bg-gray-100 transition-colors">
+                                Customer Management
+                            </a>
+                        </div>
                     </div>
                 `;
             }
