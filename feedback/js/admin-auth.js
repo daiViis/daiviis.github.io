@@ -142,23 +142,37 @@ class AdminAuth {
         console.log('🔐 Attempting admin login for:', email);
 
         if (this.useProxyMode) {
-            // Use secure admin auth endpoint
-            const authResponse = await fetch('/.netlify/functions/admin-auth', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password, action: 'login' }),
-            });
+            try {
+                // Try secure admin auth endpoint first
+                console.log('🔐 Attempting secure admin auth endpoint...');
+                const authResponse = await fetch('/.netlify/functions/admin-auth', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password, action: 'login' }),
+                });
 
-            if (!authResponse.ok) {
-                const errorData = await authResponse.json();
-                throw new Error(errorData.error || 'Authentication failed');
-            }
+                if (!authResponse.ok) {
+                    throw new Error(`HTTP ${authResponse.status}: Admin auth endpoint not available`);
+                }
 
-            const authData = await authResponse.json();
-            if (!authData.success) {
-                throw new Error('Authentication failed');
+                const responseText = await authResponse.text();
+                console.log('📨 Auth response:', responseText);
+
+                let authData;
+                try {
+                    authData = JSON.parse(responseText);
+                } catch (parseError) {
+                    throw new Error('Invalid JSON response from auth endpoint');
+                }
+
+                if (!authData.success) {
+                    throw new Error(authData.error || 'Authentication failed');
+                }
+            } catch (authEndpointError) {
+                console.warn('⚠️ Admin auth endpoint failed:', authEndpointError.message);
+                throw new Error('Admin authentication endpoint is not available. Please deploy the admin-auth function to your Netlify site.');
             }
 
             // Store JWT token and user data
