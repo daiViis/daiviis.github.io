@@ -744,8 +744,12 @@ window.addEventListener('error', function(e) {
 // Performance monitoring
 window.addEventListener('load', function() {
     if ('performance' in window) {
-        const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
-        console.log(`🚀 Page loaded in ${loadTime}ms`);
+        setTimeout(() => {
+            const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
+            if (loadTime > 0) {
+                console.log(`🚀 Page loaded in ${loadTime}ms`);
+            }
+        }, 10);
     }
 });
 
