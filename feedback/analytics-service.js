@@ -34,10 +34,31 @@ class AnalyticsService {
             throw new Error('Supabase client not loaded');
         }
         
-        this.client = window.supabase.createClient(
-            this.config.supabaseUrl,
-            this.config.supabaseKey
-        );
+        // Check if we're in local development mode
+        const isLocalDevelopment = window.location.protocol === 'file:' || 
+                                 window.location.hostname === 'localhost' || 
+                                 window.location.hostname === '127.0.0.1' || 
+                                 window.location.hostname === '';
+
+        let supabaseUrl, supabaseKey;
+
+        if (isLocalDevelopment) {
+            // Use direct API credentials for local development
+            console.log('🔧 AnalyticsService: Local development mode detected');
+            supabaseUrl = 'https://ciulpbxkwcbzoshlzmvb.supabase.co';
+            supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpdWxwYnhrd2Niem9zaGx6bXZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyOTY4NTcsImV4cCI6MjA3MTg3Mjg1N30.UvoAL-i_Xv-h_OKfa8NN2CoClGBfQYHv1vNeu0elERo';
+        } else {
+            // Check production database config
+            if (this.config.supabaseUrl === 'SECURE_PROXY_ENDPOINT' || 
+                this.config.supabaseKey === 'SECURE_PROXY_ENDPOINT') {
+                throw new Error('AnalyticsService requires direct database access. Currently using proxy mode for security.');
+            }
+
+            supabaseUrl = this.config.supabaseUrl;
+            supabaseKey = this.config.supabaseKey;
+        }
+        
+        this.client = window.supabase.createClient(supabaseUrl, supabaseKey);
     }
 
     /**
@@ -113,7 +134,7 @@ class AnalyticsService {
     async getTotalStats(startDate, endDate, pageUrl = null) {
         let query = this.client
             .from('page_analytics')
-            .select('id, visitor_id, session_id, timestamp, is_bot')
+            .select('id, visitor_id, session_id, timestamp, is_bot, page_url')
             .gte('timestamp', startDate)
             .lte('timestamp', endDate)
             .eq('is_bot', false);
@@ -126,19 +147,22 @@ class AnalyticsService {
         
         if (error) throw error;
 
-        const totalViews = data.length;
-        const uniqueVisitors = new Set(data.map(row => row.visitor_id)).size;
-        const uniqueSessions = new Set(data.map(row => row.session_id)).size;
+        // Filter out local development data
+        const filteredData = this.filterLocalDevelopmentData(data);
+
+        const totalViews = filteredData.length;
+        const uniqueVisitors = new Set(filteredData.map(row => row.visitor_id)).size;
+        const uniqueSessions = new Set(filteredData.map(row => row.session_id)).size;
         
         // Calculate average session duration (simplified)
-        const avgSessionDuration = this.calculateAvgSessionDuration(data);
+        const avgSessionDuration = this.calculateAvgSessionDuration(filteredData);
 
         return {
             totalViews,
             uniqueVisitors,
             uniqueSessions,
             avgSessionDuration,
-            bounceRate: this.calculateBounceRate(data)
+            bounceRate: this.calculateBounceRate(filteredData)
         };
     }
 
@@ -162,7 +186,10 @@ class AnalyticsService {
         
         if (error) throw error;
 
-        return this.groupByTimeInterval(data, groupBy);
+        // Filter out local development data
+        const filteredData = this.filterLocalDevelopmentData(data);
+
+        return this.groupByTimeInterval(filteredData, groupBy);
     }
 
     /**
@@ -178,9 +205,12 @@ class AnalyticsService {
 
         if (error) throw error;
 
+        // Filter out local development data
+        const filteredData = this.filterLocalDevelopmentData(data);
+
         // Group by page and count views
         const pageViews = {};
-        data.forEach(row => {
+        filteredData.forEach(row => {
             const url = this.cleanUrl(row.page_url);
             if (!pageViews[url]) {
                 pageViews[url] = {
@@ -203,7 +233,7 @@ class AnalyticsService {
     async getTrafficSources(startDate, endDate, pageUrl = null) {
         let query = this.client
             .from('page_analytics')
-            .select('referrer')
+            .select('referrer, page_url')
             .gte('timestamp', startDate)
             .lte('timestamp', endDate)
             .eq('is_bot', false);
@@ -216,8 +246,11 @@ class AnalyticsService {
         
         if (error) throw error;
 
+        // Filter out local development data
+        const filteredData = this.filterLocalDevelopmentData(data);
+
         const sources = {};
-        data.forEach(row => {
+        filteredData.forEach(row => {
             const source = this.categorizeTrafficSource(row.referrer);
             sources[source] = (sources[source] || 0) + 1;
         });
@@ -233,7 +266,7 @@ class AnalyticsService {
     async getDeviceBreakdown(startDate, endDate, pageUrl = null) {
         let query = this.client
             .from('page_analytics')
-            .select('is_mobile, screen_width, screen_height')
+            .select('is_mobile, screen_width, screen_height, page_url')
             .gte('timestamp', startDate)
             .lte('timestamp', endDate)
             .eq('is_bot', false);
@@ -246,10 +279,13 @@ class AnalyticsService {
         
         if (error) throw error;
 
+        // Filter out local development data
+        const filteredData = this.filterLocalDevelopmentData(data);
+
         const devices = { mobile: 0, desktop: 0, tablet: 0 };
         const screenSizes = {};
 
-        data.forEach(row => {
+        filteredData.forEach(row => {
             // Device type
             if (row.is_mobile) {
                 // Simple tablet detection by screen size
@@ -291,9 +327,12 @@ class AnalyticsService {
 
         if (error) throw error;
 
+        // Filter out local development data
+        const filteredData = this.filterLocalDevelopmentData(data);
+
         // Group by session and track page sequences
         const sessions = {};
-        data.forEach(row => {
+        filteredData.forEach(row => {
             if (!sessions[row.session_id]) {
                 sessions[row.session_id] = [];
             }
@@ -310,6 +349,12 @@ class AnalyticsService {
                 for (let i = 0; i < session.length - 1; i++) {
                     const from = session[i].page;
                     const to = session[i + 1].page;
+                    
+                    // Skip paths that might still contain local development indicators
+                    if (this.isLocalDevelopmentUrl(from) || this.isLocalDevelopmentUrl(to)) {
+                        continue;
+                    }
+                    
                     const path = `${from} → ${to}`;
                     pathFrequency[path] = (pathFrequency[path] || 0) + 1;
                 }
@@ -369,12 +414,64 @@ class AnalyticsService {
         }
     }
 
+    /**
+     * Check if URL is a local development path that should be ignored
+     */
+    isLocalDevelopmentUrl(url) {
+        if (!url) return false;
+        
+        // Check for file:// protocol
+        if (url.startsWith('file://')) return true;
+        
+        // Check for encoded local paths (C: drives, etc.)
+        if (url.includes('/C:/') || url.includes('%C4%8D') || url.includes('Ove%C4%8Dky')) return true;
+        
+        // Check for localhost patterns
+        if (url.includes('localhost') || url.includes('127.0.0.1')) return true;
+        
+        // Check for specific local development patterns
+        if (url.includes('/work/webpages/') || url.includes('daiviis.github.io-master')) return true;
+        
+        return false;
+    }
+
+    /**
+     * Filter out local development data from analytics
+     */
+    filterLocalDevelopmentData(data) {
+        if (!Array.isArray(data)) return data;
+        
+        return data.filter(row => {
+            // Filter by page_url if it exists
+            if (row.page_url && this.isLocalDevelopmentUrl(row.page_url)) {
+                return false;
+            }
+            
+            // Filter by referrer if it exists
+            if (row.referrer && this.isLocalDevelopmentUrl(row.referrer)) {
+                return false;
+            }
+            
+            // Filter by any URL-like properties
+            for (const key in row) {
+                if (typeof row[key] === 'string' && this.isLocalDevelopmentUrl(row[key])) {
+                    return false;
+                }
+            }
+            
+            return true;
+        });
+    }
+
     cleanPageTitle(title) {
         return title.replace(' - David Cit', '').replace('David Cit - ', '').trim() || 'Home';
     }
 
     categorizeTrafficSource(referrer) {
         if (!referrer) return 'Direct';
+        
+        // Skip local development referrers
+        if (this.isLocalDevelopmentUrl(referrer)) return 'Direct';
         
         try {
             const domain = new URL(referrer).hostname.toLowerCase();

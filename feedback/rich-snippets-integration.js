@@ -57,16 +57,39 @@
     async function getDatabaseFeedbackData() {
         try {
             // Check if we have database access
-            if (!window.DATABASE_CONFIG || !window.DATABASE_CONFIG.enabled || 
-                window.DATABASE_CONFIG.provider !== 'supabase' || !window.supabase) {
-                return null;
+            // Check if we're in local development mode
+            const isLocalDevelopment = window.location.protocol === 'file:' || 
+                                     window.location.hostname === 'localhost' || 
+                                     window.location.hostname === '127.0.0.1' || 
+                                     window.location.hostname === '';
+
+            let supabaseUrl, supabaseKey;
+
+            if (isLocalDevelopment) {
+                // Use direct API credentials for local development
+                if (!window.supabase) return null;
+                
+                supabaseUrl = 'https://ciulpbxkwcbzoshlzmvb.supabase.co';
+                supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpdWxwYnhrd2Niem9zaGx6bXZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyOTY4NTcsImV4cCI6MjA3MTg3Mjg1N30.UvoAL-i_Xv-h_OKfa8NN2CoClGBfQYHv1vNeu0elERo';
+            } else {
+                // Check production database config
+                if (!window.DATABASE_CONFIG || !window.DATABASE_CONFIG.enabled || 
+                    window.DATABASE_CONFIG.provider !== 'supabase' || !window.supabase) {
+                    return null;
+                }
+
+                if (window.DATABASE_CONFIG.supabaseUrl === 'SECURE_PROXY_ENDPOINT' || 
+                    window.DATABASE_CONFIG.supabaseKey === 'SECURE_PROXY_ENDPOINT') {
+                    console.log('Rich snippets disabled - using proxy mode for security');
+                    return null;
+                }
+
+                supabaseUrl = window.DATABASE_CONFIG.supabaseUrl;
+                supabaseKey = window.DATABASE_CONFIG.supabaseKey;
             }
 
-            // Initialize Supabase client
-            const supabaseClient = window.supabase.createClient(
-                window.DATABASE_CONFIG.supabaseUrl,
-                window.DATABASE_CONFIG.supabaseKey
-            );
+            // Initialize Supabase client with detected credentials
+            const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
             // Fetch all feedback submissions
             const { data, error } = await supabaseClient

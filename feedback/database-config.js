@@ -14,8 +14,10 @@ const DATABASE_CONFIG = {
     // 2. Create a new project
     // 3. Go to Settings > API
     // 4. Copy your URL and anon/public key
-    supabaseUrl: 'https://ciulpbxkwcbzoshlzmvb.supabase.co',
-    supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpdWxwYnhrd2Niem9zaGx6bXZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyOTY4NTcsImV4cCI6MjA3MTg3Mjg1N30.UvoAL-i_Xv-h_OKfa8NN2CoClGBfQYHv1vNeu0elERo',
+    // Supabase credentials now handled securely via proxy
+    // For proxy setup: use ApiHelper.callDatabase() instead of direct Supabase calls
+    supabaseUrl: 'SECURE_PROXY_ENDPOINT', // Handled by api-config.js
+    supabaseKey: 'SECURE_PROXY_ENDPOINT', // Handled by api-config.js
     
     // ==================== FIREBASE CONFIGURATION ====================
     // 1. Go to https://console.firebase.google.com

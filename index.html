@@ -3,37 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Developer & Digital Creator | David Cit | Portfolio</title>
+    <title>Create. Code. Launch. | David Cit | Web Developer</title>
     
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Creative web developer & digital creator crafting interactive experiences. Expert in modern frontend, UX design & digital solutions. View portfolio & connect.">
-    <meta name="keywords" content="web developer, digital creator, frontend developer, interactive designer, creative developer, portfolio, modern web design, user experience, creative technology">
+    <meta name="description" content="Full-stack web developer in Ostrava. Expert in React, Node.js, SEO optimization. Free consultation available. Contact for custom solutions!">
+    <meta name="keywords" content="web developer, digital creator, frontend developer, interactive designer, creative developer, modern web design, user experience, creative technology">
     <meta name="author" content="David Cit">
     <meta name="robots" content="index, follow">
     <meta name="language" content="en">
+    <meta name="geo.region" content="CZ-80">
+    <meta name="geo.placename" content="Ostrava">
+    <meta name="geo.position" content="49.8346;18.1623">
+    <meta name="ICBM" content="49.8346, 18.1623">
+    <meta name="revisit-after" content="7 days">
+    <meta name="rating" content="general">
     <link rel="canonical" href="https://daiviis.github.io">
     <meta name="theme-color" content="#3b82f6">
     
     <!-- Open Graph Tags -->
-    <meta property="og:title" content="David Cit - Creative Web Developer & Digital Creator">
+    <meta property="og:title" content="Create. Code. Launch. | David Cit">
     <meta property="og:description" content="Creative web developer crafting interactive digital experiences. Specializing in modern frontend development, UX design, and innovative digital solutions.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://daiviis.github.io">
     <meta property="og:image" content="https://daiviis.github.io/og-image.jpg">
-    <meta property="og:site_name" content="David Cit Portfolio">
+    <meta property="og:site_name" content="David Cit - Web Development">
+    <meta property="og:locale" content="en_US">
     
     <!-- Twitter Card Tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="David Cit - Creative Web Developer & Digital Creator">
+    <meta name="twitter:title" content="Create. Code. Launch. | David Cit">
     <meta name="twitter:description" content="Creative web developer crafting interactive digital experiences. Modern frontend development & UX design expertise.">
     <meta name="twitter:image" content="https://daiviis.github.io/twitter-image.jpg">
     <meta name="twitter:site" content="@davidcit">
+    
+    <!-- LinkedIn Meta Tags -->
+    <meta property="og:title" content="Create. Code. Launch. | David Cit">
+    <meta property="og:description" content="Full-stack web developer specializing in React, Node.js, and SEO optimization. Free consultation available.">
+    <meta property="og:type" content="profile">
+    <meta property="og:image" content="https://daiviis.github.io/linkedin-image.jpg">
+    <meta property="profile:first_name" content="David">
+    <meta property="profile:last_name" content="Cit">
+    <meta property="profile:username" content="davidcit">
+    
+    <!-- WhatsApp Meta Tags -->
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="David Cit - Web Developer">
+    
+    <!-- Telegram Meta Tags -->
+    <meta property="telegram:channel" content="@davidcit_dev">
+    <meta property="telegram:card" content="summary_large_image">
+    
+    <!-- Additional Social Meta Tags -->
+    <meta property="article:author" content="David Cit">
+    <meta property="og:updated_time" content="2024-08-29T12:00:00+00:00">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="assets/icon/web-icon.ico">
     
     <!-- Apple Touch Icon -->
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    
+    <!-- Performance Optimization -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
     <!-- Structured Data -->
     <script type="application/ld+json">
@@ -326,6 +360,26 @@
             "item": "https://daiviis.github.io#contact"
           }
         ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "David Cit - Web Development",
+        "alternateName": "DC Web Development",
+        "url": "https://daiviis.github.io",
+        "description": "Professional web developer in Ostrava specializing in React, Node.js, and SEO optimization",
+        "inLanguage": "en-US",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://daiviis.github.io#{search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        },
+        "author": {
+          "@id": "https://daiviis.github.io#person"
+        }
       }
     ]
     </script>
@@ -2291,6 +2345,10 @@
     <script src="assets/js/main.js"></script>
     <script src="assets/js/currency-switcher.js"></script>
     <script src="feedback/rich-snippets-integration.js"></script>
+    <!-- Smart API Configuration - Load environment detector and config before chatbot -->
+    <script src="assets/js/local-env-config.js"></script>
+    <script src="assets/js/env-loader.js"></script>
+    <script src="assets/js/api-config.js"></script>
     <script src="assets/js/faq-chatbot.js"></script>
     
     <!-- Info Modal for Rating Widget -->
@@ -2460,8 +2518,6 @@
     </script>
     
     <!-- Analytics Tracking -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="feedback/database-config.js"></script>
     <script src="assets/js/analytics-tracker.js"></script>
     <script src="assets/js/chatbot-analytics.js"></script>
 </body>

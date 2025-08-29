@@ -1,16 +1,20 @@
 // FAQ Chatbot with Google Gemini AI Integration
 class FAQChatbot {
     constructor() {
-        this.apiKey = 'AIzaSyA2BT_gK8j33wCPfyTfqFOaGjo7OCAiJec';
-        this.apiEndpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
+        // API configuration now handled by ApiHelper
+        // Remove hardcoded keys - they are now in api-config.js for fallback
         this.conversationHistory = [];
         this.isTyping = false;
         this.currentLanguage = 'en'; // Default to English
         this.storageKey = 'faq_chatbot_conversation';
+        this.connectionStatus = 'checking'; // checking, online, offline
         
         // Initialize chatbot analytics
         this.analytics = null;
         this.initializeChatbotAnalytics();
+        
+        // Test connection on initialization
+        this.testConnection();
         
         // FAQ Bot System Prompt
         this.systemPrompt = `# Web Design Services FAQ Bot
@@ -182,6 +186,29 @@ Always maintain professionalism and accuracy regardless of the language used.`;
         this.init();
     }
 
+    parseMarkdown(text) {
+        // Simple markdown parser for common formatting
+        let html = text
+            // Handle code blocks first (prevent interference with other formatting)
+            .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+            .replace(/`([^`]+)`/g, '<code>$1</code>')
+            // Handle bold and italic
+            .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.+?)\*/g, '<em>$1</em>')
+            .replace(/___(.+?)___/g, '<strong><em>$1</em></strong>')
+            .replace(/__(.+?)__/g, '<strong>$1</strong>')
+            .replace(/_(.+?)_/g, '<em>$1</em>')
+            // Handle strikethrough
+            .replace(/~~(.+?)~~/g, '<del>$1</del>')
+            // Handle links
+            .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 underline">$1</a>')
+            // Handle line breaks
+            .replace(/\n/g, '<br>');
+
+        return html;
+    }
+
     initializeChatbotAnalytics() {
         try {
             if (window.ChatbotAnalytics) {
@@ -197,6 +224,60 @@ Always maintain professionalism and accuracy regardless of the language used.`;
     init() {
         this.loadConversationHistory();
         this.attachEventListeners();
+        this.addMarkdownStyles();
+    }
+
+    addMarkdownStyles() {
+        // Add CSS styles for markdown elements in chat messages
+        const style = document.createElement('style');
+        style.textContent = `
+            .message-content code {
+                background: #f3f4f6;
+                padding: 2px 4px;
+                border-radius: 3px;
+                font-family: 'Courier New', monospace;
+                font-size: 0.9em;
+                color: #374151;
+                border: 1px solid #e5e7eb;
+            }
+            .message-content pre {
+                background: #f9fafb;
+                border: 1px solid #e5e7eb;
+                border-radius: 6px;
+                padding: 12px;
+                margin: 8px 0;
+                overflow-x: auto;
+                font-family: 'Courier New', monospace;
+            }
+            .message-content pre code {
+                background: transparent;
+                border: none;
+                padding: 0;
+                font-size: 0.875em;
+                color: #1f2937;
+            }
+            .message-content strong {
+                font-weight: 600;
+                color: #1f2937;
+            }
+            .message-content em {
+                font-style: italic;
+                color: #4b5563;
+            }
+            .message-content del {
+                text-decoration: line-through;
+                color: #6b7280;
+            }
+            .message-content a {
+                color: #2563eb;
+                text-decoration: underline;
+            }
+            .message-content a:hover {
+                color: #1d4ed8;
+                text-decoration: none;
+            }
+        `;
+        document.head.appendChild(style);
     }
 
     attachEventListeners() {
@@ -244,6 +325,13 @@ Always maintain professionalism and accuracy regardless of the language used.`;
             const response = await this.sendToGemini(message);
             this.hideTypingIndicator();
             
+            // Connection successful - update status if it was offline
+            if (this.connectionStatus === 'offline') {
+                this.connectionStatus = 'online';
+                this.updateConnectionStatus('online');
+                console.log('✅ Chatbot connection restored');
+            }
+            
             // Track assistant response
             if (this.analytics) {
                 await this.analytics.trackMessage('assistant', response, response.length);
@@ -253,6 +341,11 @@ Always maintain professionalism and accuracy regardless of the language used.`;
         } catch (error) {
             console.error('Chatbot API Error:', error);
             this.hideTypingIndicator();
+            
+            // Update connection status to offline on error
+            this.connectionStatus = 'offline';
+            this.updateConnectionStatus('offline');
+            
             const errorMessage = "I'm sorry, I'm having trouble connecting right now. Please try again later or contact David directly at david.cit1999@gmail.com for immediate assistance.";
             
             // Track specific error type
@@ -291,62 +384,119 @@ Always maintain professionalism and accuracy regardless of the language used.`;
     }
 
     async sendToGemini(userMessage) {
-
-        const payload = {
-            contents: [
-                {
-                    parts: [
-                        {
-                            text: `${this.systemPrompt}\n\nUser: ${userMessage}\nAssistant:`
-                        }
-                    ]
-                }
-            ],
-            generationConfig: {
-                temperature: 0.7,
-                topK: 1,
-                topP: 1,
-                maxOutputTokens: 1000,
-            },
-            safetySettings: [
-                {
-                    category: "HARM_CATEGORY_HARASSMENT",
-                    threshold: "BLOCK_MEDIUM_AND_ABOVE"
-                },
-                {
-                    category: "HARM_CATEGORY_HATE_SPEECH",
-                    threshold: "BLOCK_MEDIUM_AND_ABOVE"
-                },
-                {
-                    category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                    threshold: "BLOCK_MEDIUM_AND_ABOVE"
-                },
-                {
-                    category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-                    threshold: "BLOCK_MEDIUM_AND_ABOVE"
-                }
-            ]
-        };
-
-        const response = await fetch(`${this.apiEndpoint}?key=${this.apiKey}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) {
-            throw new Error(`API Error: ${response.status} ${response.statusText}`);
-        }
-
-        const data = await response.json();
+        // Use the secure ApiHelper instead of direct API calls
+        const fullMessage = `${this.systemPrompt}\n\nUser: ${userMessage}\nAssistant:`;
         
-        if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0]) {
-            return data.candidates[0].content.parts[0].text;
-        } else {
-            throw new Error('Invalid API response structure');
+        try {
+            const data = await ApiHelper.callChatbot(fullMessage, this.conversationHistory);
+            
+            // Validate response structure more thoroughly
+            if (data && data.candidates && 
+                data.candidates[0] && 
+                data.candidates[0].content && 
+                data.candidates[0].content.parts && 
+                data.candidates[0].content.parts[0] && 
+                typeof data.candidates[0].content.parts[0].text === 'string') {
+                return data.candidates[0].content.parts[0].text;
+            } else {
+                console.error('Invalid API response structure:', data);
+                throw new Error('Invalid API response structure - missing text content');
+            }
+        } catch (error) {
+            console.error('Secure API call failed:', error);
+            
+            // Mark connection as offline when API calls fail
+            if (this.connectionStatus === 'online') {
+                this.connectionStatus = 'offline';
+                this.updateConnectionStatus('offline');
+                console.log('❌ Connection status updated to offline due to API failure');
+            }
+            
+            throw error;
         }
+    }
+
+    // Test connection to API endpoints with proper validation
+    async testConnection() {
+        try {
+            this.updateConnectionStatus('checking');
+            
+            // Test with the actual system prompt to simulate real usage
+            const testMessage = `${this.systemPrompt}\n\nUser: test\nAssistant:`;
+            const response = await ApiHelper.callChatbot(testMessage, []);
+            
+            // Validate the response structure to ensure it's working properly
+            if (response && response.candidates && 
+                response.candidates[0] && 
+                response.candidates[0].content && 
+                response.candidates[0].content.parts && 
+                response.candidates[0].content.parts[0] && 
+                response.candidates[0].content.parts[0].text) {
+                
+                this.connectionStatus = 'online';
+                this.updateConnectionStatus('online');
+                console.log('✅ Chatbot connection: Online - Response validated successfully');
+            } else {
+                throw new Error('Invalid API response structure');
+            }
+        } catch (error) {
+            this.connectionStatus = 'offline';
+            this.updateConnectionStatus('offline');
+            console.error('❌ Chatbot connection test failed:', error.message);
+            console.error('Full error details:', error);
+        }
+    }
+
+    // Update the visual connection status indicator
+    updateConnectionStatus(status) {
+        const statusDot = document.querySelector('.w-2.h-2.rounded-full');
+        const statusText = document.querySelector('.text-xs.md\\:text-sm.text-gray-600, .text-sm.text-gray-600');
+        const statusContainer = statusDot?.parentElement;
+        
+        if (!statusDot || !statusText || !statusContainer) return;
+
+        // Remove existing click handlers
+        statusContainer.replaceWith(statusContainer.cloneNode(true));
+        const newStatusContainer = document.querySelector('.flex.items-center.space-x-2');
+        const newStatusDot = newStatusContainer?.querySelector('.w-2.h-2.rounded-full');
+        const newStatusText = newStatusContainer?.querySelector('.text-xs, .text-sm');
+
+        if (!newStatusDot || !newStatusText) return;
+
+        switch (status) {
+            case 'checking':
+                newStatusDot.className = 'w-2 h-2 bg-yellow-500 rounded-full animate-pulse';
+                newStatusText.textContent = 'AI Assistant Connecting...';
+                newStatusText.className = newStatusText.className.replace(/text-\w+-600/, 'text-yellow-600');
+                newStatusContainer.className = 'flex items-center space-x-2';
+                newStatusContainer.style.cursor = 'default';
+                break;
+            case 'online':
+                newStatusDot.className = 'w-2 h-2 bg-green-500 rounded-full animate-pulse';
+                newStatusText.textContent = 'AI Assistant Online';
+                newStatusText.className = newStatusText.className.replace(/text-\w+-600/, 'text-gray-600');
+                newStatusContainer.className = 'flex items-center space-x-2';
+                newStatusContainer.style.cursor = 'default';
+                break;
+            case 'offline':
+                newStatusDot.className = 'w-2 h-2 bg-red-500 rounded-full';
+                newStatusText.textContent = 'AI Assistant Offline (Click to retry)';
+                newStatusText.className = newStatusText.className.replace(/text-\w+-600/, 'text-red-600');
+                newStatusContainer.className = 'flex items-center space-x-2 cursor-pointer hover:opacity-75';
+                newStatusContainer.style.cursor = 'pointer';
+                
+                // Add click handler for retry
+                newStatusContainer.addEventListener('click', () => {
+                    this.retryConnection();
+                });
+                break;
+        }
+    }
+
+    // Retry connection (can be called manually)
+    async retryConnection() {
+        console.log('🔄 Retrying connection...');
+        await this.testConnection();
     }
 
     addMessageToChat(sender, message) {
@@ -361,7 +511,7 @@ Always maintain professionalism and accuracy regardless of the language used.`;
         
         const messageContent = document.createElement('div');
         messageContent.className = 'message-content';
-        messageContent.textContent = message;
+        messageContent.innerHTML = this.parseMarkdown(message);
         
         const copyButton = document.createElement('button');
         copyButton.className = 'copy-btn';
@@ -494,7 +644,7 @@ Always maintain professionalism and accuracy regardless of the language used.`;
         
         const messageContent = document.createElement('div');
         messageContent.className = 'message-content';
-        messageContent.textContent = message;
+        messageContent.innerHTML = this.parseMarkdown(message);
         
         const copyButton = document.createElement('button');
         copyButton.className = 'copy-btn';

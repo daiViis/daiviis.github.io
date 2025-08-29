@@ -11,6 +11,7 @@ class AnalyticsTracker {
         this.sessionId = this.getOrCreateSessionId();
         this.startTime = Date.now();
         this.isBot = this.detectBot();
+        this.disabled = false;
         
         this.init();
     }
@@ -19,10 +20,21 @@ class AnalyticsTracker {
         try {
             // Initialize Supabase client using existing config
             if (this.config && this.config.enabled && this.config.provider === 'supabase') {
+                // Check if we have placeholder URLs (means we're using proxy mode)
+                if (this.config.supabaseUrl === 'SECURE_PROXY_ENDPOINT' || 
+                    this.config.supabaseKey === 'SECURE_PROXY_ENDPOINT') {
+                    console.log('Analytics tracking disabled - using proxy mode for security');
+                    this.disabled = true;
+                    return;
+                }
+                
                 this.client = window.supabase?.createClient(
                     this.config.supabaseUrl,
                     this.config.supabaseKey
                 );
+            } else {
+                this.disabled = true;
+                return;
             }
 
             // Track page view immediately
@@ -33,6 +45,7 @@ class AnalyticsTracker {
             
         } catch (error) {
             console.warn('Analytics tracker initialization failed:', error);
+            this.disabled = true;
         }
     }
 
@@ -127,6 +140,7 @@ class AnalyticsTracker {
      * Track page view
      */
     async trackPageView() {
+        if (this.disabled) return;
         if (!this.client || this.isBot) return;
 
         const deviceInfo = this.collectDeviceInfo();

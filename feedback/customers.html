@@ -330,15 +330,37 @@
 
         async function initializeApp() {
             try {
-                if (!window.DATABASE_CONFIG || !window.DATABASE_CONFIG.enabled || 
-                    window.DATABASE_CONFIG.provider !== 'supabase') {
-                    throw new Error('Supabase not configured. Please set up database first.');
+                // Check if we're in local development mode
+                const isLocalDevelopment = window.location.protocol === 'file:' || 
+                                         window.location.hostname === 'localhost' || 
+                                         window.location.hostname === '127.0.0.1' || 
+                                         window.location.hostname === '';
+
+                let supabaseUrl, supabaseKey;
+
+                if (isLocalDevelopment) {
+                    // Use direct API credentials for local development
+                    console.log('🔧 Customer management: Local development mode detected');
+                    supabaseUrl = 'https://ciulpbxkwcbzoshlzmvb.supabase.co';
+                    supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpdWxwYnhrd2Niem9zaGx6bXZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyOTY4NTcsImV4cCI6MjA3MTg3Mjg1N30.UvoAL-i_Xv-h_OKfa8NN2CoClGBfQYHv1vNeu0elERo';
+                } else {
+                    // Check if DATABASE_CONFIG is properly configured for production
+                    if (!window.DATABASE_CONFIG || !window.DATABASE_CONFIG.enabled || 
+                        window.DATABASE_CONFIG.provider !== 'supabase') {
+                        throw new Error('Database not configured for production. Customer management unavailable.');
+                    }
+
+                    if (window.DATABASE_CONFIG.supabaseUrl === 'SECURE_PROXY_ENDPOINT' || 
+                        window.DATABASE_CONFIG.supabaseKey === 'SECURE_PROXY_ENDPOINT') {
+                        throw new Error('Customer management requires direct database access. Currently using proxy mode for security.');
+                    }
+
+                    supabaseUrl = window.DATABASE_CONFIG.supabaseUrl;
+                    supabaseKey = window.DATABASE_CONFIG.supabaseKey;
                 }
 
-                supabaseClient = window.supabase.createClient(
-                    window.DATABASE_CONFIG.supabaseUrl,
-                    window.DATABASE_CONFIG.supabaseKey
-                );
+                // Initialize Supabase client with detected credentials
+                supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
                 const savedAuth = localStorage.getItem('admin_auth');
                 if (savedAuth) {

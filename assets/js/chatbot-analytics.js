@@ -11,6 +11,7 @@ class ChatbotAnalytics {
         this.messageCount = 0;
         this.sessionStartTime = null;
         this.isSessionActive = false;
+        this.disabled = false;
         
         this.initializeTracking();
     }
@@ -27,6 +28,14 @@ class ChatbotAnalytics {
                 return;
             }
 
+            // Check if we have placeholder URLs (means we're using proxy mode)
+            if (window.DATABASE_CONFIG.supabaseUrl === 'SECURE_PROXY_ENDPOINT' || 
+                window.DATABASE_CONFIG.supabaseKey === 'SECURE_PROXY_ENDPOINT') {
+                console.log('Analytics disabled - using proxy mode for security');
+                this.disabled = true;
+                return;
+            }
+
             if (window.DATABASE_CONFIG.provider === 'supabase' && window.supabase) {
                 this.client = window.supabase.createClient(
                     window.DATABASE_CONFIG.supabaseUrl,
@@ -35,6 +44,7 @@ class ChatbotAnalytics {
             }
         } catch (error) {
             console.error('Failed to initialize chatbot analytics database:', error);
+            this.disabled = true;
         }
     }
 
@@ -67,6 +77,7 @@ class ChatbotAnalytics {
 
     // Track when chat session starts
     async trackChatSessionStart() {
+        if (this.disabled) return;
         if (this.isSessionActive) return;
         
         this.chatSessionId = 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -86,6 +97,7 @@ class ChatbotAnalytics {
 
     // Track individual messages
     async trackMessage(sender, message, messageLength, errorInfo = null) {
+        if (this.disabled) return;
         if (!this.isSessionActive) {
             await this.trackChatSessionStart();
         }
@@ -189,6 +201,7 @@ class ChatbotAnalytics {
 
     // Track errors specifically
     async trackError(errorType, errorMessage, errorCode = null) {
+        if (this.disabled) return;
         if (!this.isSessionActive) {
             await this.trackChatSessionStart();
         }
