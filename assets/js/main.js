@@ -745,10 +745,8 @@ window.addEventListener('error', function(e) {
 window.addEventListener('load', function() {
     if ('performance' in window) {
         setTimeout(() => {
-            const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
-            if (loadTime > 0) {
-                console.log(`🚀 Page loaded in ${loadTime}ms`);
-            }
+            const loadTime = performance.now();
+            console.log(`🚀 Page loaded in ${loadTime.toFixed(2)}ms`);
         }, 10);
     }
 });
