@@ -29,6 +29,10 @@
     
     <!-- Database Configuration -->
     <script src="database-config.js"></script>
+    
+    <!-- API Helper for secure proxy mode -->
+    <script src="../assets/js/env-loader.js"></script>
+    <script src="../assets/js/api-config.js"></script>
 
     <!-- Admin Styles -->
     <link rel="stylesheet" href="css/admin-styles.css">
@@ -253,6 +257,7 @@
         let supabaseClient = null;
         let allFeedback = [];
         let filteredFeedback = [];
+        let useProxyMode = false;
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', async function() {
@@ -281,17 +286,25 @@
                         throw new Error('Database not configured for production. Admin dashboard unavailable.');
                     }
 
+                    // Use proxy mode for secure admin access
                     if (window.DATABASE_CONFIG.supabaseUrl === 'SECURE_PROXY_ENDPOINT' || 
                         window.DATABASE_CONFIG.supabaseKey === 'SECURE_PROXY_ENDPOINT') {
-                        throw new Error('Admin dashboard requires direct database access. Currently using proxy mode for security.');
+                        console.log('🔒 Admin dashboard using secure proxy mode');
+                        useProxyMode = true;
                     }
 
                     supabaseUrl = window.DATABASE_CONFIG.supabaseUrl;
                     supabaseKey = window.DATABASE_CONFIG.supabaseKey;
                 }
 
-                // Initialize Supabase client with detected credentials
-                supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+                // Initialize database connection
+                if (!useProxyMode) {
+                    // Initialize Supabase client with detected credentials (local development)
+                    supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+                } else {
+                    // Initialize API Helper for secure proxy mode (production)
+                    await window.ApiHelper.initialize();
+                }
 
                 // Check if user is already logged in
                 const savedAuth = localStorage.getItem('admin_auth');
@@ -497,10 +510,33 @@
                 document.getElementById('tableContainer').classList.add('hidden');
                 document.getElementById('emptyState').classList.add('hidden');
 
-                const { data, error } = await supabaseClient
-                    .from('feedback_submissions')
-                    .select('*')
-                    .order('created_at', { ascending: false });
+                let data, error;
+                
+                if (useProxyMode) {
+                    // Use secure proxy endpoint
+                    try {
+                        const response = await window.ApiHelper.callDatabase(
+                            'select',
+                            'feedback_submissions',
+                            null,
+                            null,
+                            '*'
+                        );
+                        data = response;
+                        error = null;
+                    } catch (err) {
+                        data = null;
+                        error = err;
+                    }
+                } else {
+                    // Use direct Supabase client (local development)
+                    const result = await supabaseClient
+                        .from('feedback_submissions')
+                        .select('*')
+                        .order('created_at', { ascending: false });
+                    data = result.data;
+                    error = result.error;
+                }
 
                 if (error) throw error;
 
