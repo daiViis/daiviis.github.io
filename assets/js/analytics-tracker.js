@@ -7,6 +7,7 @@ class AnalyticsTracker {
     constructor() {
         this.config = window.DATABASE_CONFIG;
         this.client = null;
+        this.useProxyMode = false;
         this.visitorId = this.getOrCreateVisitorId();
         this.sessionId = this.getOrCreateSessionId();
         this.startTime = Date.now();
@@ -23,15 +24,24 @@ class AnalyticsTracker {
                 // Check if we have placeholder URLs (means we're using proxy mode)
                 if (this.config.supabaseUrl === 'SECURE_PROXY_ENDPOINT' || 
                     this.config.supabaseKey === 'SECURE_PROXY_ENDPOINT') {
-                    console.log('Analytics tracking disabled - using proxy mode for security');
-                    this.disabled = true;
-                    return;
+                    console.log('Analytics tracking using secure proxy mode');
+                    this.useProxyMode = true;
+                    
+                    // Initialize ApiHelper for proxy mode
+                    if (window.ApiHelper) {
+                        await window.ApiHelper.initialize();
+                    } else {
+                        console.warn('ApiHelper not available for proxy mode');
+                        this.disabled = true;
+                        return;
+                    }
+                } else {
+                    this.useProxyMode = false;
+                    this.client = window.supabase?.createClient(
+                        this.config.supabaseUrl,
+                        this.config.supabaseKey
+                    );
                 }
-                
-                this.client = window.supabase?.createClient(
-                    this.config.supabaseUrl,
-                    this.config.supabaseKey
-                );
             } else {
                 this.disabled = true;
                 return;
@@ -141,7 +151,8 @@ class AnalyticsTracker {
      */
     async trackPageView() {
         if (this.disabled) return;
-        if (!this.client || this.isBot) return;
+        if (this.isBot) return;
+        if (!this.useProxyMode && !this.client) return;
 
         const deviceInfo = this.collectDeviceInfo();
         const pageData = {
@@ -156,12 +167,24 @@ class AnalyticsTracker {
         };
 
         try {
-            const { error } = await this.client
-                .from('page_analytics')
-                .insert([pageData]);
+            if (this.useProxyMode) {
+                // Use ApiHelper for proxy mode
+                await window.ApiHelper.callDatabase(
+                    'insert',
+                    'page_analytics',
+                    pageData,
+                    {},
+                    '*'
+                );
+            } else {
+                // Use direct Supabase client
+                const { error } = await this.client
+                    .from('page_analytics')
+                    .insert([pageData]);
 
-            if (error) {
-                console.warn('Analytics tracking failed:', error);
+                if (error) {
+                    console.warn('Analytics tracking failed:', error);
+                }
             }
         } catch (error) {
             console.warn('Analytics request failed:', error);

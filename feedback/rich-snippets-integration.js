@@ -63,44 +63,81 @@
                                      window.location.hostname === '127.0.0.1' || 
                                      window.location.hostname === '';
 
-            let supabaseUrl, supabaseKey;
+            let useProxyMode = false;
+            let data;
 
             if (isLocalDevelopment) {
                 // Use direct API credentials for local development
                 if (!window.supabase) return null;
                 
-                supabaseUrl = 'https://ciulpbxkwcbzoshlzmvb.supabase.co';
-                supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpdWxwYnhrd2Niem9zaGx6bXZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyOTY4NTcsImV4cCI6MjA3MTg3Mjg1N30.UvoAL-i_Xv-h_OKfa8NN2CoClGBfQYHv1vNeu0elERo';
+                const supabaseUrl = 'https://ciulpbxkwcbzoshlzmvb.supabase.co';
+                const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpdWxwYnhrd2Niem9zaGx6bXZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyOTY4NTcsImV4cCI6MjA3MTg3Mjg1N30.UvoAL-i_Xv-h_OKfa8NN2CoClGBfQYHv1vNeu0elERo';
+                
+                const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+                // Fetch all feedback submissions
+                const { data: result, error } = await supabaseClient
+                    .from('feedback_submissions')
+                    .select('average_rating, created_at, share_permission, customer_name, comments')
+                    .order('created_at', { ascending: false })
+                    .limit(100);
+
+                if (error) {
+                    console.error('Database query error:', error);
+                    return null;
+                }
+                data = result;
             } else {
                 // Check production database config
                 if (!window.DATABASE_CONFIG || !window.DATABASE_CONFIG.enabled || 
-                    window.DATABASE_CONFIG.provider !== 'supabase' || !window.supabase) {
+                    window.DATABASE_CONFIG.provider !== 'supabase') {
                     return null;
                 }
 
                 if (window.DATABASE_CONFIG.supabaseUrl === 'SECURE_PROXY_ENDPOINT' || 
                     window.DATABASE_CONFIG.supabaseKey === 'SECURE_PROXY_ENDPOINT') {
-                    console.log('Rich snippets disabled - using proxy mode for security');
-                    return null;
+                    console.log('Rich snippets using proxy mode for security');
+                    useProxyMode = true;
+                    
+                    // Initialize ApiHelper for proxy mode
+                    if (!window.ApiHelper) {
+                        console.warn('ApiHelper not available for rich snippets proxy mode');
+                        return null;
+                    }
+                    
+                    await window.ApiHelper.initialize();
+                    
+                    // Use ApiHelper for proxy mode
+                    data = await window.ApiHelper.callDatabase(
+                        'select',
+                        'feedback_submissions',
+                        null,
+                        {},
+                        'average_rating, created_at, share_permission, customer_name, comments'
+                    );
+                    // Sort by created_at desc in JavaScript since proxy mode doesn't support order()
+                    data = data?.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 100) || [];
+                } else {
+                    if (!window.supabase) return null;
+                    
+                    const supabaseClient = window.supabase.createClient(
+                        window.DATABASE_CONFIG.supabaseUrl,
+                        window.DATABASE_CONFIG.supabaseKey
+                    );
+
+                    // Fetch all feedback submissions
+                    const { data: result, error } = await supabaseClient
+                        .from('feedback_submissions')
+                        .select('average_rating, created_at, share_permission, customer_name, comments')
+                        .order('created_at', { ascending: false })
+                        .limit(100);
+
+                    if (error) {
+                        console.error('Database query error:', error);
+                        return null;
+                    }
+                    data = result;
                 }
-
-                supabaseUrl = window.DATABASE_CONFIG.supabaseUrl;
-                supabaseKey = window.DATABASE_CONFIG.supabaseKey;
-            }
-
-            // Initialize Supabase client with detected credentials
-            const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-            // Fetch all feedback submissions
-            const { data, error } = await supabaseClient
-                .from('feedback_submissions')
-                .select('average_rating, created_at, share_permission, customer_name, comments')
-                .order('created_at', { ascending: false })
-                .limit(100);
-
-            if (error) {
-                console.error('Database query error:', error);
-                return null;
             }
 
             if (!data || data.length === 0) {

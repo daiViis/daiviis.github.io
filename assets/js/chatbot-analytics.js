@@ -12,6 +12,7 @@ class ChatbotAnalytics {
         this.sessionStartTime = null;
         this.isSessionActive = false;
         this.disabled = false;
+        this.useProxyMode = false;
         
         this.initializeTracking();
     }
@@ -25,22 +26,32 @@ class ChatbotAnalytics {
         try {
             if (!window.DATABASE_CONFIG || !window.DATABASE_CONFIG.enabled) {
                 console.warn('Database config not available for chatbot analytics');
+                this.disabled = true;
                 return;
             }
 
             // Check if we have placeholder URLs (means we're using proxy mode)
             if (window.DATABASE_CONFIG.supabaseUrl === 'SECURE_PROXY_ENDPOINT' || 
                 window.DATABASE_CONFIG.supabaseKey === 'SECURE_PROXY_ENDPOINT') {
-                console.log('Analytics disabled - using proxy mode for security');
-                this.disabled = true;
-                return;
-            }
-
-            if (window.DATABASE_CONFIG.provider === 'supabase' && window.supabase) {
+                console.log('Chatbot analytics using secure proxy mode');
+                this.useProxyMode = true;
+                
+                // Initialize ApiHelper for proxy mode
+                if (window.ApiHelper) {
+                    await window.ApiHelper.initialize();
+                } else {
+                    console.warn('ApiHelper not available for chatbot analytics proxy mode');
+                    this.disabled = true;
+                    return;
+                }
+            } else if (window.DATABASE_CONFIG.provider === 'supabase' && window.supabase) {
+                this.useProxyMode = false;
                 this.client = window.supabase.createClient(
                     window.DATABASE_CONFIG.supabaseUrl,
                     window.DATABASE_CONFIG.supabaseKey
                 );
+            } else {
+                this.disabled = true;
             }
         } catch (error) {
             console.error('Failed to initialize chatbot analytics database:', error);
@@ -163,7 +174,8 @@ class ChatbotAnalytics {
     }
 
     async sendChatAnalytics(analyticsData) {
-        if (!this.client) return;
+        if (this.disabled) return;
+        if (!this.useProxyMode && !this.client) return;
 
         try {
             const payload = {
@@ -187,12 +199,24 @@ class ChatbotAnalytics {
                 timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
             };
 
-            const { error } = await this.client
-                .from('chatbot_analytics')
-                .insert([payload]);
+            if (this.useProxyMode) {
+                // Use ApiHelper for proxy mode
+                await window.ApiHelper.callDatabase(
+                    'insert',
+                    'chatbot_analytics',
+                    payload,
+                    {},
+                    '*'
+                );
+            } else {
+                // Use direct Supabase client
+                const { error } = await this.client
+                    .from('chatbot_analytics')
+                    .insert([payload]);
 
-            if (error) {
-                console.error('Failed to send chatbot analytics:', error);
+                if (error) {
+                    console.error('Failed to send chatbot analytics:', error);
+                }
             }
         } catch (error) {
             console.error('Error sending chatbot analytics:', error);

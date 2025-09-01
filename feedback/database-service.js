@@ -7,6 +7,7 @@ class FeedbackDatabase {
         this.provider = config.provider; // 'supabase', 'firebase', 'airtable', 'sheets'
         this.client = null;
         this.isInitialized = false;
+        this.useProxyMode = false;
     }
 
     async initialize() {
@@ -37,38 +38,67 @@ class FeedbackDatabase {
 
     // ==================== SUPABASE IMPLEMENTATION ====================
     async initializeSupabase() {
-        if (!window.supabase) {
-            throw new Error('Supabase client not loaded. Include: <script src="https://unpkg.com/@supabase/supabase-js@2"></script>');
+        // Check if we have placeholder URLs (means we're using proxy mode)
+        if (this.config.supabaseUrl === 'SECURE_PROXY_ENDPOINT' || 
+            this.config.supabaseKey === 'SECURE_PROXY_ENDPOINT') {
+            console.log('FeedbackDatabase using secure proxy mode');
+            this.useProxyMode = true;
+            
+            // Initialize ApiHelper for proxy mode
+            if (window.ApiHelper) {
+                await window.ApiHelper.initialize();
+            } else {
+                throw new Error('ApiHelper not available for proxy mode');
+            }
+        } else {
+            if (!window.supabase) {
+                throw new Error('Supabase client not loaded. Include: <script src="https://unpkg.com/@supabase/supabase-js@2"></script>');
+            }
+            
+            this.useProxyMode = false;
+            this.client = window.supabase.createClient(
+                this.config.supabaseUrl,
+                this.config.supabaseKey
+            );
         }
-        
-        this.client = window.supabase.createClient(
-            this.config.supabaseUrl,
-            this.config.supabaseKey
-        );
     }
 
     async saveToSupabase(feedbackData) {
-        const { data, error } = await this.client
-            .from('feedback_submissions')
-            .insert([{
-                customer_name: feedbackData.customer_name,
-                customer_website: feedbackData.customer_website,
-                customer_ref: feedbackData.customer_ref,
-                process_rating: parseInt(feedbackData.process_rating),
-                product_rating: parseInt(feedbackData.product_rating),
-                recommendation_rating: parseInt(feedbackData.recommendation_rating),
-                overall_rating: parseInt(feedbackData.overall_rating),
-                average_rating: parseFloat(feedbackData.average_rating),
-                comments: feedbackData.comments,
-                share_permission: feedbackData.share_permission === 'Yes',
-                submission_date: feedbackData.submission_date,
-                submission_time: feedbackData.submission_time,
-                page_url: feedbackData.page_url,
-                user_agent: navigator.userAgent
-            }]);
+        const dbData = {
+            customer_name: feedbackData.customer_name,
+            customer_website: feedbackData.customer_website,
+            customer_ref: feedbackData.customer_ref,
+            process_rating: parseInt(feedbackData.process_rating),
+            product_rating: parseInt(feedbackData.product_rating),
+            recommendation_rating: parseInt(feedbackData.recommendation_rating),
+            overall_rating: parseInt(feedbackData.overall_rating),
+            average_rating: parseFloat(feedbackData.average_rating),
+            comments: feedbackData.comments,
+            share_permission: feedbackData.share_permission === 'Yes',
+            submission_date: feedbackData.submission_date,
+            submission_time: feedbackData.submission_time,
+            page_url: feedbackData.page_url,
+            user_agent: navigator.userAgent
+        };
 
-        if (error) throw error;
-        return data;
+        if (this.useProxyMode) {
+            // Use ApiHelper for proxy mode
+            return await window.ApiHelper.callDatabase(
+                'insert',
+                'feedback_submissions',
+                dbData,
+                {},
+                '*'
+            );
+        } else {
+            // Use direct Supabase client
+            const { data, error } = await this.client
+                .from('feedback_submissions')
+                .insert([dbData]);
+
+            if (error) throw error;
+            return data;
+        }
     }
 
     // ==================== FIREBASE IMPLEMENTATION ====================
@@ -249,13 +279,30 @@ class FeedbackDatabase {
     }
 
     async getSupabaseAnalytics() {
-        const { data, error } = await this.client
-            .from('feedback_submissions')
-            .select('average_rating, created_at, share_permission')
-            .order('created_at', { ascending: false })
-            .limit(100);
+        let data;
+        
+        if (this.useProxyMode) {
+            // Use ApiHelper for proxy mode
+            data = await window.ApiHelper.callDatabase(
+                'select',
+                'feedback_submissions',
+                null,
+                {},
+                'average_rating, created_at, share_permission'
+            );
+            // Sort by created_at desc in JavaScript since proxy mode doesn't support order()
+            data = data?.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 100) || [];
+        } else {
+            // Use direct Supabase client
+            const { data: result, error } = await this.client
+                .from('feedback_submissions')
+                .select('average_rating, created_at, share_permission')
+                .order('created_at', { ascending: false })
+                .limit(100);
 
-        if (error) throw error;
+            if (error) throw error;
+            data = result;
+        }
 
         const totalSubmissions = data.length;
         const averageRating = data.reduce((sum, item) => sum + item.average_rating, 0) / totalSubmissions;
