@@ -305,12 +305,33 @@ class ReviewWidget {
     }
 }
 
+// Wait for ApiHelper to be ready
+async function waitForApiHelper() {
+    const maxWaitTime = 10000; // 10 seconds
+    const checkInterval = 100; // Check every 100ms
+    let waitTime = 0;
+    
+    while (waitTime < maxWaitTime) {
+        // Check if ApiHelper is available and initialized
+        if (window.ApiHelper && typeof window.ApiHelper.callDatabase === 'function') {
+            console.log('ReviewWidget: ApiHelper is ready');
+            return;
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, checkInterval));
+        waitTime += checkInterval;
+    }
+    
+    console.log('ReviewWidget: ApiHelper not available after waiting, continuing anyway');
+}
+
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-    // Wait a moment for other scripts to load
-    setTimeout(() => {
+    // Wait for ApiHelper to be available
+    waitForApiHelper().then(() => {
         window.reviewWidget = new ReviewWidget();
-    }, 500);
+        console.log('ReviewWidget: Initialized');
+    });
 });
 
 // Export for external use

@@ -2344,11 +2344,24 @@
     
     <script src="assets/js/main.js"></script>
     <script src="assets/js/currency-switcher.js"></script>
-    <script src="feedback/rich-snippets-integration.js"></script>
-    <!-- Smart API Configuration - Load environment detector and config before chatbot -->
+    
+    <!-- Smart API Configuration - Load environment detector and config first -->
     <script src="assets/js/local-env-config.js"></script>
     <script src="assets/js/env-loader.js"></script>
     <script src="assets/js/api-config.js"></script>
+    
+    <!-- Database Dependencies - Load in correct order -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="feedback/database-config.js"></script>
+    <script src="feedback/database-service.js"></script>
+    
+    <!-- Database-dependent scripts -->
+    <script src="feedback/rich-snippets-integration.js"></script>
+    <script src="assets/js/review-widget.js"></script>
+    <script src="assets/js/analytics-tracker.js"></script>
+    <script src="assets/js/chatbot-analytics.js"></script>
+    
+    <!-- Chatbot (depends on API config and analytics) -->
     <script src="assets/js/faq-chatbot.js"></script>
     
     <!-- Info Modal for Rating Widget -->
@@ -2394,11 +2407,6 @@
         </div>
     </div>
 
-    <!-- Database Integration for Quick Rating -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="feedback/database-config.js"></script>
-    <script src="feedback/database-service.js"></script>
-    <script src="assets/js/review-widget.js"></script>
     
     <!-- Mouse Drag Scrolling with Velocity Animation -->
     <script>
@@ -2519,8 +2527,5 @@
         });
     </script>
     
-    <!-- Analytics Tracking -->
-    <script src="assets/js/analytics-tracker.js"></script>
-    <script src="assets/js/chatbot-analytics.js"></script>
 </body>
 </html>

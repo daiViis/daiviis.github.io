@@ -16,13 +16,38 @@
     // Main integration function
     function initRichSnippetsIntegration() {
         if (CONFIG.updateOnPageLoad) {
-            document.addEventListener('DOMContentLoaded', updateRichSnippets);
+            document.addEventListener('DOMContentLoaded', function() {
+                // Wait for ApiHelper to be available if in proxy mode
+                waitForApiHelper().then(() => {
+                    updateRichSnippets();
+                });
+            });
         }
         
         // Expose global function for manual updates
         window.updateRichSnippetsFromFeedback = updateRichSnippets;
         
         log('Rich Snippets feedback integration initialized');
+    }
+    
+    // Wait for ApiHelper to be ready
+    async function waitForApiHelper() {
+        const maxWaitTime = 10000; // 10 seconds
+        const checkInterval = 100; // Check every 100ms
+        let waitTime = 0;
+        
+        while (waitTime < maxWaitTime) {
+            // Check if ApiHelper is available and initialized
+            if (window.ApiHelper && typeof window.ApiHelper.callDatabase === 'function') {
+                log('ApiHelper is ready');
+                return;
+            }
+            
+            await new Promise(resolve => setTimeout(resolve, checkInterval));
+            waitTime += checkInterval;
+        }
+        
+        log('ApiHelper not available after waiting, continuing anyway');
     }
     
     // Update Rich Snippets based on feedback data
