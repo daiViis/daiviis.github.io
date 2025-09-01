@@ -262,8 +262,16 @@
     </main>
     
     <!-- Analytics Tracking -->
+    <!-- Load API configuration first -->
+    <script src="../assets/js/local-env-config.js"></script>
+    <script src="../assets/js/env-loader.js"></script>
+    <script src="../assets/js/api-config.js"></script>
+    
+    <!-- Database dependencies -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="../feedback/database-config.js"></script>
+    
+    <!-- Analytics tracker (depends on above) -->
     <script src="../assets/js/analytics-tracker.js"></script>
 </body>
 </html>
