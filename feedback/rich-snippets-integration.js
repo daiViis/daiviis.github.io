@@ -18,8 +18,14 @@
         if (CONFIG.updateOnPageLoad) {
             document.addEventListener('DOMContentLoaded', function() {
                 // Wait for ApiHelper to be available if in proxy mode
-                waitForApiHelper().then(() => {
-                    updateRichSnippets();
+                waitForApiHelper().then((connected) => {
+                    if (connected) {
+                        // Successfully connected, try to load data
+                        updateRichSnippets();
+                    } else {
+                        // Failed to connect after 20s, show fallback
+                        updateWithDefaults();
+                    }
                 });
             });
         }
@@ -32,7 +38,7 @@
     
     // Wait for ApiHelper to be ready
     async function waitForApiHelper() {
-        const maxWaitTime = 10000; // 10 seconds
+        const maxWaitTime = 20000; // 20 seconds - increased wait time
         const checkInterval = 100; // Check every 100ms
         let waitTime = 0;
         
@@ -40,14 +46,15 @@
             // Check if ApiHelper is available and initialized
             if (window.ApiHelper && typeof window.ApiHelper.callDatabase === 'function') {
                 log('ApiHelper is ready');
-                return;
+                return true; // Successfully connected
             }
             
             await new Promise(resolve => setTimeout(resolve, checkInterval));
             waitTime += checkInterval;
         }
         
-        log('ApiHelper not available after waiting, continuing anyway');
+        log('ApiHelper not available after 20s, will show fallback');
+        return false; // Failed to connect
     }
     
     // Update Rich Snippets based on feedback data
@@ -278,17 +285,22 @@
     
     // Update display elements on the page
     function updateDisplayElements(data) {
+        // Hide loading states and show actual data
+        hideLoadingStates();
+        
         // Update rating value displays
-        const ratingElements = document.querySelectorAll('#ratingValue, .rating-value, [data-rating-value]');
+        const ratingElements = document.querySelectorAll('#ratingText, .rating-value, [data-rating-value]');
         ratingElements.forEach(el => {
             el.textContent = data.ratingValue.toFixed(1);
+            el.classList.remove('hidden');
             log(`Updated rating display element: ${data.ratingValue}`);
         });
         
         // Update review count displays  
-        const countElements = document.querySelectorAll('#reviewCount, .review-count, [data-review-count]');
+        const countElements = document.querySelectorAll('#countText, .review-count, [data-review-count]');
         countElements.forEach(el => {
             el.textContent = `${data.reviewCount} reviews`;
+            el.classList.remove('hidden');
             log(`Updated review count display element: ${data.reviewCount}`);
         });
         
@@ -300,6 +312,17 @@
             generateStars(data.ratingValue);
             log('Triggered generateStars function');
         }
+    }
+    
+    // Hide loading states
+    function hideLoadingStates() {
+        // Hide loading animations
+        const loadingElements = document.querySelectorAll('#starsLoading, #ratingLoading, #countLoading');
+        loadingElements.forEach(el => {
+            el.classList.add('hidden');
+        });
+        
+        log('Loading states hidden');
     }
     
     // Update star rating displays
@@ -342,6 +365,9 @@
     
     // Fallback to default behavior
     function updateWithDefaults() {
+        // Hide loading states first
+        hideLoadingStates();
+        
         const data = {
             ratingValue: CONFIG.defaultRating,
             reviewCount: CONFIG.defaultReviewCount,
@@ -350,7 +376,7 @@
         };
         
         updateDisplayElements(data);
-        log('Updated with fallback defaults');
+        log('Updated with fallback defaults after database connection timeout');
     }
     
     // Utility function for logging

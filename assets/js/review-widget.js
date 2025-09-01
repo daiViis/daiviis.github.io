@@ -307,7 +307,7 @@ class ReviewWidget {
 
 // Wait for ApiHelper to be ready
 async function waitForApiHelper() {
-    const maxWaitTime = 10000; // 10 seconds
+    const maxWaitTime = 20000; // 20 seconds - match rich snippets timing
     const checkInterval = 100; // Check every 100ms
     let waitTime = 0;
     
@@ -315,22 +315,30 @@ async function waitForApiHelper() {
         // Check if ApiHelper is available and initialized
         if (window.ApiHelper && typeof window.ApiHelper.callDatabase === 'function') {
             console.log('ReviewWidget: ApiHelper is ready');
-            return;
+            return true; // Successfully connected
         }
         
         await new Promise(resolve => setTimeout(resolve, checkInterval));
         waitTime += checkInterval;
     }
     
-    console.log('ReviewWidget: ApiHelper not available after waiting, continuing anyway');
+    console.log('ReviewWidget: ApiHelper not available after 20s, will show fallback');
+    return false; // Failed to connect
 }
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     // Wait for ApiHelper to be available
-    waitForApiHelper().then(() => {
-        window.reviewWidget = new ReviewWidget();
-        console.log('ReviewWidget: Initialized');
+    waitForApiHelper().then((connected) => {
+        if (connected) {
+            // Successfully connected, initialize with full functionality
+            window.reviewWidget = new ReviewWidget();
+            console.log('ReviewWidget: Initialized with database connection');
+        } else {
+            // Failed to connect, initialize with limited functionality
+            window.reviewWidget = new ReviewWidget();
+            console.log('ReviewWidget: Initialized without database connection - will show fallbacks');
+        }
     });
 });
 

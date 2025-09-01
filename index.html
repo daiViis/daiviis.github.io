@@ -1742,12 +1742,26 @@
                             <div id="ratingWidgetCollapsed" class="inline-flex items-center space-x-2 px-3 py-2 hover:bg-gray-100 transition-all cursor-pointer">
                                 <div class="flex items-center space-x-1.5">
                                     <div id="starsContainer" class="flex items-center">
-                                        <!-- Stars will be generated dynamically -->
+                                        <!-- Loading animation -->
+                                        <div id="starsLoading" class="flex items-center space-x-1">
+                                            <div class="animate-pulse bg-gray-300 h-3 w-3 rounded"></div>
+                                            <div class="animate-pulse bg-gray-300 h-3 w-3 rounded"></div>
+                                            <div class="animate-pulse bg-gray-300 h-3 w-3 rounded"></div>
+                                            <div class="animate-pulse bg-gray-300 h-3 w-3 rounded"></div>
+                                            <div class="animate-pulse bg-gray-300 h-3 w-3 rounded"></div>
+                                        </div>
+                                        <!-- Stars will be generated dynamically here -->
                                     </div>
-                                    <span id="ratingValue" class="text-xs font-semibold text-gray-900">--</span>
+                                    <span id="ratingValue" class="text-xs font-semibold text-gray-900">
+                                        <span id="ratingLoading" class="animate-pulse">Loading...</span>
+                                        <span id="ratingText" class="hidden">--</span>
+                                    </span>
                                 </div>
                                 <div class="w-px h-3 bg-gray-300"></div>
-                                <span id="reviewCount" class="text-xs text-gray-700 font-medium">-- reviews</span>
+                                <span id="reviewCount" class="text-xs text-gray-700 font-medium">
+                                    <span id="countLoading" class="animate-pulse">Loading...</span>
+                                    <span id="countText" class="hidden">-- reviews</span>
+                                </span>
                                 <div class="ml-2 text-xs text-gray-500">Click to rate</div>
                                 <!-- Info Button -->
                                 <button id="infoButton" class="ml-1 text-gray-500 hover:text-gray-700 transition-colors text-xs" aria-label="Rating information">
