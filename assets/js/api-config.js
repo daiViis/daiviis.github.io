@@ -9,10 +9,27 @@ class SmartAPIConfig {
     async initialize() {
         if (this.initialized) return;
         
-        this.config = await this.envLoader.loadConfig();
-        this.initialized = true;
-        
-        console.log(`🔧 API Configuration: ${this.config.mode} mode`);
+        try {
+            this.config = await this.envLoader.loadConfig();
+            this.initialized = true;
+            
+            console.log(`🔧 API Configuration: ${this.config.mode} mode`);
+        } catch (error) {
+            console.error('❌ Failed to initialize API configuration:', error);
+            
+            // Fallback configuration
+            this.config = {
+                mode: 'fallback',
+                useProxy: true,
+                proxyUrl: window.location.origin,
+                geminiKey: null,
+                supabaseUrl: null,
+                supabaseKey: null
+            };
+            this.initialized = true;
+            
+            console.log('⚠️ Using fallback configuration');
+        }
     }
 
     getEndpointUrl(endpoint) {
@@ -67,7 +84,9 @@ const ApiHelper = {
             });
             
             if (!response.ok) {
-                throw new Error(`Chatbot API error: ${response.status}`);
+                const errorText = await response.text();
+                console.error(`❌ Chatbot API error ${response.status}:`, errorText);
+                throw new Error(`Chatbot API error: ${response.status} - ${errorText}`);
             }
             
             return response.json();
@@ -78,7 +97,7 @@ const ApiHelper = {
                 throw new Error('No API key available for direct calls');
             }
             
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${directConfig.geminiKey}`, {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-latest:generateContent?key=${directConfig.geminiKey}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
