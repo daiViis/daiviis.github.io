@@ -81,8 +81,12 @@
 /* Typing Indicator */
 .typing .message-content {
     background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-    padding: 1rem 1.25rem;
+    padding: 0.5rem 0.75rem;
     border: 1px solid #d1d5db;
+    max-width: 60px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .typing-dots {
@@ -92,8 +96,8 @@
 }
 
 .typing-dots span {
-    width: 0.5rem;
-    height: 0.5rem;
+    width: 0.375rem;
+    height: 0.375rem;
     border-radius: 50%;
     background-color: #6b7280;
     animation: typing 1.4s infinite ease-in-out;
@@ -110,11 +114,11 @@
 @keyframes typing {
     0%, 60%, 100% {
         transform: scale(1);
-        opacity: 0.7;
+        opacity: 0.5;
     }
     30% {
-        transform: scale(1.2);
-        opacity: 1;
+        transform: scale(1.05);
+        opacity: 0.8;
     }
 }
 
